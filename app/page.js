@@ -2,7 +2,7 @@ import Desktop from '../components/Desktop';
 import fs from 'fs';
 import path from 'path';
 
-export function getProjectFolders() {
+function getProjectFolders() {
   const projectsPath = path.join(process.cwd(), 'app/projects');
   const items = fs.readdirSync(projectsPath, { withFileTypes: true });
 
