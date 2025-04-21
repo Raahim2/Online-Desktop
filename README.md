@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🖥️ Online Desktop
 
-## Getting Started
+[![Vercel](https://img.shields.io/badge/Live-Demo-000?logo=vercel&logoColor=white)](https://online-desktop.vercel.app/)
+[![GitHub](https://img.shields.io/badge/Contribute-Open%20Source-blue?logo=github)](https://github.com/Raahim2/Online-Desktop)
 
-First, run the development server:
+**Online Desktop** is an open-source platform that lets users contribute and showcase their personal or collaborative projects in a virtual desktop environment.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+- 💻 Virtual desktop UI to explore and open projects  
+- 📁 Each project behaves like a standalone app/window  
+- 🔧 Easy to contribute your own project  
+- 🧩 Modular structure for adding/removing projects  
+- 🌐 Hosted on Vercel for fast and free access  
+
+## 📦 Live Demo
+
+👉 [https://online-desktop.vercel.app](https://online-desktop.vercel.app)
+
+## 🛠️ How to Contribute
+
+1. **Fork** the repo  
+2. **Clone** your fork:  
+    ```bash
+    git clone https://github.com/Raahim2/Online-Desktop.git
+    ```
+3. Add your project to the `/projects` folder using the provided structure.  
+4. Run locally:  
+    ```bash
+    npm install
+    npm run dev
+    ```
+5. Commit and open a pull request.
+
+## 📁 Project Folder Structure
+
+Each project should be placed under `/projects/your-project-name` and include a valid Next.js app structure or static HTML/JS/CSS setup.
+
+Example:
+```plaintext
+/projects/
+  /my-cool-project/
+     index.html
+     style.css
+     script.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 👥 Community
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Feel free to share ideas, suggest features, or report bugs through issues or pull requests.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ by Raahim
