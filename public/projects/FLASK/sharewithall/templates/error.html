@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShareWithAll - Professional and secure file sharing platform">
+    <title>ShareWithAll - Error Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Logo-->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ShareWithAll Logo">
+                ShareWithAll
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hidden Random Text for Security -->
+    <div style="display: none;">
+        <p id="randomText"></p>
+    </div>
+
+    <main class="container main-content text-center">
+        <h1 class="display-4 mb-4" aria-label="Error: Page Not Found">Oops! Page Not Found</h1>
+        <p class="lead mb-4">The page you're looking for doesn't exist or has been moved.</p>
+        <a href="/" class="btn btn-share">Return to Homepage</a>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">ShareWithAll &copy; 2025. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const words = [
+                "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do",
+                "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "ut",
+                "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris",
+                "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "dolor",
+                "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat",
+                "nulla", "pariatur", "excepteur", "sint", "occaecat", "cupidatat", "non", "proident",
+                "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollit", "anim", "id", "est", "laborum",
+                "quisque", "sapien", "placerat", "vestibulum", "eleifend", "ligula", "fermentum", "dapibus",
+                "scelerisque", "phasellus", "vivamus", "dictum", "vehicula", "bibendum", "habitasse", "tristique",
+                "gravida", "ullamcorper", "metus", "elementum", "commodo", "erat", "feugiat", "tincidunt", "hendrerit"
+            ];
+
+            // Generate 100 random words
+            let randomText = [];
+            for (let i = 0; i < 100; i++) {
+                randomText.push(words[Math.floor(Math.random() * words.length)]);
+            }
+
+            // Add text to the hidden paragraph (only if it exists)
+            let textElement = document.getElementById("randomText");
+            if (textElement) {
+                textElement.textContent = randomText.join(" ");
+            }
+        });
+    </script>
+
+</body>
+</html>

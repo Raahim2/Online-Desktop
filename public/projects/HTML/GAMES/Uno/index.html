@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNO Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card {
+            width: 70px;
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            user-select: none;
+        }
+        .card:hover:not(.disabled) {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+        }
+        .card.disabled {
+             cursor: not-allowed;
+             opacity: 0.7;
+        }
+        .card-inner-small {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 0.8rem;
+        }
+        .card-inner-large {
+            font-size: 2.5rem;
+        }
+        .card-inner-small-bottom {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 0.8rem;
+            transform: rotate(180deg);
+        }
+        .card.red { background-color: #ef4444; color: white; }
+        .card.blue { background-color: #3b82f6; color: white; }
+        .card.green { background-color: #22c55e; color: white; }
+        .card.yellow { background-color: #eab308; color: black; }
+        .card.black { background-color: #1f2937; color: white; }
+        .card.back { background: linear-gradient(135deg, #6b21a8 25%, transparent 25%) -50px 0, linear-gradient(225deg, #6b21a8 25%, transparent 25%) -50px 0, linear-gradient(315deg, #6b21a8 25%, transparent 25%), linear-gradient(45deg, #6b21a8 25%, transparent 25%); background-size: 100px 100px; background-color: #a855f7; }
+        .card.back span { display: none; }
+        .wild-gradient { background: conic-gradient(from 180deg at 50% 50%, #ef4444 0deg 90deg, #eab308 90deg 180deg, #22c55e 180deg 270deg, #3b82f6 270deg 360deg); }
+
+        .player-hand, .ai-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; min-height: 110px; }
+        .player-hand .card { margin: 0 2px; }
+
+        .outline-glow-player { box-shadow: 0 0 15px 5px #60a5fa; }
+        .outline-glow-ai { box-shadow: 0 0 15px 5px #f87171; }
+
+        #color-picker button { width: 50px; height: 50px; border: 2px solid white; }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin-reverse { animation: spin 1s linear infinite reverse; }
+
+        .uno-text {
+            font-size: 5rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #ef4444, #eab308, #22c55e, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 min-h-screen flex flex-col items-center justify-center p-4 font-sans select-none">
+
+    <div id="game-board" class="w-full max-w-4xl bg-green-800/80 backdrop-blur-sm rounded-xl shadow-2xl p-6 flex flex-col gap-6">
+
+        <div id="ai-area" class="flex flex-col items-center gap-2">
+            <span id="ai-status" class="text-white font-semibold text-lg">Computer</span>
+            <div id="ai-hand" class="ai-hand p-2 rounded min-h-[110px]"></div>
+            <span id="ai-card-count" class="text-white bg-black/50 px-2 py-1 rounded text-sm">Cards: 7</span>
+        </div>
+
+        <div id="center-area" class="flex justify-around items-center gap-4 my-4">
+            <div id="deck-area" class="flex flex-col items-center">
+                 <div id="deck-pile" class="card back w-[70px] h-[100px] cursor-pointer hover:shadow-lg transition-shadow"><span>DRAW</span></div>
+                 <span id="deck-count" class="text-white mt-1 text-sm">Deck: 52</span>
+            </div>
+            <div id="discard-area" class="flex flex-col items-center">
+                <div id="discard-pile" class="w-[75px] h-[105px] flex justify-center items-center bg-green-900/50 rounded-lg"></div>
+                 <span id="current-color-indicator" class="mt-1 px-3 py-1 rounded font-semibold text-sm uppercase"></span>
+            </div>
+             <div id="direction-indicator" class="text-4xl text-white transform scale-x-[-1]">➔</div>
+        </div>
+
+        <div id="player-area" class="flex flex-col items-center gap-2">
+             <span id="player-status" class="text-white font-semibold text-lg">Your Turn</span>
+            <div id="player-hand" class="player-hand p-2 rounded min-h-[110px]"></div>
+             <span id="player-card-count" class="text-white bg-black/50 px-2 py-1 rounded text-sm">Cards: 7</span>
+        </div>
+
+        <div id="message-area" class="text-center text-yellow-300 font-bold text-lg h-6"></div>
+
+    </div>
+
+    <div id="color-picker" class="fixed inset-0 bg-black/70 flex justify-center items-center hidden z-50">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center gap-4">
+            <h3 class="text-white text-xl font-semibold mb-2">Choose a Color</h3>
+            <div class="flex gap-3">
+                <button data-color="red" class="bg-red-500 rounded hover:opacity-80 transition-opacity"></button>
+                <button data-color="blue" class="bg-blue-500 rounded hover:opacity-80 transition-opacity"></button>
+                <button data-color="green" class="bg-green-500 rounded hover:opacity-80 transition-opacity"></button>
+                <button data-color="yellow" class="bg-yellow-500 rounded hover:opacity-80 transition-opacity"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="fixed inset-0 bg-black/80 flex justify-center items-center hidden z-50 flex-col gap-6">
+         <div id="game-over-message" class="text-white text-6xl font-bold text-center uno-text">You Win!</div>
+         <button id="play-again-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-xl transition-colors shadow-lg">Play Again</button>
+     </div>
+
+
+<script>
+    const suits = ['red', 'yellow', 'green', 'blue'];
+    const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2'];
+    const wilds = ['wild', 'wild4'];
+
+    let deck = [];
+    let discardPile = [];
+    let playerHand = [];
+    let aiHand = [];
+    let currentPlayer = 'player';
+    let currentCardColor = '';
+    let currentCardValue = '';
+    let direction = 1;
+    let mustDraw = false;
+    let choosingColor = false;
+    let gameOver = false;
+
+    const playerHandElement = document.getElementById('player-hand');
+    const aiHandElement = document.getElementById('ai-hand');
+    const discardPileElement = document.getElementById('discard-pile');
+    const deckPileElement = document.getElementById('deck-pile');
+    const messageArea = document.getElementById('message-area');
+    const colorPickerElement = document.getElementById('color-picker');
+    const deckCountElement = document.getElementById('deck-count');
+    const aiCardCountElement = document.getElementById('ai-card-count');
+    const playerCardCountElement = document.getElementById('player-card-count');
+    const playerStatusElement = document.getElementById('player-status');
+    const aiStatusElement = document.getElementById('ai-status');
+    const currentColorIndicatorElement = document.getElementById('current-color-indicator');
+    const directionIndicatorElement = document.getElementById('direction-indicator');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const gameOverMessage = document.getElementById('game-over-message');
+    const playAgainButton = document.getElementById('play-again-button');
+
+    function createDeck() {
+        deck = [];
+        for (const color of suits) {
+            for (const value of values) {
+                deck.push({ color, value });
+                if (value !== '0') {
+                    deck.push({ color, value });
+                }
+            }
+        }
+        for (let i = 0; i < 4; i++) {
+            deck.push({ color: 'black', value: 'wild' });
+            deck.push({ color: 'black', value: 'wild4' });
+        }
+        return deck;
+    }
+
+    function shuffleDeck(deckToShuffle) {
+        for (let i = deckToShuffle.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deckToShuffle[i], deckToShuffle[j]] = [deckToShuffle[j], deckToShuffle[i]];
+        }
+        return deckToShuffle;
+    }
+
+    function dealCards(numCards) {
+        const dealtCards = [];
+        for (let i = 0; i < numCards; i++) {
+            if (deck.length === 0) reshuffleDiscardPile();
+            if (deck.length > 0) {
+                 dealtCards.push(deck.pop());
+            } else {
+                console.error("Deck empty, cannot deal more cards.");
+                break;
+            }
+        }
+        return dealtCards;
+    }
+
+    function createCardElement(card, isAiCard = false) {
+        const cardDiv = document.createElement('div');
+        cardDiv.classList.add('card', card.color);
+        let displayValue = card.value;
+        let fontSizeClass = 'card-inner-large';
+
+        if (card.value === 'skip') displayValue = '🚫';
+        else if (card.value === 'reverse') displayValue = '🔄';
+        else if (card.value === 'draw2') displayValue = '+2';
+        else if (card.value === 'wild') { displayValue = 'W'; cardDiv.classList.add('wild-gradient'); }
+        else if (card.value === 'wild4') { displayValue = '+4'; cardDiv.classList.add('wild-gradient'); }
+        else fontSizeClass = 'card-inner-large';
+
+        cardDiv.innerHTML = `
+            <span class="card-inner-small">${displayValue}</span>
+            <span class="${fontSizeClass}">${displayValue}</span>
+            <span class="card-inner-small-bottom">${displayValue}</span>
+        `;
+
+        if (isAiCard) {
+            cardDiv.classList.remove(card.color);
+            cardDiv.classList.add('back');
+             cardDiv.innerHTML = '<span>UNO</span>';
+        } else {
+            cardDiv.onclick = () => {
+                if (currentPlayer === 'player' && !choosingColor && !gameOver) {
+                    playCard(card);
+                }
+            };
+        }
+        return cardDiv;
+    }
+
+    function renderHand(hand, element, isAiHand = false) {
+        element.innerHTML = '';
+        hand.forEach(card => {
+            const cardElement = createCardElement(card, isAiHand);
+            element.appendChild(cardElement);
+        });
+        updateCardCounts();
+    }
+
+    function renderDiscardPile() {
+        discardPileElement.innerHTML = '';
+        if (discardPile.length > 0) {
+            const topCard = discardPile[discardPile.length - 1];
+            const cardElement = createCardElement(topCard);
+            cardElement.classList.remove('cursor-pointer');
+             cardElement.classList.remove('hover:transform', 'hover:scale-105', 'hover:shadow-lg');
+            cardElement.onclick = null;
+            discardPileElement.appendChild(cardElement);
+            updateCurrentColorIndicator(currentCardColor);
+        } else {
+             discardPileElement.innerHTML = '';
+             updateCurrentColorIndicator(null);
+        }
+        updateDeckCount();
+    }
+
+     function updateCurrentColorIndicator(color) {
+        if (color) {
+            currentColorIndicatorElement.textContent = color;
+            currentColorIndicatorElement.classList.remove('bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-gray-700', 'text-white', 'text-black');
+            currentColorIndicatorElement.classList.add(`bg-${color === 'black' ? 'gray-700' : color}-500`);
+             currentColorIndicatorElement.classList.add(color === 'yellow' ? 'text-black' : 'text-white');
+        } else {
+            currentColorIndicatorElement.textContent = '';
+            currentColorIndicatorElement.classList.remove('bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-gray-700');
+        }
+    }
+
+    function updateDeckCount() {
+        deckCountElement.textContent = `Deck: ${deck.length}`;
+    }
+
+     function updateCardCounts() {
+        aiCardCountElement.textContent = `Cards: ${aiHand.length}`;
+        playerCardCountElement.textContent = `Cards: ${playerHand.length}`;
+     }
+
+    function updatePlayerStatus() {
+        if (gameOver) return;
+        if (currentPlayer === 'player') {
+            playerStatusElement.textContent = 'Your Turn';
+            aiStatusElement.textContent = 'Computer';
+            playerStatusElement.classList.add('outline-glow-player');
+            aiStatusElement.classList.remove('outline-glow-ai');
+            playerHandElement.classList.remove('opacity-50');
+            aiHandElement.classList.add('opacity-50');
+        } else {
+            playerStatusElement.textContent = 'Player';
+            aiStatusElement.textContent = 'Computer\'s Turn';
+             playerStatusElement.classList.remove('outline-glow-player');
+            aiStatusElement.classList.add('outline-glow-ai');
+            playerHandElement.classList.add('opacity-50');
+            aiHandElement.classList.remove('opacity-50');
+        }
+        updatePlayableCards();
+    }
+
+    function updatePlayableCards() {
+        const cardsInHand = playerHandElement.querySelectorAll('.card');
+        cardsInHand.forEach((cardElement, index) => {
+            const card = playerHand[index];
+            if (currentPlayer === 'player' && isCardPlayable(card, currentCardColor, currentCardValue)) {
+                cardElement.classList.remove('disabled');
+            } else {
+                 cardElement.classList.add('disabled');
+            }
+        });
+
+        if (currentPlayer === 'player' && mustDraw) {
+            deckPileElement.classList.remove('disabled');
+            deckPileElement.classList.add('outline-glow-player');
+        } else {
+             deckPileElement.classList.add('disabled');
+             deckPileElement.classList.remove('outline-glow-player');
+        }
+
+        if (currentPlayer === 'player' && !mustDraw && !playerHand.some(card => isCardPlayable(card, currentCardColor, currentCardValue))) {
+             deckPileElement.classList.remove('disabled');
+             deckPileElement.classList.add('outline-glow-player');
+        }
+
+
+    }
+
+
+    function isCardPlayable(card, color, value) {
+        return card.color === 'black' || card.color === color || card.value === value;
+    }
+
+    function playCard(card) {
+        if (currentPlayer !== 'player' || choosingColor || gameOver) return;
+
+        const cardIndex = playerHand.findIndex(c => c.color === card.color && c.value === card.value);
+
+        if (cardIndex !== -1 && isCardPlayable(card, currentCardColor, currentCardValue)) {
+            playerHand.splice(cardIndex, 1);
+            discardPile.push(card);
+            currentCardColor = card.color; // Initial update, might change for wild
+            currentCardValue = card.value;
+            setMessage('');
+            renderHand(playerHand, playerHandElement);
+            renderDiscardPile();
+            checkGameOver();
+            if (!gameOver) {
+                 applyCardEffect(card, 'player');
+            }
+        } else if (!mustDraw) {
+             setMessage('You can\'t play that card!');
+        } else {
+             setMessage('You must draw a card first!');
+        }
+    }
+
+     function drawCardAction() {
+        if (currentPlayer !== 'player' || choosingColor || gameOver) return;
+
+        if (deck.length === 0) {
+            reshuffleDiscardPile();
+            if (deck.length === 0) {
+                setMessage("Deck is empty, cannot draw!");
+                return;
+            }
+        }
+
+        const drawnCard = dealCards(1)[0];
+        playerHand.push(drawnCard);
+        renderHand(playerHand, playerHandElement);
+        setMessage(`You drew a ${drawnCard.color !== 'black' ? drawnCard.color : ''} ${drawnCard.value}.`);
+
+        if (mustDraw) {
+            mustDraw = false; // Fulfilled draw requirement
+            nextTurn();
+        } else {
+            // Check if the drawn card is playable immediately
+            if (!isCardPlayable(drawnCard, currentCardColor, currentCardValue)) {
+                 nextTurn(); // Cannot play the drawn card, turn ends
+            } else {
+                 setMessage(`You drew a playable card! Play it or pass.`);
+                 updatePlayableCards(); // Allow playing the new card
+                 // Player can choose to play or pass (which implicitly happens by nextTurn if they draw again or AI takes turn)
+            }
+        }
+    }
+
+    function reshuffleDiscardPile() {
+        if (discardPile.length <= 1) return;
+        const topCard = discardPile.pop();
+        deck = shuffleDeck(discardPile);
+        discardPile = [topCard];
+        renderDiscardPile();
+        updateDeckCount();
+         setMessage("Deck reshuffled from discard pile.");
+    }
+
+
+    function applyCardEffect(card, playerSource) {
+        let skipTurn = false;
+        let drawCount = 0;
+
+        switch (card.value) {
+            case 'skip':
+                setMessage(`${playerSource === 'player' ? 'AI' : 'Your'} turn is skipped!`);
+                skipTurn = true;
+                break;
+            case 'reverse':
+                 direction *= -1;
+                 updateDirectionIndicator();
+                 setMessage(`Play direction reversed!`);
+                 // In a 2-player game, reverse acts like skip
+                 skipTurn = true;
+                break;
+            case 'draw2':
+                setMessage(`${playerSource === 'player' ? 'AI' : 'You'} must draw 2 cards!`);
+                drawCount = 2;
+                skipTurn = true;
+                break;
+            case 'wild':
+                 if (playerSource === 'player') {
+                     promptChooseColor();
+                 } else {
+                     const chosenColor = aiChooseColor();
+                     currentCardColor = chosenColor;
+                      setMessage(`AI chose ${chosenColor}!`);
+                     renderDiscardPile();
+                     nextTurn();
+                 }
+                 return; // Don't proceed to nextTurn yet if player needs to choose
+            case 'wild4':
+                drawCount = 4;
+                skipTurn = true;
+                 if (playerSource === 'player') {
+                     setMessage(`AI must draw 4 cards! Choose a color.`);
+                     promptChooseColor(drawCount); // Pass draw count to handle after color choice
+                 } else {
+                      setMessage(`You must draw 4 cards!`);
+                      const chosenColor = aiChooseColor();
+                      currentCardColor = chosenColor;
+                      renderDiscardPile();
+                      handleDrawPenalty(drawCount, 'player'); // Apply penalty immediately
+                      nextTurn(skipTurn); // Proceed to next turn (which will be skipped)
+                 }
+                 return; // Don't proceed if player needs to choose
+            default:
+                 // Normal number card
+                 currentCardColor = card.color;
+                 currentCardValue = card.value;
+                 renderDiscardPile();
+                 break;
+        }
+
+        if (drawCount > 0 && playerSource !== 'player') { // AI played draw card
+             handleDrawPenalty(drawCount, 'player');
+        }
+        if (drawCount > 0 && playerSource === 'player') { // Player played draw card
+             handleDrawPenalty(drawCount, 'ai');
+        }
+
+
+         if (!choosingColor) { // Only proceed if not waiting for color choice
+              nextTurn(skipTurn);
+         }
+    }
+
+    function handleDrawPenalty(count, targetPlayer) {
+        mustDraw = targetPlayer === 'player'; // Player must draw on their next turn if applicable
+        const cardsToDraw = dealCards(count);
+        if (targetPlayer === 'player') {
+            playerHand.push(...cardsToDraw);
+            renderHand(playerHand, playerHandElement);
+        } else {
+            aiHand.push(...cardsToDraw);
+            renderHand(aiHand, aiHandElement, true); // Update AI hand count visually
+        }
+         setMessage(`${targetPlayer === 'player' ? 'You draw' : 'AI draws'} ${count} cards.`);
+         if (targetPlayer === 'player') mustDraw = true; // Force player draw on next turn cycle start
+    }
+
+
+    function promptChooseColor(drawPenalty = 0) {
+        choosingColor = true;
+        colorPickerElement.classList.remove('hidden');
+        messageArea.textContent = "Choose the next color...";
+        // The event listener on the color picker buttons will handle the rest
+        // Store the draw penalty if wild4 was played
+        colorPickerElement.dataset.drawPenalty = drawPenalty;
+    }
+
+    function handleColorChoice(event) {
+        if (!choosingColor || !event.target.dataset.color) return;
+
+        const chosenColor = event.target.dataset.color;
+        currentCardColor = chosenColor;
+        choosingColor = false;
+        colorPickerElement.classList.add('hidden');
+        renderDiscardPile();
+        setMessage(`You chose ${chosenColor}!`);
+
+        const drawPenalty = parseInt(colorPickerElement.dataset.drawPenalty || '0');
+        if (drawPenalty > 0) {
+            handleDrawPenalty(drawPenalty, 'ai');
+             nextTurn(true); // Wild4 always skips the next player's turn
+        } else {
+            nextTurn(); // Regular wild, just proceed
+        }
+    }
+
+    function aiChooseColor() {
+        const colorCounts = { red: 0, blue: 0, green: 0, yellow: 0 };
+        aiHand.forEach(card => {
+            if (card.color !== 'black') {
+                colorCounts[card.color]++;
+            }
+        });
+        let bestColor = suits[Math.floor(Math.random() * suits.length)]; // Default random
+        let maxCount = 0;
+        for (const color in colorCounts) {
+            if (colorCounts[color] > maxCount) {
+                maxCount = colorCounts[color];
+                bestColor = color;
+            }
+        }
+        return bestColor;
+    }
+
+    function nextTurn(skip = false) {
+        if (gameOver) return;
+
+         const nextPlayer = () => {
+            currentPlayer = (currentPlayer === 'player') ? 'ai' : 'player';
+            mustDraw = false; // Reset draw requirement at start of turn
+            updatePlayerStatus();
+
+             if (currentPlayer === 'ai') {
+                 // Disable player interactions during AI turn
+                 playerHandElement.classList.add('pointer-events-none');
+                 setTimeout(aiTurn, 1500); // Add delay for AI turn
+             } else {
+                 // Enable player interactions
+                 playerHandElement.classList.remove('pointer-events-none');
+                 checkPlayerMustDraw(); // Check if player *starts* their turn needing to draw
+                 updatePlayableCards();
+             }
+        };
+
+        if (skip) {
+             // Skip the *next* player's turn
+              setMessage(`Turn skipped!`);
+             // Determine who would be next, then skip *them*
+              const skippedPlayer = (currentPlayer === 'player') ? 'ai' : 'player';
+             // The current player effectively gets another turn (or the turn passes back after skip)
+              // In 2 player game, skip/reverse means current player goes again
+              // So, don't change currentPlayer, just update status and proceed
+               updatePlayerStatus(); // Re-highlight current player
+                if (currentPlayer === 'ai') {
+                    setTimeout(aiTurn, 1500);
+                } else {
+                     checkPlayerMustDraw(); // Check draw status again for the repeated turn
+                     updatePlayableCards();
+                }
+
+        } else {
+            nextPlayer();
+        }
+    }
+
+     function checkPlayerMustDraw() {
+        if (currentPlayer === 'player' && !gameOver) {
+            const canPlay = playerHand.some(card => isCardPlayable(card, currentCardColor, currentCardValue));
+            if (!canPlay && !mustDraw) { // If can't play and not already penalized to draw
+                 setMessage("You have no playable cards. You must draw.");
+                 mustDraw = true; // Force draw before turn can end
+                 updatePlayableCards(); // Highlight draw pile
+            } else if (mustDraw) {
+                 setMessage("You must draw a card due to Draw 2 / Wild Draw 4!");
+                 updatePlayableCards(); // Highlight draw pile
+            }
+        }
+     }
+
+
+     function aiTurn() {
+         if (gameOver) return;
+         setMessage("AI is thinking...");
+
+         let playableCards = aiHand.filter(card => isCardPlayable(card, currentCardColor, currentCardValue));
+         let playedCard = null;
+
+         if (playableCards.length > 0) {
+             // Simple AI: Play first valid card found (try non-wilds first)
+              playedCard = playableCards.find(card => card.color !== 'black') || playableCards[0];
+             const cardIndex = aiHand.findIndex(c => c.color === playedCard.color && c.value === playedCard.value);
+             aiHand.splice(cardIndex, 1);
+             discardPile.push(playedCard);
+             currentCardColor = playedCard.color; // Initial update
+             currentCardValue = playedCard.value;
+             setMessage(`AI played ${playedCard.color !== 'black' ? playedCard.color : ''} ${playedCard.value}`);
+             renderHand(aiHand, aiHandElement, true);
+             renderDiscardPile();
+             checkGameOver();
+             if (!gameOver) {
+                  applyCardEffect(playedCard, 'ai');
+             }
+
+         } else {
+             // AI must draw
+              setMessage("AI has no playable cards and draws.");
+              if (deck.length === 0) reshuffleDiscardPile();
+              if (deck.length > 0) {
+                  const drawnCard = dealCards(1)[0];
+                  aiHand.push(drawnCard);
+                  renderHand(aiHand, aiHandElement, true);
+                  // AI checks if drawn card is playable
+                   if (isCardPlayable(drawnCard, currentCardColor, currentCardValue)) {
+                       setMessage(`AI drew and plays ${drawnCard.color !== 'black' ? drawnCard.color : ''} ${drawnCard.value}`);
+                        playedCard = drawnCard;
+                       const cardIndex = aiHand.findIndex(c => c.color === playedCard.color && c.value === playedCard.value);
+                       aiHand.splice(cardIndex, 1);
+                       discardPile.push(playedCard);
+                       currentCardColor = playedCard.color; // Initial update
+                       currentCardValue = playedCard.value;
+                       renderHand(aiHand, aiHandElement, true);
+                       renderDiscardPile();
+                       checkGameOver();
+                       if (!gameOver) {
+                           applyCardEffect(playedCard, 'ai');
+                       }
+                   } else {
+                       setMessage("AI drew a card.");
+                        nextTurn(); // Turn ends after drawing unplayable card
+                   }
+              } else {
+                  setMessage("AI has no cards and deck is empty! Passing turn.");
+                  nextTurn(); // Cannot draw, pass turn
+              }
+         }
+     }
+
+
+    function checkGameOver() {
+        if (playerHand.length === 0) {
+            endGame("You Win!");
+        } else if (aiHand.length === 0) {
+            endGame("Computer Wins!");
+        }
+    }
+
+    function endGame(message) {
+        gameOver = true;
+        choosingColor = false; // Ensure color picker isn't active
+        colorPickerElement.classList.add('hidden');
+        messageArea.textContent = `Game Over! ${message}`;
+        gameOverMessage.textContent = message;
+        gameOverScreen.classList.remove('hidden');
+         playerStatusElement.classList.remove('outline-glow-player');
+         aiStatusElement.classList.remove('outline-glow-ai');
+    }
+
+    function setMessage(msg) {
+        messageArea.textContent = msg;
+        setTimeout(() => {
+             if (messageArea.textContent === msg) { // Clear only if message hasn't changed
+                // messageArea.textContent = '';
+             }
+        }, 3000); // Clear message after 3 seconds
+    }
+
+     function updateDirectionIndicator() {
+         directionIndicatorElement.classList.toggle('scale-x-[-1]', direction === 1);
+         directionIndicatorElement.classList.toggle('spin-reverse', direction === -1); // Optional animation
+     }
+
+    function startGame() {
+        deck = createDeck();
+        deck = shuffleDeck(deck);
+        discardPile = [];
+        playerHand = dealCards(30);
+        aiHand = dealCards(30);
+        currentPlayer = 'player';
+        mustDraw = false;
+        choosingColor = false;
+        gameOver = false;
+         direction = 1;
+
+        // Place first card on discard pile
+        let firstCard = deck.pop();
+        // Ensure first card is not a wild or action card (draw another if it is)
+        while (firstCard.color === 'black' || ['skip', 'reverse', 'draw2'].includes(firstCard.value)) {
+             if (deck.length === 0) { // Extremely unlikely edge case
+                 deck = createDeck();
+                 deck = shuffleDeck(deck);
+             }
+             discardPile.push(firstCard); // Put invalid card back temporarily
+              firstCard = deck.pop();
+              // Put the temporarily discarded cards back in the deck
+              deck.push(...discardPile);
+              discardPile = [];
+              deck = shuffleDeck(deck);
+        }
+
+        discardPile.push(firstCard);
+        currentCardColor = firstCard.color;
+        currentCardValue = firstCard.value;
+
+        renderHand(playerHand, playerHandElement);
+        renderHand(aiHand, aiHandElement, true);
+        renderDiscardPile();
+        updatePlayerStatus();
+         updateDirectionIndicator();
+        setMessage("Game started! Your turn.");
+        gameOverScreen.classList.add('hidden');
+        checkPlayerMustDraw(); // Check if player needs to draw immediately (unlikely with starting rules)
+    }
+
+    deckPileElement.addEventListener('click', () => {
+         if (currentPlayer === 'player' && !choosingColor && !gameOver) {
+            drawCardAction();
+         }
+    });
+
+    colorPickerElement.addEventListener('click', handleColorChoice);
+    playAgainButton.addEventListener('click', startGame);
+
+    startGame();
+
+</script>
+
+</body>
+</html>

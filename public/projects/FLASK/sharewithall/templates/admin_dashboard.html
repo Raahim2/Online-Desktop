@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShareWithAll - Admin Dashboard">
+    <title>ShareWithAll - Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .loading-content {
+            text-align: center;
+            padding: 2.5rem;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0d6efd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-content h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .loading-content p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h4>Clearing Files...</h4>
+            <p>Time elapsed: <span id="timeRemaining">0</span> seconds</p>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ShareWithAll Logo">
+                ShareWithAll Admin
+            </a>
+            <div class="ms-auto">
+                <a href="/" class="btn btn-outline-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>File Management Dashboard</h2>
+            <button class="btn btn-danger" id="clearAllBtn">Clear All Files</button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>File Code</th>
+                        <th>URL</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in tables.data %}
+                    <tr>
+                        <td>{{ file.code }}</td>
+                        <td>
+                            <a href="{{ file.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 300px;">
+                                {{ file.url }}
+                            </a>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not tables.data %}
+        <div class="alert alert-info" role="alert">
+            No files found in the database.
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">ShareWithAll Admin Dashboard © 2025</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    
+    <script>
+        document.getElementById('clearAllBtn').addEventListener('click', async function() {
+            const overlay = document.getElementById('loadingOverlay');
+            const timeRemainingElement = document.getElementById('timeRemaining');
+            let timeRemaining = 0;
+
+            overlay.style.display = 'flex';
+            
+            const timer = setInterval(() => {
+                timeRemaining++;
+                timeRemainingElement.textContent = timeRemaining;
+            }, 1000);
+
+            try {
+                const response = await fetch('/clear-dropbox', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        clear: true
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to clear files. Please try again.');
+                }
+            } catch (error) {
+                alert('An error occurred while clearing files.');
+            } finally {
+                clearInterval(timer);
+                overlay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

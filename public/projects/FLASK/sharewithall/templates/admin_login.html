@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShareWithAll - Admin Login">
+    <title>ShareWithAll - Admin Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ShareWithAll Logo">
+                ShareWithAll
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/" aria-current="page">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vdp">VDP Program</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/login">Admin Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="share-form">
+                    <h3 class="text-center mb-4">Admin Login</h3>
+                    <form id="adminLoginForm" method="POST" autocomplete="off">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-share">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">ShareWithAll © 2025. All rights reserved.</p>
+            <p class="mt-2" style="color: var(--secondary-color);">We have a Vulnerability Disclosure Program! <a href="/vdp" style="color: var(--hover-color); text-decoration: none;">Learn more</a></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+</body>
+</html>
