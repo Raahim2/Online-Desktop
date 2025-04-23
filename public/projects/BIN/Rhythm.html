@@ -1,13 +1,4 @@
 
-1.  **Animation Inefficiency:** Using `setInterval` for *each* swatch is resource-intensive. A single `requestAnimationFrame` loop is much better for smooth animation.
-2.  **Swatch Generation:** Calling `generateSwatches` every 2 seconds clears *all* existing swatches, whether clicked or not. This disrupts the flow. Swatches should be generated periodically *without* clearing existing ones.
-3.  **Difficulty:** The speed and number of swatches remain constant.
-4.  **State Management:** It's better to keep track of active swatches in an array.
-5.  **Missed Swatches:** The logic correctly resets the combo, but the way it's tied to the per-swatch interval isn't ideal.
-
-Here's an improved version addressing these points:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -303,24 +294,3 @@ Here's an improved version addressing these points:
 
 </body>
 </html>
-```
-
-**Key Changes and Improvements:**
-
-1.  **`requestAnimationFrame` Loop:** Replaced all `setInterval` animations with a single `gameLoop` function driven by `requestAnimationFrame`. This is much more efficient and provides smoother animation synchronized with the browser's rendering cycle.
-2.  **`activeSwatches` Array:** Introduced an array `activeSwatches` to keep track of the data (element reference, current `top` position) for each swatch currently on screen.
-3.  **Continuous Spawning:** Swatches are now spawned periodically within the `gameLoop` based on `spawnInterval` and `lastSpawnTime`, without clearing existing ones.
-4.  **State Management (`gameRunning`):** Added a `gameRunning` flag to control the game state and easily start/stop the loop.
-5.  **Efficient Updates & Removal:**
-    *   The `gameLoop` iterates through `activeSwatches`, updates their positions, and checks if they've gone off-screen.
-    *   Missed swatches are removed efficiently from both the DOM and the `activeSwatches` array. Iterating backwards when removing ensures indices don't shift unexpectedly.
-6.  **Difficulty Progression (`adjustDifficulty`):** Added a basic `adjustDifficulty` function called on successful clicks. It slightly increases `fallSpeed`, decreases `spawnInterval`, and occasionally increases `maxSwatches` based on combo and score (you can customize this logic).
-7.  **Scoring:** Combo points are now added to the score for successful clicks (`score += 10 + combo;`).
-8.  **Combo Reset:** Combo is correctly reset to 0 only when a swatch reaches the bottom edge (is missed).
-9.  **Game Over & Restart:** Added a basic "Game Over" overlay (`#game-over`) that shows the final score and allows restarting by clicking it. A placeholder `endGame` function is included (you'll need to add conditions to trigger it, like missing too many swatches or running out of time/lives).
-10. **Resize Handling:** Added debounced resize handling. For simplicity, it currently ends the game and shows the restart screen. Repositioning active elements correctly on resize is significantly more complex.
-11. **CSS Improvements:**
-    *   Made `body` fill the viewport and use flexbox for centering (though `game-container` now fills it).
-    *   Made `game-container` `position: relative` to act as the positioning context for the absolutely positioned swatches.
-    *   Added a `ui-container` for score/combo with a slight background for better visibility.
-    *   Added `will-change: top;` CSS hint for potentially smoother animation.
