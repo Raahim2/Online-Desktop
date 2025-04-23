@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Component Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for modal transition (optional, Tailwind covers most) */
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.hidden .modal-content {
+             transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-900">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-10 text-center text-gray-800">UI Component Library Showcase</h1>
+
+        <!-- Buttons Section -->
+        <section class="mb-12" id="buttons">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-700">Buttons</h2>
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-600">Styles & Sizes</h3>
+                <div class="flex flex-wrap items-center gap-4">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Primary</button>
+                    <button class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 active:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Secondary</button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Danger</button>
+                </div>
+                 <div class="flex flex-wrap items-center gap-4">
+                    <button class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Small Primary</button>
+                    <button class="px-5 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Medium Primary</button>
+                    <button class="px-6 py-3 text-lg bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Large Primary</button>
+                </div>
+            </div>
+        </section>
+        <!-- / Buttons Section -->
+
+        <!-- Cards Section -->
+        <section class="mb-12" id="cards">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-700">Cards</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Simple Card -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 ease-in-out">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Simple Card Title</h3>
+                        <p class="text-gray-600">This is the content of a simple card. It provides some basic information.</p>
+                    </div>
+                </div>
+
+                <!-- Card with Image -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 ease-in-out">
+                    <img src="https://via.placeholder.com/400x200/cccccc/969696?text=Placeholder+Image" alt="Placeholder Image" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Card with Image</h3>
+                        <p class="text-gray-600">This card includes an image at the top, followed by content.</p>
+                    </div>
+                </div>
+
+                <!-- Card with Actions -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col justify-between hover:shadow-xl transition duration-300 ease-in-out">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Card with Actions</h3>
+                        <p class="text-gray-600 mb-4">This card has actions available in the footer section below.</p>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                        <button class="text-sm text-gray-600 hover:text-gray-900 transition duration-150">Cancel</button>
+                        <button class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- / Cards Section -->
+
+        <!-- Modals Section -->
+        <section class="mb-12" id="modals">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-700">Modals</h2>
+            <button id="openModalBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">
+                Open Modal
+            </button>
+
+            <!-- Modal Structure -->
+            <div id="myModal" class="modal hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+                <div class="modal-content bg-white w-full max-w-lg rounded-lg shadow-xl mx-auto">
+                    <!-- Modal Header -->
+                    <header class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t-lg bg-gray-50">
+                        <h3 class="text-xl font-semibold text-gray-800">Modal Title</h3>
+                        <button id="closeModalBtnHeader" class="text-gray-400 hover:text-gray-600 text-2xl leading-none focus:outline-none">&times;</button>
+                    </header>
+                    <!-- Modal Body -->
+                    <div class="p-6">
+                        <p class="text-gray-600">This is the main content of the modal dialog. You can put any information or form elements here.</p>
+                    </div>
+                    <!-- Modal Footer -->
+                    <footer class="flex justify-end space-x-3 p-4 border-t border-gray-200 rounded-b-lg bg-gray-50">
+                        <button id="closeModalBtnFooter" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                            Close
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">
+                            Save Changes
+                        </button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <!-- / Modals Section -->
+
+        <!-- Forms Section -->
+        <section class="mb-12" id="forms">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-700">Forms</h2>
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-lg mx-auto">
+                <form action="#" method="POST">
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="name" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150" placeholder="Your Name">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150" placeholder="you@example.com">
+                    </div>
+                    <div class="mb-6">
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                        <textarea id="message" name="message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150" placeholder="Your message..."></textarea>
+                    </div>
+                    <div class="text-right">
+                        <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out transform active:scale-95">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <!-- / Forms Section -->
+
+        <!-- Alerts Section -->
+        <section class="mb-12" id="alerts">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-700">Alerts</h2>
+            <div class="space-y-4 max-w-lg mx-auto">
+                <!-- Info Alert -->
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md flex items-center" role="alert">
+                    <span class="text-xl mr-3">ℹ️</span>
+                    <div>
+                        <p class="font-bold">Information</p>
+                        <p>This is an informational alert message.</p>
+                    </div>
+                </div>
+                <!-- Success Alert -->
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md flex items-center" role="alert">
+                     <span class="text-xl mr-3">✅</span>
+                    <div>
+                        <p class="font-bold">Success</p>
+                        <p>Your action was completed successfully.</p>
+                    </div>
+                </div>
+                <!-- Warning Alert -->
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md flex items-center" role="alert">
+                     <span class="text-xl mr-3">⚠️</span>
+                    <div>
+                        <p class="font-bold">Warning</p>
+                        <p>Something might require your attention.</p>
+                    </div>
+                </div>
+                <!-- Error Alert -->
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md flex items-center" role="alert">
+                    <span class="text-xl mr-3">❌</span>
+                    <div>
+                        <p class="font-bold">Error</p>
+                        <p>Something went wrong. Please try again.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- / Alerts Section -->
+
+    </div>
+
+    <!-- Minimal JavaScript for Modal -->
+    <script>
+        const modal = document.getElementById('myModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtnHeader = document.getElementById('closeModalBtnHeader');
+        const closeModalBtnFooter = document.getElementById('closeModalBtnFooter');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            // Optional: Add class for entry animation if needed
+            // modal.classList.add('modal-enter');
+        }
+
+        function closeModal() {
+            // Optional: Add class for exit animation
+            // modal.classList.add('modal-leave');
+            modal.classList.add('hidden');
+             // Optional: Remove animation classes after transition
+            // setTimeout(() => {
+            //    modal.classList.remove('modal-leave');
+            // }, 300); // Match transition duration
+        }
+
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtnHeader.addEventListener('click', closeModal);
+        closeModalBtnFooter.addEventListener('click', closeModal);
+
+        // Optional: Close modal if clicking on the overlay
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Optional: Close modal with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
