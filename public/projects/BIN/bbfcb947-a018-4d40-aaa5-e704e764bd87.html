@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Art Portfolio</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles if needed, but prefer Tailwind classes */
+        .control-button.active {
+            @apply ring-2 ring-offset-2 ring-indigo-500 bg-indigo-700;
+        }
+         .palette-button.active {
+            @apply ring-2 ring-offset-2 ring-teal-500;
+        }
+        .palette-swatch {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.25rem;
+            border: 1px solid rgba(0,0,0,0.2);
+            vertical-align: middle;
+        }
+         /* Ensure canvas is block level for centering/sizing */
+        #art-canvas {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f0f0f0; /* Default background */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Interactive Generative Art</h1>
+            <p class="text-gray-600 mt-2">Select parameters and generate unique artwork.</p>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-8">
+
+            <!-- Controls Section -->
+            <aside class="w-full md:w-1/3 lg:w-1/4 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Controls</h2>
+
+                <!-- Keyword Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Keywords:</label>
+                    <div class="flex flex-wrap gap-2" id="keyword-options">
+                        <button data-keyword="geometric" class="control-button keyword-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium py-2 px-3 rounded-md transition duration-150 ease-in-out">Geometric</button>
+                        <button data-keyword="organic" class="control-button keyword-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium py-2 px-3 rounded-md transition duration-150 ease-in-out">Organic</button>
+                        <button data-keyword="abstract" class="control-button keyword-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium py-2 px-3 rounded-md transition duration-150 ease-in-out">Abstract Lines</button>
+                    </div>
+                </div>
+
+                <!-- Color Palette Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color Palettes:</label>
+                    <div class="space-y-2" id="palette-options">
+                        <!-- Palette buttons will be added dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                     <button id="generate-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V4a1 1 0 011-1zm10.899 10.899a7.003 7.003 0 01-11.601-2.566 1 1 0 111.885-.666A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101z" clip-rule="evenodd" />
+                        </svg>
+                        Generate Art
+                    </button>
+                     <button id="download-btn" disabled class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                           <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm6.293-7.707a1 1 0 011.414 0L12 10.586l1.293-1.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 010-1.414z" clip-rule="evenodd" />
+                           <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5.586l1.293-1.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 9.586V4a1 1 0 011-1z" clip-rule="evenodd" />
+                         </svg>
+                         Download PNG
+                     </button>
+                </div>
+
+            </aside>
+
+            <!-- Art Display Section -->
+            <main class="w-full md:w-2/3 lg:w-3/4 bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 self-start">Generated Artwork</h2>
+                <div class="aspect-w-4 aspect-h-3 w-full max-w-3xl">
+                     <!-- Set explicit width/height for canvas for drawing and download resolution -->
+                     <canvas id="art-canvas" width="800" height="600" class="border border-gray-300 rounded"></canvas>
+                </div>
+                <p id="loading-state" class="mt-4 text-gray-500 italic hidden">Generating...</p>
+            </main>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const canvasWidth = 800;
+        const canvasHeight = 600;
+        const palettes = {
+            'Sunset': ['#2B2D42', '#8D99AE', '#EDF2F4', '#EF8354', '#D80032'],
+            'Forest': ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc'],
+            'Ocean': ['#001219', '#005f73', '#0a9396', '#94d2bd', '#e9d8a6', '#ee9b00', '#ca6702', '#bb3e03', '#ae2012', '#9b2226'],
+            'Pastel': ['#fec5bb', '#fcd5ce', '#fae1dd', '#f8edeb', '#e8e8e4', '#d8e2dc', '#ece4db', '#ffe5d9', '#ffd7ba', '#fec89a'],
+            'Monochrome': ['#000000', '#444444', '#888888', '#CCCCCC', '#FFFFFF'],
+            'Neon': ['#00f7ff', '#00ff87', '#aaff00', '#f0ff00', '#ffaa00', '#ff5500', '#ff0055', '#ff00cc', '#cc00ff', '#5500ff']
+        };
+
+        // --- State ---
+        let selectedKeyword = 'geometric'; // Default keyword
+        let selectedPaletteName = Object.keys(palettes)[0]; // Default to first palette
+        let currentArtSeed = Date.now(); // Seed for randomness (optional, for reproducibility)
+
+        // --- DOM Elements ---
+        const canvas = document.getElementById('art-canvas');
+        const ctx = canvas.getContext('2d');
+        const keywordOptionsContainer = document.getElementById('keyword-options');
+        const paletteOptionsContainer = document.getElementById('palette-options');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const loadingState = document.getElementById('loading-state');
+
+        // --- Utility Functions ---
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getRandomFloat(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // --- Art Generation Logic ---
+        function generateArt() {
+            loadingState.classList.remove('hidden');
+            downloadBtn.disabled = true;
+            // Clear canvas with a base color (first color of palette?)
+            const palette = palettes[selectedPaletteName];
+            ctx.fillStyle = palette[getRandomInt(0, Math.min(1, palette.length - 1))] || '#f0f0f0'; // Use a palette color or default
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            const numShapes = getRandomInt(50, 250); // Number of elements to draw
+
+            for (let i = 0; i < numShapes; i++) {
+                const color = getRandomElement(palette);
+                const x = getRandomFloat(0, canvasWidth);
+                const y = getRandomFloat(0, canvasHeight);
+
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = getRandomFloat(0.5, 4);
+                ctx.globalAlpha = getRandomFloat(0.5, 1.0); // Add some transparency variation
+
+
+                switch (selectedKeyword) {
+                    case 'geometric':
+                        const size = getRandomFloat(10, 100);
+                        if (Math.random() > 0.5) { // Rectangle
+                            ctx.fillRect(x - size / 2, y - size / 2, size, size);
+                        } else { // Circle
+                            ctx.beginPath();
+                            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+                            if (Math.random() > 0.3) {
+                                ctx.fill();
+                            } else {
+                                ctx.stroke();
+                            }
+                        }
+                        break;
+
+                    case 'organic':
+                         const radius = getRandomFloat(15, 80);
+                         const points = getRandomInt(5, 10);
+                         ctx.beginPath();
+                         ctx.moveTo(x + radius * Math.cos(0), y + radius * Math.sin(0));
+                         for(let j=1; j <= points; j++) {
+                             const angle = (j / points) * Math.PI * 2;
+                             const randomRadius = radius * getRandomFloat(0.7, 1.3);
+                             // Use quadraticCurveTo for smoother organic shapes
+                              const cp1x = x + (radius * 0.8) * Math.cos(angle - 0.2);
+                              const cp1y = y + (radius * 0.8) * Math.sin(angle - 0.2);
+                              const endX = x + randomRadius * Math.cos(angle);
+                              const endY = y + randomRadius * Math.sin(angle);
+                              // ctx.lineTo(endX, endY); // simpler jagged shape
+                              // Smoother attempt - needs refinement maybe? Using lineTo for simplicity now
+                              ctx.lineTo(endX, endY);
+
+                         }
+                         ctx.closePath();
+
+                         if (Math.random() > 0.3) {
+                             ctx.fill();
+                         } else {
+                             ctx.stroke();
+                         }
+                         break;
+
+                    case 'abstract': // Draw random lines
+                         const length = getRandomFloat(50, 300);
+                         const angle = getRandomFloat(0, Math.PI * 2);
+                         const endX = x + length * Math.cos(angle);
+                         const endY = y + length * Math.sin(angle);
+                         ctx.beginPath();
+                         ctx.moveTo(x, y);
+                         ctx.lineTo(endX, endY);
+                         ctx.stroke();
+                         break;
+                     default:
+                         console.warn("Unknown keyword:", selectedKeyword);
+                 }
+                ctx.globalAlpha = 1.0; // Reset alpha
+            }
+
+             // Simulate generation time and enable download
+            setTimeout(() => {
+                loadingState.classList.add('hidden');
+                downloadBtn.disabled = false;
+            }, 100); // Short delay to allow UI update
+        }
+
+        // --- UI Update Functions ---
+        function updateKeywordSelection(targetButton) {
+            keywordOptionsContainer.querySelectorAll('.keyword-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-700');
+                btn.classList.add('bg-indigo-500', 'hover:bg-indigo-600');
+            });
+            targetButton.classList.add('active', 'bg-indigo-700');
+            targetButton.classList.remove('bg-indigo-500', 'hover:bg-indigo-600');
+            selectedKeyword = targetButton.dataset.keyword;
+        }
+
+        function updatePaletteSelection(targetButton) {
+            paletteOptionsContainer.querySelectorAll('.palette-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            targetButton.classList.add('active');
+            selectedPaletteName = targetButton.dataset.paletteName;
+        }
+
+        function populatePaletteOptions() {
+            Object.entries(palettes).forEach(([name, colors]) => {
+                const button = document.createElement('button');
+                button.classList.add('palette-button', 'w-full', 'text-left', 'p-2', 'rounded', 'border', 'border-gray-300', 'hover:bg-gray-100', 'transition', 'duration-150', 'ease-in-out');
+                button.dataset.paletteName = name;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = name;
+                nameSpan.classList.add('font-medium', 'text-sm', 'mr-2', 'text-gray-800');
+                button.appendChild(nameSpan);
+
+                colors.slice(0, 5).forEach(color => { // Show max 5 swatches
+                    const swatch = document.createElement('span');
+                    swatch.classList.add('palette-swatch', 'rounded-sm');
+                    swatch.style.backgroundColor = color;
+                    button.appendChild(swatch);
+                });
+
+                button.addEventListener('click', () => {
+                    updatePaletteSelection(button);
+                    // Optional: Regenerate art immediately on palette change
+                    // generateArt();
+                });
+                paletteOptionsContainer.appendChild(button);
+            });
+            // Activate the default palette visually
+            updatePaletteSelection(paletteOptionsContainer.querySelector('.palette-button'));
+        }
+
+
+        // --- Event Listeners ---
+        keywordOptionsContainer.querySelectorAll('.keyword-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                updateKeywordSelection(e.target);
+                 // Optional: Regenerate art immediately on keyword change
+                // generateArt();
+            });
+        });
+
+        generateBtn.addEventListener('click', generateArt);
+
+        downloadBtn.addEventListener('click', () => {
+            // Ensure the art is fully drawn (though should be sync here)
+             const dataURL = canvas.toDataURL('image/png');
+             const link = document.createElement('a');
+             link.download = `generative-art-${selectedKeyword}-${selectedPaletteName}-${Date.now()}.png`;
+             link.href = dataURL;
+             document.body.appendChild(link); // Required for Firefox
+             link.click();
+             document.body.removeChild(link);
+        });
+
+
+        // --- Initialization ---
+        function initialize() {
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            populatePaletteOptions();
+            // Set initial active keyword button
+            updateKeywordSelection(keywordOptionsContainer.querySelector(`[data-keyword="${selectedKeyword}"]`));
+            generateArt(); // Generate initial artwork on load
+        }
+
+        // Run initialization when the DOM is ready
+        document.addEventListener('DOMContentLoaded', initialize);
+
+    </script>
+
+</body>
+</html>
+```
+
+**Explanation:**
+
+1.  **HTML Structure:**
+    *   Standard HTML5 boilerplate.
+    *   Tailwind CSS is included via CDN in the `<head>`.
+    *   A basic two-column layout (`flex flex-col md:flex-row`) is used for responsiveness. The controls (`<aside>`) stack above the art (`<main>`) on small screens and sit side-by-side on medium screens and up.
+    *   **Controls:** Contains sections for keywords (buttons) and color palettes (buttons generated by JS). It also includes the "Generate Art" and "Download PNG" buttons.
+    *   **Art Display:** Contains the `<canvas id="art-canvas">` element where the art is drawn. Width and height are explicitly set for a consistent drawing surface and download resolution (800x600 in this case).
+    *   `tailwindcss` classes are used extensively for layout, padding, margins, colors, typography, button styling, and responsiveness (`md:`, `lg:` prefixes).
+    *   Some minimal custom CSS is included in `<style>` for the `active` state of buttons and palette swatches, primarily using `@apply` to leverage Tailwind utilities.
+
+2.  **Tailwind CSS:**
+    *   Classes like `container`, `mx-auto`, `p-4`, `flex`, `gap-8`, `bg-white`, `rounded-lg`, `shadow-md`, `font-bold`, `text-white`, `hover:bg-indigo-600`, `disabled:opacity-50`, etc., are used for styling.
+    *   Responsiveness is handled by `md:flex-row`, `md:w-1/3`, `md:w-2/4`, etc.
+
+3.  **JavaScript Logic (within `<script>` tag at the end of `<body>`):**
+    *   **Configuration:** Defines `canvasWidth`, `canvasHeight`, and the `palettes` object containing color arrays.
+    *   **State:** Variables `selectedKeyword`, `selectedPaletteName` track user choices.
+    *   **DOM References:** Gets references to the canvas, buttons, and containers.
+    *   **Utility Functions:** `getRandomElement`, `getRandomInt`, `getRandomFloat` for use in the generation algorithm.
+    *   **`generateArt()`:**
+        *   Clears the canvas.
+        *   Sets a background (using a random color from the start of the palette).
+        *   Loops a random number of times (`numShapes`).
+        *   Inside the loop:
+            *   Selects a random color from the current `palette`.
+            *   Selects random position, size, line width, opacity.
+            *   Uses a `switch` statement based on `selectedKeyword` to draw different kinds of shapes/lines:
+                *   `geometric`: Random rectangles or circles (filled or stroked).
+                *   `organic`: Attempts to draw blobby shapes using `lineTo` (a simple approach, could be enhanced with curves).
+                *   `abstract`: Draws random lines.
+        *   Shows a brief "Generating..." message and enables/disables the download button.
+    *   **UI Update Functions:**
+        *   `updateKeywordSelection()`: Manages the visual "active" state for keyword buttons and updates the `selectedKeyword` variable.
+        *   `updatePaletteSelection()`: Manages the visual "active" state for palette buttons and updates `selectedPaletteName`.
+        *   `populatePaletteOptions()`: Dynamically creates the palette selection buttons based on the `palettes` object, including color swatches.
+    *   **Event Listeners:**
+        *   Click listeners are added to keyword buttons to update the selection.
+        *   Click listeners are added *dynamically* to the palette buttons as they are created.
+        *   The "Generate Art" button triggers `generateArt()`.
+        *   The "Download PNG" button:
+            *   Uses `canvas.toDataURL('image/png')` to get the image data.
+            *   Creates a temporary `<a>` link.
+            *   Sets the `download` attribute with a descriptive filename.
+            *   Sets the `href` to the data URL.
+            *   Simulates a click on the link to trigger the browser's download dialog.
+            *   Removes the temporary link.
+    *   **Initialization (`initialize()`):**
+        *   Sets canvas dimensions.
+        *   Populates the palette options.
+        *   Sets the default active keyword button.
+        *   Calls `generateArt()` once on page load to display initial artwork.
+        *   This function is called when the DOM is fully loaded (`DOMContentLoaded`).
