@@ -104,21 +104,16 @@ def gemini(prompt, gemini_api_key=API_KEY , model="gemini-2.5-pro-exp-03-25"):
         return None
 
 prompts = [
-    "Give me a creative and unique project idea for a website using HTML and Tailwind CSS. Output only the idea.",
-    "Suggest one new web project I could build using HTML and Tailwind CSS. Output only the idea.",
-    "Generate a fresh and interesting HTML + Tailwind CSS project idea. Output only the name or title.",
-    "What's an original beginner-friendly HTML + Tailwind CSS project idea? Output only the idea.",
-    "Give a fun and useful project idea I can build with only HTML and Tailwind CSS. Output only the title.",
-    "Suggest an innovative web UI concept that can be built using HTML and Tailwind CSS. Output only the idea.",
-    "Propose a mini-project idea using HTML and Tailwind CSS that involves interactive UI. Output only the idea.",
-    "Name a unique concept for a responsive website using HTML and Tailwind CSS. Output only the idea.",
-    "What’s a cool static web project idea using Tailwind CSS and HTML? Output just the project title.",
-    "Give me one creative, small-scale portfolio project idea using HTML and Tailwind CSS. Output only the idea.",
-    "Suggest a fun clone project idea using Tailwind CSS and HTML only (like a simplified app or tool). Output only the project idea.",
-    "What’s a lesser-known but interesting web layout idea I can make with HTML and Tailwind CSS? Output only the idea.",
-    "Propose a themed landing page concept that can be done in HTML and Tailwind CSS. Output only the idea.",
-    "Generate one random and visually appealing project idea using only Tailwind CSS and HTML. Output only the project idea title.",
-    "Give a creative challenge project idea that pushes Tailwind CSS layout skills using just HTML and Tailwind. Output only the idea."
+    "Suggest a simple game idea that can be built using HTML and Tailwind CSS. Output only the idea.",
+    "Give me a small and fun game concept for a web project using HTML and Tailwind CSS. Output only the idea.",
+    "Propose a beginner-friendly game idea that can be implemented with HTML and Tailwind CSS. Output only the idea.",
+    "What’s a creative mini-game idea I can build using HTML and Tailwind CSS? Output only the idea.",
+    "Generate a unique and interactive game idea for a website using HTML and Tailwind CSS. Output only the idea.",
+    "Suggest a small-scale game project idea that focuses on UI and UX using HTML and Tailwind CSS. Output only the idea.",
+    "Propose a simple browser-based game concept that can be built with HTML and Tailwind CSS. Output only the idea.",
+    "What’s a fun and easy-to-build game idea using HTML and Tailwind CSS? Output only the idea.",
+    "Give me a quick and engaging game idea for a web project using HTML and Tailwind CSS. Output only the idea.",
+    "Suggest a creative and visually appealing game idea that can be built with HTML and Tailwind CSS. Output only the idea."
 ]
 
 
@@ -130,7 +125,7 @@ prompt = gemini(f"give prompt to make a project for {project_idea} html and tail
 print(prompt)
 code = gemini(prompt)
 print(code)
-res = commit_to_github(GITHUB_TOKEN, "https://github.com/Raahim2/Online-Desktop" , f"public/projects/BIN/{unique_id}.html", "added bin project", code, isAppend=False, isTruncate=True)
+res = commit_to_github(GITHUB_TOKEN, "https://github.com/Raahim2/Online-Desktop" , f"public/projects/BIN/GAME-{unique_id}.html", "added bin project", code, isAppend=False, isTruncate=True)
 print(res)
 
 
