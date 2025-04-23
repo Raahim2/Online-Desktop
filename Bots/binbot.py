@@ -4,7 +4,7 @@ import requests
 import base64
 import random
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("REPO_GITHUB_TOKEN")
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 
