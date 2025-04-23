@@ -66,14 +66,14 @@ def commit_to_github(token, repo_url, file_path, commit_message, content, isAppe
         return {'status': 'failure', 'error': res.json()}
 
 
-def gemini(prompt, gemini_api_key=API_KEY ):
+def gemini(prompt, gemini_api_key=API_KEY , model="gemini-2.5-pro-exp-03-25"):
     """
     Function to interact with the Gemini API using the provided prompt.
     """
+    # gemini-1.5-flash
     try:
         # Gemini API request
-        # url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-exp-03-25:generateContent"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
         headers = {
             "Content-Type": "application/json"
@@ -125,9 +125,9 @@ prompts = [
 project_prompt = random.choice(prompts)
 unique_id = uuid.uuid4()
 
-project_idea = gemini(project_prompt)
+project_idea = gemini(project_prompt , model="gemini-1.5-flash")
 print(project_idea)
-prompt = gemini(f"give prompt to make a project for {project_idea} html and tailiwnd css , make the prompt in a way that the bot will only output the code in just one html file and the bot output just the code nothing else also the bot should focus more on UI and UX and the code should be clean and well structured and the code should be responsive and the code should be in one file only")
+prompt = gemini(f"give prompt to make a project for {project_idea} html and tailiwnd css , make the prompt in a way that the bot will only output the code in just one html file and the bot output just the code nothing else also the bot should focus more on UI and UX and the code should be clean and well structured and the code should be responsive and the code should be in one file only" , model="gemini-1.5-flash")
 print(prompt)
 code = gemini(prompt)
 print(code)
