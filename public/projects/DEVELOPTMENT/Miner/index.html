@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100x100 Grid</title>
+<link rel="stylesheet" href="deleted.css">
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items at the top */
+    height: 100vh;
+    margin: 0;
+    padding-top: 25vh; /* Add padding from the top equal to 25% of the viewport height */
+  }
+
+  .grid {
+    position: relative; /* Position relative to contain absolutely positioned elements */
+    display: grid;
+    grid-template-columns: repeat(25, 50px);
+    grid-template-rows: repeat(100, 50px);
+    /* gap: 1px; */
+  }
+
+  .cell {
+    width: 50px;
+    height: 50px;
+    /* border: 1px solid black; */
+  }
+
+  .user {
+    /* background-image: url('blocks/user.png'); */
+    background-color: black;
+    background-size: cover;
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 0;
+    left: 0;
+    transition: top 0.1s ease, left 0.1s ease; /* Smooth transition */
+  }
+
+  .visited {
+    background-image: url('blkk.png');
+    background-size: cover;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid" id="gridContainer"></div>
+
+<script>
+  const gridSize = 25 * 100; // Total number of grids
+  let userPosition = { x: 0, y: 0 };
+  let visitedGrids = 0;
+  const userBlock = document.createElement('div');
+  userBlock.classList.add('user');
+
+  // Function to update user block position
+  function updateUserPosition() {
+    userBlock.style.top = userPosition.y * 50 + 'px';
+    userBlock.style.left = userPosition.x * 50 + 'px';
+  }
+
+  // Function to handle key presses
+  function handleKeyPress(event) {
+    const key = event.key;
+    switch (key) {
+      case 'ArrowUp':
+        if (userPosition.y > 0) userPosition.y--;
+        break;
+      case 'ArrowDown':
+        if (userPosition.y < 99) userPosition.y++;
+        break;
+      case 'ArrowLeft':
+        if (userPosition.x > 0) userPosition.x--;
+        break;
+      case 'ArrowRight':
+        if (userPosition.x < 24) userPosition.x++;
+        break;
+    }
+    
+    // Check if the user block has visited all grids
+    visitedGrids++;
+    if (visitedGrids === gridSize) {
+      userBlock.classList.add('all-visited');
+    }
+
+    updateUserPosition();
+    markVisitedCell(userPosition.x, userPosition.y);
+  }
+
+  // Call the function to create the grid when the page loads
+  window.onload = function() {
+    createGrid();
+    document.getElementById('gridContainer').appendChild(userBlock);
+    document.addEventListener('keydown', handleKeyPress);
+  };
+
+  // Function to create the grid
+  function createGrid() {
+    const container = document.getElementById('gridContainer');
+
+    for (let i = 0; i < 100; i++) {
+      for (let j = 0; j < 25; j++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        
+        // Assigning classes based on probabilities
+        const randomNumber = Math.random() * 100; // Generate a number between 0 and 100
+        if (randomNumber < 20) {
+          cell.classList.add('im1');
+        } else if (randomNumber < 40) {
+          cell.classList.add('im2');
+        } else if (randomNumber < 60) {
+          cell.classList.add('im3');
+        } else if (randomNumber < 70) {
+          cell.classList.add('im4');
+        } else if (randomNumber < 80) {
+          cell.classList.add('im5');
+        } else if (randomNumber < 90) {
+          cell.classList.add('im6');
+        } else if (randomNumber < 95) {
+          cell.classList.add('im7');
+        } else if (randomNumber < 97) {
+          cell.classList.add('im8');
+        } else if (randomNumber < 99) {
+          cell.classList.add('im9');
+        } else {
+          cell.classList.add('im10');
+        }
+        
+        container.appendChild(cell);
+      }
+    }
+  }
+
+  // Function to mark the visited cell
+  function markVisitedCell(x, y) {
+    const cells = document.querySelectorAll('.cell');
+    const index = y * 25 + x; // Calculate index based on x and y coordinates
+
+    if (index >= 0 && index < cells.length) {
+      cells[index].classList.add('visited');
+    }
+  }
+</script>
+
+</body>
+</html>

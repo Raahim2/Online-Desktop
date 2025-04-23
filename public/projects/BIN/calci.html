@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+</head>
+<style>
+    .calci{
+        border: 4px solid black;
+        width: 27vw;
+        height: 67vh;
+        margin: auto;
+    }
+    .screen{
+        border: 4px solid black;
+        height: 10vh;
+        width: 25vw;
+        margin: 10px;
+        font-size: 3rem;
+        float: right;
+    }
+    .btn{
+        width: 5vw;
+        height: 10vh;
+        margin: 10px;
+        font-size: 2rem;
+    }
+</style>
+<body>
+    <div class="calci">
+        <input class="screen" type="text" id="scr" disabled>
+        <div class="ccody">
+            <button class="btn" id="b1" onclick="append('7')">7</button>
+            <button class="btn" id="b2" onclick="append('8')">8</button>
+            <button class="btn" id="b3" onclick="append('9')">9</button>
+            <button class="btn" id="b4" onclick="clrscr()">AC</button>
+            
+            <button class="btn" id="b5" onclick="append('4')">4</button>
+            <button class="btn" id="b6" onclick="append('5')">5</button>
+            <button class="btn" id="b7" onclick="append('6')">6</button>
+            <button class="btn" id="b8" onclick="append('/')">/</button>
+
+            <button class="btn" id="b9" onclick="append('1')">1</button>
+            <button class="btn" id="b10" onclick="append('2')">2</button>
+            <button class="btn" id="b11" onclick="append('3')">3</button>
+            <button class="btn" id="b12" onclick="append('*')">X</button>
+
+            <button class="btn" id="b13" onclick="append('0')">0</button>
+            <button class="btn" id="b14" onclick="append('.')">.</button>
+            <button class="btn" id="b15" onclick="calc()">=</button>
+            <button class="btn" id="b16" onclick="append('+')">+</button>
+        </div>
+    </div>
+</body>
+<script>
+
+    scr=document.getElementById("scr")
+
+    let input ="";
+
+    function append(value) {
+        input += value;
+        scr.value=input;
+    }
+    function clrscr() {
+        input=""
+        scr.value="";
+    }
+    function calc() {
+        input=eval(input);
+        scr.value=input;
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #quote-box{
+        border: 5px solid black;
+        width: auto;
+        text-align: center;
+        height: 50vh;
+        margin-top: 100px;
+        margin-left: 300px;
+        margin-right: 300px;
+    }
+    #text{
+        font-size: 50px;
+    }
+    #author{
+        font-size: 45px;
+    }
+    #new-quote{
+        font-size: 30px;
+    }
+    a{
+        text-decoration: none;
+    }
+</style>
+<body>
+    <div id="quote-box">
+        <p id="text">If you look at what you have in life, you'll always have more. If you look at what you don't have in life, you'll never have enough.</p>
+        <p id="author">-Oprah Winfrey</p>
+        <a href="twitter.com/intent/tweet" id="tweet-quote">TWEET</a>
+        <button id="new-quote" onclick="newqt()">New Quote</button>
+
+    </div>
+</body>
+<script>
+    let qbox=["You may say I'm a dreamer, but I'm not the only one. I hope someday you'll join us. And the world will live as one.",
+    "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+    "The way to get started is to quit talking and begin doing.","The future belongs to those who believe in the beauty of their dreams.",
+    "If you set your goals ridiculously high and it's a failure, you will fail above everyone else's success."];
+
+    let abox=["-John Lennon","-Nelson Mandela","-Walt Disney","-Eleanor Roosevelt","-James Cameron"];
+
+    let text=document.getElementById("text");
+    let author=document.getElementById("author");
+    let i=0
+
+    function newqt(){
+        text.innerHTML=" "+qbox[i];
+        author.innerHTML=" "+abox[i];
+        i++;
+        if(i==5){
+            i=0;
+        }
+    }
+
+</script>
+</html>
+

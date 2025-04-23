@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Clock with JS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    @font-face {
+        font-family: "Digital";
+        src: url("http://cdn11.bigcommerce.com/s-gmlde/content/DS-DIGI.TTF");
+    }
+
+    .main-body{
+        border: 5px solid black; 
+        height: 400px;
+        width: 600px;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        margin: auto;
+        margin-top: 100px;
+        background-color: rgba(51, 50, 50, 0.829);
+    }
+    .main{
+        border: 5px solid black;
+        /* height: 50vh; */
+        height: 310px;
+        /* width: 40vw; */
+        width: 500px;
+        margin: auto;
+        background-color: rgba(255, 246, 246, 0.822);
+    }
+    .screen1{
+        font-family: 'Digital';
+        border: 5px solid black;
+        /* height: 20vh; */
+        height: 100px;
+        /* width: 30vw; */
+        width: 400px;
+        margin: auto;
+        margin-top: 30px;
+        font-size: 100px;
+        font-weight: 1000;
+        background-color: rgba(43, 235, 91, 0.568);
+    }
+    .screen2{
+        font-family: 'Digital';
+        font-size: 50px;
+        font-weight: 1000;
+        border: 5px solid black;
+        height: 60px;
+        width: 400px;
+        margin: auto;
+        margin-top: 35px;
+        background-color: rgba(43, 235, 91, 0.568);
+    }
+   a{
+    color: black;
+    text-decoration: none;
+   }
+    ul{
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        position: relative;
+        right:-40px;
+         display: flex;
+        width: 400px; 
+    }
+    li{
+        margin-right: 30px;
+    }
+
+   
+</style>
+<body>
+    <div class="main-body">
+        <div class="main">
+            <div class="screen1" id="src1"></div>
+            <div class="screen2" id="src2"></div>
+            <div class="list">
+                <ul>
+                    <a href="index.html"><li>Digital Clock</li></a>
+                    <a href="counter.html"><li>Counter</li></a>
+                    <a href="timer.html"><li>Timer</li></a>
+                    <a href="stopwatch.html"><li>Stopwatch</li></a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function timeupd(){
+    let time=new Date();
+    let t2="i"+time
+    let t3=t2.slice(17,25);
+
+    src1.innerHTML=t3
+    }
+
+    function dayupd(){
+    let time=new Date();
+    let t2="i"+time
+    day=t2.slice(1,5);
+    date=t2.slice(8,11)
+    month=t2.slice(5,9)
+    year=t2.slice(12,17)
+    src2.innerHTML=day+date+month+year
+    src2.innerHTML=day+"|"+date+"/"+month+"/"+year
+    }
+
+    
+    let src1=document.getElementById("src1")
+    let src2=document.getElementById("src2")
+    
+
+
+
+    setInterval(timeupd,1000)
+    setInterval(dayupd,1000)
+
+</script>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Clock with JS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    @font-face {
+        font-family: "Digital";
+        src: url("http://cdn11.bigcommerce.com/s-gmlde/content/DS-DIGI.TTF");
+    }
+
+    .main-body{
+        border: 5px solid black; 
+        height: 400px;
+        width: 600px;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        margin: auto;
+        margin-top: 100px;
+        background-color: rgba(51, 50, 50, 0.829);
+    }
+    .main{
+        border: 5px solid black;
+        /* height: 50vh; */
+        height: 310px;
+        /* width: 40vw; */
+        width: 500px;
+        margin: auto;
+        background-color: rgba(255, 246, 246, 0.822);
+    }
+    .screen{
+        font-family: 'Digital';
+        border: 5px solid black;
+        /* height: 20vh; */
+        height: 100px;
+        /* width: 30vw; */
+        width: 400px;
+        margin: auto;
+        margin-top: 30px;
+        font-size: 100px;
+        font-weight: 1000;
+        background-color: rgba(43, 235, 91, 0.568);
+    }
+   a{
+    color: black;
+    text-decoration: none;
+   }
+    ul{
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        position: relative;
+        right:-40px;
+        display: flex;
+        width: 400px; 
+    }
+    li{
+        margin-right: 30px;
+    }
+    button{
+    font-size: 30px;
+    margin-top: 10px;
+    margin-right: 35px;
+    margin-left: 35px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: rgba(43, 235, 91, 0.568);
+
+    width: 130px;
+    height: 50px;
+    border: 4px solid black
+    }
+
+   
+</style>
+<body>
+    <div class="main-body">
+        <div class="main">
+            <div class="screen" id="src">00:00</div>
+            <button onclick="">Start</button>
+            <button onclick="">Stop</button>
+
+            <div class="list">
+                <ul>
+                    <a href="index.html"><li>Digital Clock</li></a>
+                    <a href="counter.html"><li>Counter</li></a>
+                    <a href="timer.html"><li>Timer</li></a>
+                    <a href="stopwatch.html"><li>Stopwatch</li></a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+let s=0
+let ms=0
+let src=document.getElementById("src")
+
+
+
+function imsec(){
+    ms++
+
+  if(ms<10 && s<10){
+    src.innerHTML="0"+s+":"+"0"+ms
+  }
+  if(ms>=10 && s<10){
+    src.innerHTML= s+":"+"0"+ms
+  }
+  if(ms<10 && s>=10){
+    src.innerHTML= "0"+s+":"+ms
+  }
+  if(ms>=10 && s>=10){
+    src.innerHTML= s+":"+ms
+  }
+
+   }
+
+
+function start(){
+    setInterval(imsec,100)
+}
+
+   
+
+</script>
+</html>

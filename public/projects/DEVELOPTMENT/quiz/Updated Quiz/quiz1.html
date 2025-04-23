@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Divs with Hover Background Change</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+        
+
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            color: white;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            font-size: 40px;
+        }
+        .box:hover{
+            background-color: black;
+        }
+
+        .password-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="password-container">
+        <input type="password" id="passwordInput" placeholder="Enter Password">
+        <button onclick="checkPassword()">Submit</button>
+    </div>
+    <div class="container">
+        <div class="box">Y</div>
+        <div class="box">2</div>
+        <div class="box">#</div>
+        <div class="box">C</div>
+    </div>
+    <script>
+        
+
+
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'Y2#C') {
+                window.location.href = 'quiz2.html';
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
