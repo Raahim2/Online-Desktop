@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowState - Unwind and Achieve</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                'base-bg': '#F5F5F0', // Light beige
+                'text-main': '#5D5550', // Darker stone/brown
+                'text-sub': '#8C817A', // Lighter stone/brown
+                'accent': '#5F9EA0',   // Muted Cadet Blue/Teal
+                'accent-hover': '#528B8B' // Darker accent for hover
+              }
+            }
+          }
+        }
+      </script>
+      <style type="text/tailwindcss">
+        body {
+          @apply bg-base-bg font-sans;
+        }
+      </style>
+</head>
+<body class="text-text-main">
+
+    <main class="container mx-auto min-h-screen flex items-center justify-center p-6 lg:p-12">
+        <div class="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 w-full max-w-6xl">
+
+            <!-- Illustration Section -->
+            <div class="w-full lg:w-1/2 flex justify-center">
+                <img
+                    src="https://images.unsplash.com/photo-1519671482749-b09f76374b88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                    alt="Serene minimalist workspace with plants"
+                    class="w-full max-w-md h-auto rounded-lg object-cover shadow-lg"
+                />
+                <!-- Placeholder: https://via.placeholder.com/600x450/E0D8CF/5D5550?text=Focus+%26+Calm -->
+            </div>
+
+            <!-- Text Content Section -->
+            <div class="w-full lg:w-1/2 text-center lg:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-text-main leading-tight">
+                    Unwind and Achieve
+                </h1>
+                <p class="text-lg md:text-xl text-text-sub mb-8 leading-relaxed">
+                    Reduce stress, boost productivity. Reclaim your time and energy with effortless focus.
+                </p>
+                <a
+                    href="#"
+                    class="inline-block bg-accent text-white font-semibold px-8 py-3 rounded-md shadow hover:bg-accent-hover transition-colors duration-300"
+                >
+                    Discover Your Flow
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>
