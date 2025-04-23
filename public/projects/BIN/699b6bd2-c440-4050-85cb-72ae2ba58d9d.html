@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallax Hero</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overscroll-behavior-y: contain; /* Optional: Prevents overscroll effects on body */
+        }
+        #hero-container {
+             height: 200vh; /* Force scrollbar */
+             position: relative;
+             overflow: hidden; /* Clip layers */
+        }
+        .parallax-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Each layer takes viewport height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            will-change: transform; /* Optimize animation */
+            transition: transform 0.1s linear; /* Smooth transition */
+        }
+        .parallax-layer svg {
+            max-width: 80%; /* Prevent huge SVGs on large screens */
+            height: auto;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); /* Subtle shadow */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-sky-100 to-sky-300">
+
+    <div id="hero-container">
+        <div id="layer1" class="parallax-layer z-10">
+            <svg viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" class="w-full opacity-70">
+              <path d="M -50,150 C 100,0 300,0 550,150 Z" fill="#a7f3d0"/>
+              <path d="M -50,150 C 150,50 350,50 550,150 Z" fill="#6ee7b7"/>
+            </svg>
+        </div>
+        <div id="layer2" class="parallax-layer z-20">
+             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-1/3 lg:w-1/4">
+                <circle cx="100" cy="100" r="80" fill="#34d399" />
+                <circle cx="100" cy="100" r="60" fill="#a7f3d0" />
+                <circle id="inner-circle" cx="100" cy="100" r="40" fill="#10b981" />
+            </svg>
+        </div>
+        <div id="layer3" class="parallax-layer z-30">
+             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-1/5 lg:w-1/6">
+               <polygon id="triangle" points="50,10 90,90 10,90" fill="#059669"/>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        const layer1 = document.getElementById('layer1');
+        const layer2 = document.getElementById('layer2');
+        const layer3 = document.getElementById('layer3');
+        const innerCircle = document.getElementById('inner-circle');
+        const triangle = document.getElementById('triangle');
+
+        const baseHeight = window.innerHeight; // Use viewport height as reference
+
+        function handleScroll() {
+            const scrollY = window.scrollY;
+            const scrollRatio = Math.min(scrollY / baseHeight, 1); // Normalize scroll within first screen height
+
+            // Parallax: Deeper layers move less
+            layer1.style.transform = `translateY(${scrollY * 0.15}px)`;
+            layer2.style.transform = `translateY(${scrollY * 0.4}px)`;
+            layer3.style.transform = `translateY(${scrollY * 0.75}px)`;
+
+            // Subtle Animations based on scroll
+            const rotation = scrollRatio * 20; // Max 20 degrees rotation
+            const scale = 1 + scrollRatio * 0.1; // Max 10% scale up
+
+            if (innerCircle) {
+                innerCircle.style.transformOrigin = 'center center';
+                innerCircle.style.transform = `scale(${1 + scrollRatio * 0.2})`; // Inner circle scales a bit more
+            }
+            if (triangle) {
+                triangle.style.transformOrigin = 'center center';
+                triangle.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            }
+             // Animate layer2's main SVG as well for subtle effect
+            const layer2Svg = layer2.querySelector('svg');
+             if(layer2Svg) {
+                 layer2Svg.style.transform = `rotate(${-rotation * 0.5}deg)`; // Opposite, slower rotation
+             }
+
+        }
+
+        window.addEventListener('scroll', () => {
+           window.requestAnimationFrame(handleScroll);
+        }, { passive: true });
+
+        // Initial call to set position
+        handleScroll();
+    </script>
+
+</body>
+</html>
