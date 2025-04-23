@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Periodic Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic styling for element positioning (Tailwind handles most) */
+        body {
+            font-family: sans-serif;
+            overscroll-behavior: none; /* Prevent pull-to-refresh on mobile */
+        }
+
+        .element {
+            position: relative; /* Needed for absolute positioning of inner elements */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .element:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        /* Placeholder for 3D model */
+        .element-model-placeholder {
+            width: 60%;
+            height: 40%;
+            margin: 5% auto 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 70%);
+            border-radius: 50%;
+            animation: subtle-spin 10s linear infinite;
+        }
+
+        @keyframes subtle-spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* Detail view animation */
+        #element-detail {
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
+        }
+        #element-detail.hidden {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        /* Specific grid placement (handled by JS) */
+        /* .col-start-[n] and .row-start-[n] will be added by JS */
+
+        /* Hide scrollbar but allow scrolling */
+         .no-scrollbar::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Color mapping based on category (can be expanded) */
+        .alkali-metal { background-color: #ef4444; } /* red-500 */
+        .alkaline-earth-metal { background-color: #f97316; } /* orange-500 */
+        .lanthanide { background-color: #eab308; } /* yellow-500 */
+        .actinide { background-color: #84cc16; } /* lime-500 */
+        .transition-metal { background-color: #22c55e; } /* green-500 */
+        .post-transition-metal { background-color: #14b8a6; } /* teal-500 */
+        .metalloid { background-color: #0ea5e9; } /* sky-500 */
+        .diatomic-nonmetal, .polyatomic-nonmetal { background-color: #6366f1; } /* indigo-500 */
+        .noble-gas { background-color: #a855f7; } /* purple-500 */
+        .unknown { background-color: #64748b; } /* slate-500 */
+
+        .alkali-metal:hover { background-color: #f87171; } /* red-400 */
+        .alkaline-earth-metal:hover { background-color: #fb923c; } /* orange-400 */
+        .lanthanide:hover { background-color: #facc15; } /* yellow-400 */
+        .actinide:hover { background-color: #a3e635; } /* lime-400 */
+        .transition-metal:hover { background-color: #4ade80; } /* green-400 */
+        .post-transition-metal:hover { background-color: #2dd4bf; } /* teal-400 */
+        .metalloid:hover { background-color: #38bdf8; } /* sky-400 */
+        .diatomic-nonmetal:hover, .polyatomic-nonmetal:hover { background-color: #818cf8; } /* indigo-400 */
+        .noble-gas:hover { background-color: #c084fc; } /* purple-400 */
+        .unknown:hover { background-color: #94a3b8; } /* slate-400 */
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-hidden h-screen flex flex-col">
+
+    <div class="flex-grow relative overflow-hidden p-2 sm:p-4 lg:p-6">
+        <!-- Periodic Table Grid -->
+        <div id="periodic-table" class="grid grid-cols-18 gap-[2px] sm:gap-1 w-full max-w-[1600px] mx-auto transition-all duration-500 ease-in-out">
+            <!-- Elements will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Element Detail Sidebar -->
+    <div id="element-detail" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl p-6 overflow-y-auto hidden no-scrollbar z-50">
+        <button id="close-detail" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+
+        <div class="text-center mb-6">
+             <div id="detail-model" class="w-32 h-32 mx-auto bg-gray-700 rounded-full mb-4 flex items-center justify-center text-gray-500 text-sm">
+                <!-- Larger placeholder -->
+                 <div class="w-24 h-24 bg-[radial-gradient(circle,_rgba(255,255,255,0.1)_0%,_rgba(0,0,0,0.1)_70%)] rounded-full animate-pulse"></div>
+             </div>
+             <h2 id="detail-name" class="text-3xl font-bold">Element Name</h2>
+             <p id="detail-category" class="text-indigo-300 capitalize"></p>
+        </div>
+
+        <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-400">Symbol:</span>
+                <span id="detail-symbol" class="text-xl font-bold">Xy</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-400">Atomic Number:</span>
+                <span id="detail-number" class="font-medium">0</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-400">Atomic Mass:</span>
+                <span id="detail-mass" class="font-medium">0.00</span>
+            </div>
+             <div class="flex justify-between">
+                <span class="font-semibold text-gray-400">Phase:</span>
+                <span id="detail-phase" class="font-medium">Unknown</span>
+            </div>
+            <div class="pt-2">
+                <span class="font-semibold text-gray-400 block mb-1">Summary:</span>
+                <p id="detail-summary" class="text-gray-300 text-justify leading-relaxed">A brief description of the element...</p>
+            </div>
+             <div class="pt-2">
+                <span class="font-semibold text-gray-400 block mb-1">Electron Configuration:</span>
+                <p id="detail-electron-config" class="text-gray-300 font-mono text-xs break-words">Loading...</p>
+            </div>
+             <div class="pt-2">
+                <span class="font-semibold text-gray-400 block mb-1">Discovered By:</span>
+                <p id="detail-discovered-by" class="text-gray-300">Unknown</p>
+            </div>
+              <div class="pt-2">
+                <span class="font-semibold text-gray-400 block mb-1">Source Link:</span>
+                <a id="detail-source" href="#" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 truncate block">Wikipedia</a>
+            </div>
+        </div>
+    </div>
+     <!-- Overlay for clicking outside the detail panel -->
+    <div id="detail-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+
+    <script>
+        const elementsData = [
+            // Data Source: Could be more detailed, using simplified data here.
+            // Positions (xpos, ypos) are 1-based for CSS Grid lines.
+            { number: 1, symbol: "H", name: "Hydrogen", atomic_mass: 1.008, category: "diatomic nonmetal", phase: "Gas", summary: "Hydrogen is the lightest element and the most abundant chemical substance in the universe, constituting roughly 75% of all baryonic mass.", xpos: 1, ypos: 1, electron_configuration_semantic: "1s¹", discovered_by: "Henry Cavendish", source: "https://en.wikipedia.org/wiki/Hydrogen" },
+            { number: 2, symbol: "He", name: "Helium", atomic_mass: 4.002602, category: "noble gas", phase: "Gas", summary: "Helium is a chemical element with symbol He and atomic number 2. It is a colorless, odorless, tasteless, non-toxic, inert, monatomic gas, the first in the noble gas group in the periodic table.", xpos: 18, ypos: 1, electron_configuration_semantic: "1s²", discovered_by: "Pierre Janssen & Norman Lockyer", source: "https://en.wikipedia.org/wiki/Helium" },
+            { number: 3, symbol: "Li", name: "Lithium", atomic_mass: 6.94, category: "alkali metal", phase: "Solid", summary: "Lithium is a chemical element with symbol Li and atomic number 3. It is a soft, silvery-white alkali metal.", xpos: 1, ypos: 2, electron_configuration_semantic: "[He] 2s¹", discovered_by: "Johan August Arfwedson", source: "https://en.wikipedia.org/wiki/Lithium" },
+            { number: 4, symbol: "Be", name: "Beryllium", atomic_mass: 9.0121831, category: "alkaline earth metal", phase: "Solid", summary: "Beryllium is a chemical element with symbol Be and atomic number 4. It is a relatively rare element in the universe, usually occurring as a product of the spallation of larger atomic nuclei that have collided with cosmic rays.", xpos: 2, ypos: 2, electron_configuration_semantic: "[He] 2s²", discovered_by: "Louis Nicolas Vauquelin", source: "https://en.wikipedia.org/wiki/Beryllium" },
+            { number: 5, symbol: "B", name: "Boron", atomic_mass: 10.81, category: "metalloid", phase: "Solid", summary: "Boron is a chemical element with symbol B and atomic number 5. Produced entirely by cosmic ray spallation and supernovae and not by stellar nucleosynthesis, it is a low-abundance element in the Solar System and in the Earth's crust.", xpos: 13, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p¹", discovered_by: "Joseph Louis Gay-Lussac & Louis Jacques Thénard", source: "https://en.wikipedia.org/wiki/Boron" },
+            { number: 6, symbol: "C", name: "Carbon", atomic_mass: 12.011, category: "polyatomic nonmetal", phase: "Solid", summary: "Carbon is a chemical element with symbol C and atomic number 6. It is nonmetallic and tetravalent—making four electrons available to form covalent chemical bonds.", xpos: 14, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p²", discovered_by: "Ancient civilizations", source: "https://en.wikipedia.org/wiki/Carbon" },
+            { number: 7, symbol: "N", name: "Nitrogen", atomic_mass: 14.007, category: "diatomic nonmetal", phase: "Gas", summary: "Nitrogen is a chemical element with symbol N and atomic number 7. Nitrogen is the lightest member of group 15 of the periodic table, often called the pnictogens.", xpos: 15, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p³", discovered_by: "Daniel Rutherford", source: "https://en.wikipedia.org/wiki/Nitrogen" },
+            { number: 8, symbol: "O", name: "Oxygen", atomic_mass: 15.999, category: "diatomic nonmetal", phase: "Gas", summary: "Oxygen is a chemical element with symbol O and atomic number 8. It is a member of the chalcogen group on the periodic table, a highly reactive nonmetal, and an oxidizing agent that readily forms oxides with most elements as well as with other compounds.", xpos: 16, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p⁴", discovered_by: "Carl Wilhelm Scheele & Joseph Priestley", source: "https://en.wikipedia.org/wiki/Oxygen" },
+            { number: 9, symbol: "F", name: "Fluorine", atomic_mass: 18.998403163, category: "diatomic nonmetal", phase: "Gas", summary: "Fluorine is a chemical element with symbol F and atomic number 9. It is the lightest halogen and exists as a highly toxic pale yellow diatomic gas at standard conditions.", xpos: 17, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p⁵", discovered_by: "Henri Moissan", source: "https://en.wikipedia.org/wiki/Fluorine" },
+            { number: 10, symbol: "Ne", name: "Neon", atomic_mass: 20.1797, category: "noble gas", phase: "Gas", summary: "Neon is a chemical element with symbol Ne and atomic number 10. It is a noble gas. Neon is a colorless, odorless, inert monatomic gas under standard conditions, with about two-thirds the density of air.", xpos: 18, ypos: 2, electron_configuration_semantic: "[He] 2s² 2p⁶", discovered_by: "Morris Travers & William Ramsay", source: "https://en.wikipedia.org/wiki/Neon" },
+            // ... Add all other elements (11-118) following the same structure
+            // For brevity, only the first 10 are included here. A full implementation needs all 118.
+            // Example for a later element:
+             { number: 11, symbol: "Na", name: "Sodium", atomic_mass: 22.98976928, category: "alkali metal", phase: "Solid", summary: "Sodium is a chemical element with symbol Na and atomic number 11. It is a soft, silvery-white, highly reactive metal.", xpos: 1, ypos: 3, electron_configuration_semantic: "[Ne] 3s¹", discovered_by: "Humphry Davy", source: "https://en.wikipedia.org/wiki/Sodium" },
+             { number: 12, symbol: "Mg", name: "Magnesium", atomic_mass: 24.305, category: "alkaline earth metal", phase: "Solid", summary: "Magnesium is a chemical element with symbol Mg and atomic number 12. It is a shiny gray solid which shares many physical and chemical properties with the other five alkaline earth metals.", xpos: 2, ypos: 3, electron_configuration_semantic: "[Ne] 3s²", discovered_by: "Joseph Black / Humphry Davy", source: "https://en.wikipedia.org/wiki/Magnesium" },
+             // ... (Elements 13-18 for row 3)
+             { number: 13, symbol: "Al", name: "Aluminium", atomic_mass: 26.9815385, category: "post-transition metal", phase: "Solid", summary: "Aluminium is a chemical element with symbol Al and atomic number 13. It is a silvery-white, soft, non-magnetic and ductile metal.", xpos: 13, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p¹", discovered_by: "Hans Christian Ørsted / Friedrich Wöhler", source: "https://en.wikipedia.org/wiki/Aluminium" },
+             { number: 14, symbol: "Si", name: "Silicon", atomic_mass: 28.085, category: "metalloid", phase: "Solid", summary: "Silicon is a chemical element with symbol Si and atomic number 14. It is a hard, brittle crystalline solid with a blue-grey metallic luster, and is a tetravalent metalloid and semiconductor.", xpos: 14, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p²", discovered_by: "Jöns Jacob Berzelius", source: "https://en.wikipedia.org/wiki/Silicon" },
+             { number: 15, symbol: "P", name: "Phosphorus", atomic_mass: 30.973761998, category: "polyatomic nonmetal", phase: "Solid", summary: "Phosphorus is a chemical element with symbol P and atomic number 15. Elemental phosphorus exists in two major forms, white phosphorus and red phosphorus, but because it is highly reactive, phosphorus is never found as a free element on Earth.", xpos: 15, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p³", discovered_by: "Hennig Brand", source: "https://en.wikipedia.org/wiki/Phosphorus" },
+             { number: 16, symbol: "S", name: "Sulfur", atomic_mass: 32.06, category: "polyatomic nonmetal", phase: "Solid", summary: "Sulfur is a chemical element with symbol S and atomic number 16. It is abundant, multivalent and nonmetallic. Under normal conditions, sulfur atoms form cyclic octatomic molecules with a chemical formula S₈.", xpos: 16, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p⁴", discovered_by: "Ancient civilizations", source: "https://en.wikipedia.org/wiki/Sulfur" },
+             { number: 17, symbol: "Cl", name: "Chlorine", atomic_mass: 35.45, category: "diatomic nonmetal", phase: "Gas", summary: "Chlorine is a chemical element with symbol Cl and atomic number 17. The second-lightest of the halogens, it appears between fluorine and bromine in the periodic table and its properties are mostly intermediate between them.", xpos: 17, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p⁵", discovered_by: "Carl Wilhelm Scheele", source: "https://en.wikipedia.org/wiki/Chlorine" },
+             { number: 18, symbol: "Ar", name: "Argon", atomic_mass: 39.948, category: "noble gas", phase: "Gas", summary: "Argon is a chemical element with symbol Ar and atomic number 18. It is in group 18 of the periodic table and is a noble gas. Argon is the third-most abundant gas in the Earth's atmosphere, at 0.934%.", xpos: 18, ypos: 3, electron_configuration_semantic: "[Ne] 3s² 3p⁶", discovered_by: "Lord Rayleigh & William Ramsay", source: "https://en.wikipedia.org/wiki/Argon" },
+             // ... Add elements 19-36 for row 4
+             { number: 19, symbol: "K", name: "Potassium", atomic_mass: 39.0983, category: "alkali metal", phase: "Solid", summary: "Potassium is a chemical element with symbol K and atomic number 19. It is a silvery-white metal that is soft enough to be cut with a knife with little force.", xpos: 1, ypos: 4, electron_configuration_semantic: "[Ar] 4s¹", discovered_by: "Humphry Davy", source: "https://en.wikipedia.org/wiki/Potassium" },
+             { number: 20, symbol: "Ca", name: "Calcium", atomic_mass: 40.078, category: "alkaline earth metal", phase: "Solid", summary: "Calcium is a chemical element with symbol Ca and atomic number 20. As an alkaline earth metal, calcium is a reactive metal that forms a dark oxide-nitride layer when exposed to air.", xpos: 2, ypos: 4, electron_configuration_semantic: "[Ar] 4s²", discovered_by: "Humphry Davy", source: "https://en.wikipedia.org/wiki/Calcium" },
+             // ... Transition metals start here ...
+             { number: 21, symbol: "Sc", name: "Scandium", atomic_mass: 44.955908, category: "transition metal", phase: "Solid", summary: "Scandium is a chemical element with symbol Sc and atomic number 21. A silvery-white metallic d-block element, it has historically been sometimes classified as a rare-earth element, together with yttrium and the lanthanides.", xpos: 3, ypos: 4, electron_configuration_semantic: "[Ar] 3d¹ 4s²", discovered_by: "Lars Fredrik Nilson", source: "https://en.wikipedia.org/wiki/Scandium" },
+             // ... (Elements 22-30) ...
+             { number: 30, symbol: "Zn", name: "Zinc", atomic_mass: 65.38, category: "transition metal", phase: "Solid", summary: "Zinc is a chemical element with symbol Zn and atomic number 30. Zinc is a slightly brittle metal at room temperature and has a silvery-greyish appearance when oxidation is removed.", xpos: 12, ypos: 4, electron_configuration_semantic: "[Ar] 3d¹⁰ 4s²", discovered_by: "Andreas Sigismund Marggraf", source: "https://en.wikipedia.org/wiki/Zinc" },
+             // ... (Elements 31-36) ...
+             { number: 31, symbol: "Ga", name: "Gallium", atomic_mass: 69.723, category: "post-transition metal", phase: "Solid", summary: "Gallium is a chemical element with symbol Ga and atomic number 31. Elemental gallium is a soft, silvery metal at standard temperature and pressure; however in its liquid state it becomes silvery white.", xpos: 13, ypos: 4, electron_configuration_semantic: "[Ar] 3d¹⁰ 4s² 4p¹", discovered_by: "Paul-Émile Lecoq de Boisbaudran", source: "https://en.wikipedia.org/wiki/Gallium" },
+             { number: 36, symbol: "Kr", name: "Krypton", atomic_mass: 83.798, category: "noble gas", phase: "Gas", summary: "Krypton is a chemical element with symbol Kr and atomic number 36. It is a member of group 18 elements (noble gases). A colorless, odorless, tasteless noble gas, krypton occurs in trace amounts in the atmosphere.", xpos: 18, ypos: 4, electron_configuration_semantic: "[Ar] 3d¹⁰ 4s² 4p⁶", discovered_by: "Morris Travers & William Ramsay", source: "https://en.wikipedia.org/wiki/Krypton" },
+
+             // Placeholder Lanthanide trigger
+             { number: 57, symbol: "La", name: "Lanthanum", atomic_mass: 138.90547, category: "lanthanide", phase: "Solid", summary: "Lanthanum is a chemical element with symbol La and atomic number 57. It is a soft, ductile, silvery-white metal that tarnishes slowly when exposed to air.", xpos: 3, ypos: 6, electron_configuration_semantic: "[Xe] 5d¹ 6s²", discovered_by: "Carl Gustaf Mosander", source: "https://en.wikipedia.org/wiki/Lanthanum" },
+             // Placeholder Actinide trigger
+             { number: 89, symbol: "Ac", name: "Actinium", atomic_mass: 227, category: "actinide", phase: "Solid", summary: "Actinium is a chemical element with symbol Ac and atomic number 89. It was first isolated by Friedrich Oskar Giesel in 1902, who gave it the name emanium.", xpos: 3, ypos: 7, electron_configuration_semantic: "[Rn] 6d¹ 7s²", discovered_by: "André-Louis Debierne / Friedrich Oskar Giesel", source: "https://en.wikipedia.org/wiki/Actinium" },
+
+             // Lanthanides (ypos 9)
+             { number: 58, symbol: "Ce", name: "Cerium", atomic_mass: 140.116, category: "lanthanide", phase: "Solid", summary: "Cerium is a chemical element with symbol Ce and atomic number 58. Cerium is a soft, ductile, and silvery-white metal that tarnishes when exposed to air.", xpos: 4, ypos: 9, electron_configuration_semantic: "[Xe] 4f¹ 5d¹ 6s²", discovered_by: "Martin Heinrich Klaproth / Jöns Jacob Berzelius", source: "https://en.wikipedia.org/wiki/Cerium" },
+             // ... (Elements 59-71) ...
+             { number: 71, symbol: "Lu", name: "Lutetium", atomic_mass: 174.9668, category: "lanthanide", phase: "Solid", summary: "Lutetium is a chemical element with symbol Lu and atomic number 71. It is a silvery white metal, which resists corrosion in dry air, but not in moist air.", xpos: 17, ypos: 9, electron_configuration_semantic: "[Xe] 4f¹⁴ 5d¹ 6s²", discovered_by: "Georges Urbain / Carl Auer von Welsbach", source: "https://en.wikipedia.org/wiki/Lutetium" },
+
+             // Actinides (ypos 10)
+             { number: 90, symbol: "Th", name: "Thorium", atomic_mass: 232.0377, category: "actinide", phase: "Solid", summary: "Thorium is a chemical element with symbol Th and atomic number 90. A radioactive actinide metal, thorium is one of only two significantly radioactive elements that still occur naturally in large quantities as a primordial element.", xpos: 4, ypos: 10, electron_configuration_semantic: "[Rn] 6d² 7s²", discovered_by: "Jöns Jacob Berzelius", source: "https://en.wikipedia.org/wiki/Thorium" },
+             // ... (Elements 91-103) ...
+              { number: 103, symbol: "Lr", name: "Lawrencium", atomic_mass: 266, category: "actinide", phase: "Solid", summary: "Lawrencium is a synthetic chemical element with symbol Lr and atomic number 103. It is named in honor of Ernest Lawrence, inventor of the cyclotron, a device that was used to discover many artificial radioactive elements.", xpos: 17, ypos: 10, electron_configuration_semantic: "[Rn] 5f¹⁴ 7s² 7p¹ (?)", discovered_by: "Lawrence Berkeley National Laboratory", source: "https://en.wikipedia.org/wiki/Lawrencium" },
+
+             // Fill in remaining elements up to 118
+             { number: 118, symbol: "Og", name: "Oganesson", atomic_mass: 294, category: "noble gas", phase: "Gas", summary: "Oganesson is a synthetic chemical element with symbol Og and atomic number 118. It was first synthesized in 2002 at the Joint Institute for Nuclear Research (JINR) in Dubna, Russia.", xpos: 18, ypos: 7, electron_configuration_semantic: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶ (?)", discovered_by: "Joint Institute for Nuclear Research & Lawrence Livermore National Laboratory", source: "https://en.wikipedia.org/wiki/Oganesson" }
+             // ... Make sure all xpos/ypos are correct for the standard 18-column layout, including gaps for Lanthanides/Actinides
+        ];
+
+        const categoryColorMap = {
+            "diatomic nonmetal": "diatomic-nonmetal",
+            "noble gas": "noble-gas",
+            "alkali metal": "alkali-metal",
+            "alkaline earth metal": "alkaline-earth-metal",
+            "metalloid": "metalloid",
+            "polyatomic nonmetal": "polyatomic-nonmetal",
+            "post-transition metal": "post-transition-metal",
+            "transition metal": "transition-metal",
+            "lanthanide": "lanthanide",
+            "actinide": "actinide",
+            "unknown": "unknown" // Add default or unknown category if needed
+        };
+
+        const periodicTableContainer = document.getElementById('periodic-table');
+        const detailPanel = document.getElementById('element-detail');
+        const detailOverlay = document.getElementById('detail-overlay');
+        const closeButton = document.getElementById('close-detail');
+
+        // Detail Panel Elements
+        const detailModel = document.getElementById('detail-model');
+        const detailName = document.getElementById('detail-name');
+        const detailCategory = document.getElementById('detail-category');
+        const detailSymbol = document.getElementById('detail-symbol');
+        const detailNumber = document.getElementById('detail-number');
+        const detailMass = document.getElementById('detail-mass');
+        const detailPhase = document.getElementById('detail-phase');
+        const detailSummary = document.getElementById('detail-summary');
+        const detailElectronConfig = document.getElementById('detail-electron-config');
+        const detailDiscoveredBy = document.getElementById('detail-discovered-by');
+        const detailSource = document.getElementById('detail-source');
+
+
+        function getCategoryClass(category) {
+            const normalizedCategory = category.toLowerCase().replace(/\s+/g, '-');
+            return categoryColorMap[normalizedCategory] || 'unknown'; // Default if category not found
+        }
+
+        function createElementTile(element) {
+            const tile = document.createElement('div');
+            const categoryClass = getCategoryClass(element.category);
+
+            tile.className = `element ${categoryClass} rounded text-white p-1 sm:p-2 flex flex-col items-center justify-center shadow-md hover:shadow-lg min-h-[60px] sm:min-h-[80px] md:min-h-[90px] lg:min-h-[100px] aspect-square`; // aspect-square helps maintain shape
+            tile.style.gridColumnStart = element.xpos;
+            tile.style.gridRowStart = element.ypos;
+            tile.dataset.elementNumber = element.number; // Store element number for lookup
+
+            tile.innerHTML = `
+                <div class="text-[8px] sm:text-[10px] md:text-xs font-light self-start">${element.number}</div>
+                <div class="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold my-auto">${element.symbol}</div>
+                 <!-- Simple placeholder instead of model -->
+                <!-- <div class="element-model-placeholder"></div> -->
+                <div class="text-[7px] sm:text-[9px] md:text-[10px] font-medium text-center truncate w-full">${element.name}</div>
+            `;
+
+            tile.addEventListener('click', () => showElementDetails(element));
+            return tile;
+        }
+
+        function showElementDetails(element) {
+            detailName.textContent = element.name;
+            detailCategory.textContent = element.category;
+            detailSymbol.textContent = element.symbol;
+            detailNumber.textContent = element.number;
+            detailMass.textContent = element.atomic_mass.toFixed(4); // Format mass
+            detailPhase.textContent = element.phase || 'Unknown';
+            detailSummary.textContent = element.summary || 'No summary available.';
+            detailElectronConfig.textContent = element.electron_configuration_semantic || 'N/A';
+            detailDiscoveredBy.textContent = element.discovered_by || 'Unknown';
+            detailSource.href = element.source || '#';
+            detailSource.textContent = element.source ? element.source.split('/')[2] : 'N/A'; // Extract domain name
+
+            // Maybe update the detail model placeholder based on category?
+            const categoryClass = getCategoryClass(element.category);
+             // Simple visual differentiation for detail view placeholder - just using category bg color
+             detailModel.className = `w-32 h-32 mx-auto ${categoryClass} opacity-70 rounded-full mb-4 flex items-center justify-center text-gray-800 text-4xl font-bold shadow-inner`;
+             detailModel.innerHTML = `<span class="opacity-90">${element.symbol}</span>`;
+
+
+            detailPanel.classList.remove('hidden');
+            detailOverlay.classList.remove('hidden');
+             // Prevent body scrolling when detail panel is open
+             document.body.style.overflow = 'hidden';
+        }
+
+        function hideElementDetails() {
+            detailPanel.classList.add('hidden');
+            detailOverlay.classList.add('hidden');
+             // Restore body scrolling
+            document.body.style.overflow = '';
+        }
+
+        // Populate the table
+        elementsData.forEach(element => {
+            const tile = createElementTile(element);
+            periodicTableContainer.appendChild(tile);
+        });
+
+        // Add event listeners
+        closeButton.addEventListener('click', hideElementDetails);
+        detailOverlay.addEventListener('click', hideElementDetails); // Close on overlay click
+
+    </script>
+
+</body>
+</html>
