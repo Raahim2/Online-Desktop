@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Color Match</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define hexagon size using CSS variables for easier calculation */
+        :root {
+            --hex-size: 40px; /* Adjust base size */
+            --hex-width: calc(var(--hex-size) * 1.732); /* width = size * sqrt(3) */
+            --hex-height: calc(var(--hex-size) * 2); /* height = size * 2 */
+            --hex-margin-top: calc(var(--hex-size) * -0.5); /* overlap = size / 2 */
+            --hex-margin-left: calc(var(--hex-width) / 2); /* stagger = width / 2 */
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --hex-size: 30px;
+            }
+        }
+         @media (max-width: 480px) {
+            :root {
+                --hex-size: 22px;
+            }
+        }
+
+        .hexagon {
+            position: relative;
+            width: var(--hex-width);
+            height: var(--hex-height);
+            margin-top: var(--hex-margin-top);
+            margin-bottom: var(--hex-margin-top); /* Create vertical space */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+        }
+
+        .hexagon:hover {
+            transform: scale(1.1);
+            z-index: 10; /* Bring hovered hex to front */
+        }
+
+        /* Stagger odd rows */
+        .hex-row:nth-child(odd) {
+            margin-left: var(--hex-margin-left);
+        }
+
+        /* Adjust margin for first row */
+        .hex-row:first-child .hexagon {
+             margin-top: 0;
+        }
+        .hex-row:not(:first-child) {
+            margin-top: calc(var(--hex-size) * -0.5); /* Overlap rows correctly */
+        }
+
+        /* Prevent layout shift due to hover scale by adding margin */
+        .hex-grid-container {
+            padding: calc(var(--hex-size) * 0.1); /* Small padding around grid */
+        }
+
+        /* Ensure flex items don't shrink below hex size */
+        .hex-row > div {
+            flex-shrink: 0;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen font-sans p-4">
+
+    <div id="game-container" class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-xl max-w-4xl w-full">
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-4">Hex Color Match</h1>
+
+        <div id="difficulty-selection" class="text-center mb-4">
+            <h2 class="text-lg font-semibold mb-2 text-gray-700">Select Difficulty:</h2>
+            <div class="flex justify-center gap-2 sm:gap-4">
+                <button onclick="setupGame('easy')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">Easy</button>
+                <button onclick="setupGame('medium')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">Medium</button>
+                <button onclick="setupGame('hard')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">Hard</button>
+            </div>
+        </div>
+
+        <div id="game-area" class="hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                <div id="status-info" class="text-center sm:text-left">
+                    <p class="text-gray-700">Moves Left: <span id="moves-left" class="font-bold text-lg">0</span></p>
+                    </div>
+                <div id="color-palette" class="flex justify-center gap-2">
+                    <!-- Color buttons will be added here -->
+                </div>
+                 <button id="reset-button" onclick="resetGame()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded transition duration-150 ease-in-out text-sm">New Game</button>
+            </div>
+
+            <div id="hex-grid-container" class="hex-grid-container flex flex-col items-center justify-center mx-auto mb-4 overflow-hidden">
+                <!-- Hex grid rows will be generated here -->
+            </div>
+
+            <div id="message-area" class="text-center mt-4 h-6">
+                <p id="message-text" class="text-xl font-semibold"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hexGridContainer = document.getElementById('hex-grid-container');
+        const colorPaletteContainer = document.getElementById('color-palette');
+        const movesLeftSpan = document.getElementById('moves-left');
+        const messageText = document.getElementById('message-text');
+        const gameArea = document.getElementById('game-area');
+        const difficultySelection = document.getElementById('difficulty-selection');
+        const resetButton = document.getElementById('reset-button');
+
+        // Tailwind Color Classes (ensure these are available in the build/CDN)
+        const colorClasses = [
+            'bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500',
+            'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
+        ];
+
+        const difficultySettings = {
+            easy:   { rows: 5, cols: 5, numColors: 4, moves: 15 },
+            medium: { rows: 8, cols: 8, numColors: 5, moves: 25 },
+            hard:   { rows: 12, cols: 12, numColors: 6, moves: 35 }
+        };
+
+        let currentBoard = [];
+        let rows, cols, numColors, movesLeft, currentCornerColor;
+        let availableColors = [];
+        let gameOver = false;
+        let currentDifficulty = 'medium'; // Default
+
+        function setupGame(difficulty) {
+            currentDifficulty = difficulty;
+            const settings = difficultySettings[difficulty];
+            rows = settings.rows;
+            cols = settings.cols;
+            numColors = settings.numColors;
+            movesLeft = settings.moves;
+            gameOver = false;
+
+            availableColors = colorClasses.slice(0, numColors);
+
+            generateBoard();
+            renderBoard();
+            renderPalette();
+            updateStatus();
+
+            messageText.textContent = '';
+            messageText.className = 'text-xl font-semibold'; // Reset class
+            difficultySelection.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+        }
+
+        function resetGame() {
+             setupGame(currentDifficulty);
+        }
+
+        function generateBoard() {
+            currentBoard = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) {
+                    const randomColorIndex = Math.floor(Math.random() * numColors);
+                    row.push(availableColors[randomColorIndex]);
+                }
+                currentBoard.push(row);
+            }
+            currentCornerColor = currentBoard[0][0];
+        }
+
+        function renderBoard() {
+            hexGridContainer.innerHTML = ''; // Clear previous grid
+            // Adjust container size based on hex dimensions
+            const containerWidth = (cols * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hex-width'))) + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hex-margin-left'));
+            const containerHeight = ((rows * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hex-height'))) * 0.75); // Approx height due to overlap
+            hexGridContainer.style.width = `${containerWidth}px`;
+            // hexGridContainer.style.height = `${containerHeight}px`; // Height can be tricky, let flex handle it mostly
+
+            currentBoard.forEach((row, r) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'hex-row flex justify-center'; // Center hexes within the row div
+
+                row.forEach((colorClass, c) => {
+                    const hexDiv = document.createElement('div');
+                    hexDiv.className = `hexagon ${colorClass}`;
+                    hexDiv.dataset.r = r;
+                    hexDiv.dataset.c = c;
+                    rowDiv.appendChild(hexDiv);
+                });
+                hexGridContainer.appendChild(rowDiv);
+            });
+             // Set initial corner color explicitly after rendering
+            floodFill(currentCornerColor, true); // Initial fill without consuming a move
+        }
+
+        function renderPalette() {
+            colorPaletteContainer.innerHTML = '';
+            availableColors.forEach(colorClass => {
+                const button = document.createElement('button');
+                button.className = `w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colorClass} border-2 border-gray-300 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150`;
+                button.onclick = () => handleColorSelection(colorClass);
+                button.disabled = colorClass === currentCornerColor; // Disable button for current color
+                 if(button.disabled) button.classList.add('opacity-50', 'cursor-not-allowed');
+                colorPaletteContainer.appendChild(button);
+            });
+        }
+
+         function handleColorSelection(selectedColorClass) {
+            if (gameOver || selectedColorClass === currentCornerColor) {
+                return; // Don't do anything if game over or same color clicked
+            }
+
+            movesLeft--;
+            floodFill(selectedColorClass);
+            updateStatus();
+            renderPalette(); // Re-render palette to disable the new current color
+            checkGameEnd();
+        }
+
+        function floodFill(targetColorClass, initialFill = false) {
+            const startRow = 0;
+            const startCol = 0;
+            const originalColor = currentBoard[startRow][startCol];
+
+            if (!initialFill && originalColor === targetColorClass) return; // No change needed
+
+            const queue = [[startRow, startCol]];
+            const visited = new Set([`${startRow},${startCol}`]);
+            const toChange = []; // Store cells to change color
+
+             // Phase 1: Find all connected cells of the original corner color
+            const cornerBlob = new Set();
+            const floodQueue = [[startRow, startCol]];
+            const floodVisited = new Set([`${startRow},${startCol}`]);
+            cornerBlob.add(`${startRow},${startCol}`);
+
+            while(floodQueue.length > 0) {
+                const [r, c] = floodQueue.shift();
+                toChange.push([r, c]); // Add to list for final color change
+
+                getNeighbors(r, c).forEach(([nr, nc]) => {
+                    const key = `${nr},${nc}`;
+                    if (!floodVisited.has(key) && currentBoard[nr][nc] === originalColor) {
+                        floodVisited.add(key);
+                        floodQueue.push([nr, nc]);
+                        cornerBlob.add(key);
+                    }
+                });
+            }
+
+            // Phase 2: Expand from the identified blob to adjacent cells of the target color
+            const expansionQueue = [...cornerBlob].map(key => key.split(',').map(Number)); // Start expansion from all blob cells
+            const expansionVisited = new Set(cornerBlob);
+
+            while(expansionQueue.length > 0) {
+                const [r, c] = expansionQueue.shift();
+
+                 getNeighbors(r, c).forEach(([nr, nc]) => {
+                     const key = `${nr},${nc}`;
+                     if(!expansionVisited.has(key) && currentBoard[nr][nc] === targetColorClass) {
+                         expansionVisited.add(key);
+                         expansionQueue.push([nr, nc]);
+                         toChange.push([nr, nc]); // Add newly connected target color cells
+                     }
+                 });
+            }
+
+
+            // Phase 3: Change color of all identified cells
+            toChange.forEach(([r, c]) => {
+                if (currentBoard[r][c] !== targetColorClass) { // Only update if not already target color
+                    currentBoard[r][c] = targetColorClass;
+                    // Update DOM directly for instant feedback
+                    const hexElement = hexGridContainer.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+                    if (hexElement) {
+                         // Remove old color class, add new one
+                        hexElement.className = hexElement.className.replace(/bg-\S+-500/g, '') + ` ${targetColorClass}`;
+                    }
+                }
+            });
+
+            currentCornerColor = targetColorClass; // Update the corner color state
+        }
+
+
+        function getNeighbors(r, c) {
+            const neighbors = [];
+             // Potential relative coordinates of neighbors
+            const potentialNeighbors = (r % 2 === 0) ? [ // Even rows
+                [r, c - 1], [r, c + 1],     // Left, Right
+                [r - 1, c - 1], [r - 1, c], // Top-Left, Top-Right
+                [r + 1, c - 1], [r + 1, c]  // Bottom-Left, Bottom-Right
+            ] : [ // Odd rows
+                [r, c - 1], [r, c + 1],     // Left, Right
+                [r - 1, c], [r - 1, c + 1], // Top-Left, Top-Right
+                [r + 1, c], [r + 1, c + 1]  // Bottom-Left, Bottom-Right
+            ];
+
+
+            potentialNeighbors.forEach(([nr, nc]) => {
+                // Check bounds
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                    neighbors.push([nr, nc]);
+                }
+            });
+            return neighbors;
+        }
+
+
+        function updateStatus() {
+            movesLeftSpan.textContent = movesLeft;
+        }
+
+       function checkGameEnd() {
+            if (gameOver) return;
+
+            // Check Win: Is the entire board the same color?
+            const firstColor = currentBoard[0][0];
+            let won = true;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (currentBoard[r][c] !== firstColor) {
+                        won = false;
+                        break;
+                    }
+                }
+                if (!won) break;
+            }
+
+            if (won) {
+                messageText.textContent = "You Win!";
+                messageText.className = 'text-xl font-semibold text-green-600';
+                gameOver = true;
+                 disablePalette();
+            } else if (movesLeft <= 0) {
+                messageText.textContent = "Game Over - Out of Moves!";
+                 messageText.className = 'text-xl font-semibold text-red-600';
+                gameOver = true;
+                 disablePalette();
+            }
+        }
+
+        function disablePalette() {
+             colorPaletteContainer.querySelectorAll('button').forEach(button => {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        // Initial state - hide game area until difficulty selected
+        gameArea.classList.add('hidden');
+        difficultySelection.classList.remove('hidden');
+
+    </script>
+
+</body>
+</html>
