@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Animated Card Carousel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define the gradient animation */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Apply the animation */
+        .animate-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+
+        /* Hide scrollbar for a cleaner look (cross-browser) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE 10+ */
+            scrollbar-width: none; /* Firefox */
+        }
+
+        /* Ensure smooth scrolling */
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8">Featured Destinations</h1>
+
+        <!-- Animated Gradient Background Container -->
+        <div class="animate-gradient p-4 md:p-6 rounded-xl shadow-lg">
+
+            <!-- Carousel Scroll Container -->
+            <div class="hide-scrollbar smooth-scroll flex overflow-x-auto space-x-6 scroll-snap-type-x mandatory py-4 px-2">
+
+                <!-- Card 1 -->
+                <div class="flex-shrink-0 w-[calc(100%-2rem)] sm:w-80 md:w-96 bg-white rounded-lg shadow-md overflow-hidden scroll-snap-align-center transform transition-transform duration-300 ease-in-out hover:scale-105">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60" alt="Tropical Beach">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Tropical Paradise</h2>
+                        <p class="text-gray-600 text-sm">Relax on pristine beaches with crystal clear waters and swaying palm trees.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flex-shrink-0 w-[calc(100%-2rem)] sm:w-80 md:w-96 bg-white rounded-lg shadow-md overflow-hidden scroll-snap-align-center transform transition-transform duration-300 ease-in-out hover:scale-105">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60" alt="City Skyline">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Urban Exploration</h2>
+                        <p class="text-gray-600 text-sm">Discover vibrant city life, iconic landmarks, and hidden cultural gems.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flex-shrink-0 w-[calc(100%-2rem)] sm:w-80 md:w-96 bg-white rounded-lg shadow-md overflow-hidden scroll-snap-align-center transform transition-transform duration-300 ease-in-out hover:scale-105">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60" alt="Mountain Landscape">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Mountain Retreat</h2>
+                        <p class="text-gray-600 text-sm">Escape to serene mountain landscapes, perfect for hiking and tranquility.</p>
+                    </div>
+                </div>
+
+                <!-- Card 4 (Optional Extra) -->
+                <div class="flex-shrink-0 w-[calc(100%-2rem)] sm:w-80 md:w-96 bg-white rounded-lg shadow-md overflow-hidden scroll-snap-align-center transform transition-transform duration-300 ease-in-out hover:scale-105">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60" alt="Starry Night Sky">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Night Sky Wonders</h2>
+                        <p class="text-gray-600 text-sm">Gaze at the breathtaking beauty of the cosmos under a clear night sky.</p>
+                    </div>
+                </div>
+
+                 <!-- Add more cards here if needed -->
+
+            </div>
+            <!-- End Carousel Scroll Container -->
+
+        </div>
+        <!-- End Animated Gradient Background Container -->
+
+        <p class="text-center text-gray-500 mt-6 text-sm">Scroll horizontally to view more cards.</p>
+
+    </div>
+
+</body>
+</html>
