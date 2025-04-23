@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Dice Roller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Optional: Add custom scrollbar styling if desired */
+        .history-log::-webkit-scrollbar {
+            width: 8px;
+        }
+        .history-log::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .history-log::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Tailwind gray-300 */
+            border-radius: 10px;
+        }
+        .history-log::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* Tailwind gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Dice Roller</h1>
+
+        <!-- Input Section -->
+        <div class="mb-6">
+            <label for="diceInput" class="block text-sm font-medium text-gray-700 mb-1">Enter Dice (e.g., 2d6, d20)</label>
+            <div class="flex space-x-2">
+                <input type="text" id="diceInput" name="diceInput" placeholder="e.g., 3d6" required
+                       class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <button id="rollButton"
+                        class="py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                    Roll
+                </button>
+            </div>
+            <p id="inputError" class="text-red-500 text-xs mt-1 h-4"></p> <!-- Error message placeholder -->
+        </div>
+
+        <!-- Results Section -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">Result</h2>
+            <div id="resultsDisplay" class="p-4 bg-gray-50 rounded-md border border-gray-200 min-h-[60px] text-gray-800 break-words">
+                <p class="text-gray-500 italic">Roll the dice to see results here.</p>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div>
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">History</h2>
+            <div id="historyLog" class="history-log max-h-60 overflow-y-auto border border-gray-200 rounded-md p-3 space-y-2 bg-gray-50">
+                <!-- History items will be added here -->
+                <p id="historyPlaceholder" class="text-gray-500 italic text-sm">No rolls yet.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const diceInput = document.getElementById('diceInput');
+        const rollButton = document.getElementById('rollButton');
+        const resultsDisplay = document.getElementById('resultsDisplay');
+        const historyLog = document.getElementById('historyLog');
+        const historyPlaceholder = document.getElementById('historyPlaceholder');
+        const inputError = document.getElementById('inputError');
+
+        // --- Event Listeners ---
+        rollButton.addEventListener('click', handleRoll);
+        diceInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleRoll();
+            }
+        });
+        // Clear error on input change
+        diceInput.addEventListener('input', () => {
+             inputError.textContent = '';
+        });
+
+
+        // --- Core Roll Logic ---
+        function handleRoll() {
+            const inputString = diceInput.value.trim().toLowerCase();
+            inputError.textContent = ''; // Clear previous errors
+
+            const match = inputString.match(/^(\d+)?d(\d+)$/);
+
+            if (!match) {
+                displayError("Invalid format. Use 'XdY' (e.g., '2d6', 'd20').");
+                return;
+            }
+
+            const numDice = match[1] ? parseInt(match[1], 10) : 1;
+            const numSides = parseInt(match[2], 10);
+
+            if (isNaN(numDice) || isNaN(numSides) || numDice <= 0 || numSides <= 0) {
+                 displayError("Number of dice and sides must be positive numbers.");
+                return;
+            }
+            if (numDice > 1000 || numSides > 1000) {
+                 displayError("Max 1000 dice and 1000 sides allowed.");
+                return;
+            }
+
+
+            rollDice(numDice, numSides, inputString);
+        }
+
+        function rollDice(numDice, numSides, originalInput) {
+            let rolls = [];
+            let total = 0;
+
+            for (let i = 0; i < numDice; i++) {
+                const roll = Math.floor(Math.random() * numSides) + 1;
+                rolls.push(roll);
+                total += roll;
+            }
+
+            displayResults(rolls, total, originalInput);
+            addToHistory(rolls, total, originalInput);
+        }
+
+        // --- Display Functions ---
+         function displayError(message) {
+            resultsDisplay.innerHTML = `<p class="text-red-600 font-medium">${message}</p>`;
+            inputError.textContent = message; // Also show near input
+        }
+
+        function displayResults(rolls, total, input) {
+            let resultHTML = '';
+            const numDice = rolls.length;
+
+            if (numDice === 1) {
+                resultHTML = `<p><span class="font-semibold">${input}:</span> <span class="text-xl font-bold text-indigo-700">${rolls[0]}</span></p>`;
+            } else {
+                resultHTML = `
+                    <p><span class="font-semibold">${input}:</span> Total: <span class="text-xl font-bold text-indigo-700">${total}</span></p>
+                    <p class="text-sm text-gray-600 mt-1">Rolls: ${rolls.join(', ')}</p>
+                `;
+            }
+            resultsDisplay.innerHTML = resultHTML;
+        }
+
+        function addToHistory(rolls, total, input) {
+             if (historyPlaceholder) {
+                historyPlaceholder.remove(); // Remove placeholder on first roll
+             }
+
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit'});
+            const historyEntry = document.createElement('div');
+            historyEntry.classList.add('text-sm', 'text-gray-600', 'border-b', 'border-gray-100', 'pb-1', 'last:border-b-0');
+
+            let resultText = '';
+            if (rolls.length === 1) {
+                resultText = `Rolled ${input}: <span class="font-semibold text-gray-800">${rolls[0]}</span>`;
+            } else {
+                 resultText = `Rolled ${input}: <span class="font-semibold text-gray-800">${total}</span> (${rolls.join(', ')})`;
+            }
+
+            historyEntry.innerHTML = `
+                <span class="text-xs text-gray-400">[${timestamp}]</span> ${resultText}
+            `;
+
+            // Prepend to show newest first
+            historyLog.prepend(historyEntry);
+
+             // Optional: Limit history length
+             const maxHistoryItems = 50;
+             while (historyLog.children.length > maxHistoryItems) {
+                 historyLog.removeChild(historyLog.lastChild);
+             }
+        }
+
+    </script>
+
+</body>
+</html>
