@@ -3,6 +3,7 @@ import re
 import requests
 import base64
 import random
+import uuid
 
 GITHUB_TOKEN = os.getenv("REPO_GITHUB_TOKEN")
 API_KEY = os.getenv("GEMINI_API_KEY")
@@ -104,24 +105,25 @@ def gemini(prompt, gemini_api_key=API_KEY ):
 
 prompts = [
     "Give me a creative and unique project idea for a website using HTML and Tailwind CSS. Output only the idea.",
-    "Suggest one new web project I could build using HTML and Tailwind CSS. Just the idea please.",
+    "Suggest one new web project I could build using HTML and Tailwind CSS. Output only the idea.",
     "Generate a fresh and interesting HTML + Tailwind CSS project idea. Output only the name or title.",
-    "What's an original beginner-friendly HTML + Tailwind CSS project idea? Just give the idea.",
+    "What's an original beginner-friendly HTML + Tailwind CSS project idea? Output only the idea.",
     "Give a fun and useful project idea I can build with only HTML and Tailwind CSS. Output only the title.",
-    "Suggest an innovative web UI concept that can be built using HTML and Tailwind CSS. Idea only.",
-    "Propose a mini-project idea using HTML and Tailwind CSS that involves interactive UI. Output only the project name.",
-    "Name a unique concept for a responsive website using HTML and Tailwind CSS. Just the idea.",
+    "Suggest an innovative web UI concept that can be built using HTML and Tailwind CSS. Output only the idea.",
+    "Propose a mini-project idea using HTML and Tailwind CSS that involves interactive UI. Output only the idea.",
+    "Name a unique concept for a responsive website using HTML and Tailwind CSS. Output only the idea.",
     "What’s a cool static web project idea using Tailwind CSS and HTML? Output just the project title.",
-    "Give me one creative, small-scale portfolio project idea using HTML and Tailwind CSS. Just the name.",
+    "Give me one creative, small-scale portfolio project idea using HTML and Tailwind CSS. Output only the idea.",
     "Suggest a fun clone project idea using Tailwind CSS and HTML only (like a simplified app or tool). Output only the project idea.",
-    "What’s a lesser-known but interesting web layout idea I can make with HTML and Tailwind CSS? Only the idea.",
-    "Propose a themed landing page concept that can be done in HTML and Tailwind CSS. Just give the idea.",
+    "What’s a lesser-known but interesting web layout idea I can make with HTML and Tailwind CSS? Output only the idea.",
+    "Propose a themed landing page concept that can be done in HTML and Tailwind CSS. Output only the idea.",
     "Generate one random and visually appealing project idea using only Tailwind CSS and HTML. Output only the project idea title.",
-    "Give a creative challenge project idea that pushes Tailwind CSS layout skills using just HTML and Tailwind. Idea only."
+    "Give a creative challenge project idea that pushes Tailwind CSS layout skills using just HTML and Tailwind. Output only the idea."
 ]
 
 
 project_prompt = random.choice(prompts)
+unique_id = uuid.uuid4()
 
 project_idea = gemini(project_prompt)
 print(project_idea)
@@ -129,7 +131,7 @@ prompt = gemini(f"give prompt to make a project for {project_idea} html and tail
 print(prompt)
 code = gemini(prompt)
 print(code)
-res = commit_to_github(GITHUB_TOKEN, "https://github.com/Raahim2/Online-Desktop" , f"public/projects/BIN/{slugify(project_idea)}.html", "added bin project", code, isAppend=False, isTruncate=True)
+res = commit_to_github(GITHUB_TOKEN, "https://github.com/Raahim2/Online-Desktop" , f"public/projects/BIN/{unique_id}.html", "added bin project", code, isAppend=False, isTruncate=True)
 print(res)
 
 
