@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Moiré Pattern Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for pattern placeholders if needed */
+        .pattern-layer-1 {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0, 0, 0, 0.2),
+                rgba(0, 0, 0, 0.2) 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+        .pattern-layer-2 {
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(0, 0, 255, 0.2),
+                rgba(0, 0, 255, 0.2) 4px,
+                transparent 4px,
+                transparent 8px
+            );
+        }
+         .pattern-layer-3 {
+            background: repeating-radial-gradient(
+                circle,
+                rgba(255, 0, 0, 0.15),
+                rgba(255, 0, 0, 0.15) 3px,
+                transparent 3px,
+                transparent 9px
+            );
+        }
+        /* Style range inputs */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 9999px;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4f46e5; /* indigo-600 */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #4f46e5; /* indigo-600 */
+            cursor: pointer;
+            border-radius: 50%;
+            border: none; /* Reset default border */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Moiré Generator</h1>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Interactive Layers</span>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Controls Panel -->
+            <aside class="w-full lg:w-1/3 xl:w-1/4 space-y-6">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-300 dark:border-gray-700">Controls</h2>
+
+                <!-- Layer 1 Controls -->
+                <section id="layer1-controls" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-medium">Layer 1</h3>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked onchange="toggleLayerVisibility('layer1-preview', this.checked)">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Visible</span>
+                        </label>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="layer1-pattern" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pattern Type</label>
+                            <select id="layer1-pattern" name="layer1-pattern" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option selected>Lines (45deg)</option>
+                                <option>Dots</option>
+                                <option>Grid</option>
+                                <option>Circles</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="layer1-opacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opacity (<span id="layer1-opacity-value">0.5</span>)</label>
+                            <input type="range" id="layer1-opacity" name="layer1-opacity" min="0" max="1" step="0.05" value="0.5" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer1-opacity-value', this.value); updateLayerStyle('layer1-preview', 'opacity', this.value)">
+                        </div>
+                         <div>
+                            <label for="layer1-rotation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rotation (<span id="layer1-rotation-value">0</span> deg)</label>
+                            <input type="range" id="layer1-rotation" name="layer1-rotation" min="0" max="360" step="1" value="0" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer1-rotation-value', this.value + ' deg'); updateLayerStyle('layer1-preview', 'transform', 'rotate(' + this.value + 'deg)')">
+                        </div>
+                         <div>
+                            <label for="layer1-scale" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scale (<span id="layer1-scale-value">1</span>)</label>
+                            <input type="range" id="layer1-scale" name="layer1-scale" min="0.5" max="2" step="0.1" value="1" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer1-scale-value', this.value); updateLayerStyle('layer1-preview', 'transform', 'scale(' + this.value + ') rotate(' + document.getElementById('layer1-rotation').value + 'deg)')">
+                        </div>
+                        <div>
+                            <label for="layer1-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
+                            <input type="color" id="layer1-color" name="layer1-color" value="#000000" class="w-full h-10 p-1 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer" oninput="updateLayerStyle('layer1-preview', 'backgroundColor', this.value + '33')"> <!-- Note: Simple color update, might conflict with pattern bg -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Layer 2 Controls -->
+                <section id="layer2-controls" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                     <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-medium">Layer 2</h3>
+                         <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked onchange="toggleLayerVisibility('layer2-preview', this.checked)">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Visible</span>
+                        </label>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="layer2-pattern" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pattern Type</label>
+                            <select id="layer2-pattern" name="layer2-pattern" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option>Lines (-45deg)</option>
+                                <option selected>Dots</option>
+                                <option>Grid</option>
+                                <option>Circles</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="layer2-opacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opacity (<span id="layer2-opacity-value">0.5</span>)</label>
+                            <input type="range" id="layer2-opacity" name="layer2-opacity" min="0" max="1" step="0.05" value="0.5" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer2-opacity-value', this.value); updateLayerStyle('layer2-preview', 'opacity', this.value)">
+                        </div>
+                         <div>
+                            <label for="layer2-rotation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rotation (<span id="layer2-rotation-value">5</span> deg)</label>
+                            <input type="range" id="layer2-rotation" name="layer2-rotation" min="0" max="360" step="1" value="5" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer2-rotation-value', this.value + ' deg'); updateLayerStyle('layer2-preview', 'transform', 'rotate(' + this.value + 'deg)')">
+                        </div>
+                         <div>
+                            <label for="layer2-scale" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scale (<span id="layer2-scale-value">1.1</span>)</label>
+                            <input type="range" id="layer2-scale" name="layer2-scale" min="0.5" max="2" step="0.1" value="1.1" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer2-scale-value', this.value); updateLayerStyle('layer2-preview', 'transform', 'scale(' + this.value + ') rotate(' + document.getElementById('layer2-rotation').value + 'deg)')">
+                        </div>
+                        <div>
+                            <label for="layer2-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
+                            <input type="color" id="layer2-color" name="layer2-color" value="#0000ff" class="w-full h-10 p-1 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer" oninput="updateLayerStyle('layer2-preview', 'backgroundColor', this.value + '33')"> <!-- Note: Simple color update, might conflict with pattern bg -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Layer 3 Controls -->
+                <section id="layer3-controls" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                     <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-medium">Layer 3</h3>
+                         <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked onchange="toggleLayerVisibility('layer3-preview', this.checked)">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Visible</span>
+                        </label>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="layer3-pattern" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pattern Type</label>
+                            <select id="layer3-pattern" name="layer3-pattern" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option>Lines (0deg)</option>
+                                <option>Dots</option>
+                                <option>Grid</option>
+                                <option selected>Circles</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="layer3-opacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opacity (<span id="layer3-opacity-value">0.3</span>)</label>
+                            <input type="range" id="layer3-opacity" name="layer3-opacity" min="0" max="1" step="0.05" value="0.3" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer3-opacity-value', this.value); updateLayerStyle('layer3-preview', 'opacity', this.value)">
+                        </div>
+                         <div>
+                            <label for="layer3-rotation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rotation (<span id="layer3-rotation-value">0</span> deg)</label>
+                            <input type="range" id="layer3-rotation" name="layer3-rotation" min="0" max="360" step="1" value="0" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer3-rotation-value', this.value + ' deg'); updateLayerStyle('layer3-preview', 'transform', 'rotate(' + this.value + 'deg)')">
+                        </div>
+                         <div>
+                            <label for="layer3-scale" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scale (<span id="layer3-scale-value">0.9</span>)</label>
+                            <input type="range" id="layer3-scale" name="layer3-scale" min="0.5" max="2" step="0.1" value="0.9" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" oninput="updateSliderValue('layer3-scale-value', this.value); updateLayerStyle('layer3-preview', 'transform', 'scale(' + this.value + ') rotate(' + document.getElementById('layer3-rotation').value + 'deg)')">
+                        </div>
+                        <div>
+                            <label for="layer3-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
+                            <input type="color" id="layer3-color" name="layer3-color" value="#ff0000" class="w-full h-10 p-1 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer" oninput="updateLayerStyle('layer3-preview', 'backgroundColor', this.value + '33')"> <!-- Note: Simple color update, might conflict with pattern bg -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Action Buttons -->
+                <div class="pt-4 border-t border-gray-300 dark:border-gray-700 flex space-x-3">
+                     <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                        Generate / Update
+                    </button>
+                     <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                        Reset
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- Preview Area -->
+            <section class="w-full lg:w-2/3 xl:w-3/4">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-300 dark:border-gray-700">Preview</h2>
+                <div id="preview-area" class="relative w-full aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg shadow-inner overflow-hidden">
+                    <!-- Placeholder for the generated pattern -->
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400 italic">
+                        Moiré pattern will appear here
+                    </div>
+
+                    <!-- Layer 1 Preview -->
+                    <div id="layer1-preview" class="absolute inset-0 pattern-layer-1 mix-blend-multiply dark:mix-blend-screen" style="opacity: 0.5; transform: rotate(0deg) scale(1);">
+                        <!-- Content/Pattern for Layer 1 -->
+                    </div>
+
+                    <!-- Layer 2 Preview -->
+                    <div id="layer2-preview" class="absolute inset-0 pattern-layer-2 mix-blend-multiply dark:mix-blend-screen" style="opacity: 0.5; transform: rotate(5deg) scale(1.1);">
+                        <!-- Content/Pattern for Layer 2 -->
+                    </div>
+
+                     <!-- Layer 3 Preview -->
+                    <div id="layer3-preview" class="absolute inset-0 pattern-layer-3 mix-blend-multiply dark:mix-blend-screen" style="opacity: 0.3; transform: rotate(0deg) scale(0.9);">
+                        <!-- Content/Pattern for Layer 3 -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 mt-12 shadow-inner py-4">
+        <div class="container mx-auto px-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+            &copy; 2023 Moiré Pattern Generator. Built with HTML & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        function toggleLayerVisibility(layerId, isVisible) {
+            const layer = document.getElementById(layerId);
+            if (layer) {
+                layer.style.display = isVisible ? 'block' : 'none';
+            }
+        }
+
+        function updateSliderValue(spanId, value) {
+            const span = document.getElementById(spanId);
+            if (span) {
+                span.textContent = value;
+            }
+        }
+
+        // Very basic style update - combines scale and rotate crudely
+        function updateLayerStyle(layerId, styleProperty, value) {
+            const layer = document.getElementById(layerId);
+            if (layer) {
+                if (styleProperty === 'transform') {
+                    // Attempt to preserve existing transforms (very basic)
+                    const currentTransform = layer.style.transform || '';
+                    let newTransform = '';
+                    if (value.startsWith('scale')) {
+                        const rotateMatch = currentTransform.match(/rotate\([^)]+\)/);
+                        newTransform = value + ' ' + (rotateMatch ? rotateMatch[0] : '');
+                    } else if (value.startsWith('rotate')) {
+                         const scaleMatch = currentTransform.match(/scale\([^)]+\)/);
+                         newTransform = (scaleMatch ? scaleMatch[0] : '') + ' ' + value;
+                    } else {
+                        newTransform = value; // Fallback for other transforms if added
+                    }
+                    layer.style.transform = newTransform.trim();
+                } else {
+                     layer.style[styleProperty] = value;
+                }
+
+                // Special handling for color -> background-color (if pattern allows)
+                // This simple example assumes color changes the semi-transparent background
+                // It might override the CSS pattern backgrounds depending on implementation.
+                // A more robust solution would use SVG or Canvas.
+                if (styleProperty === 'backgroundColor') {
+                     // Example: Use the color with some fixed alpha
+                     // layer.style.backgroundColor = value; // Direct override
+                     // Or maybe modify a CSS variable if setup allows
+                }
+            }
+        }
+
+        // Initialize slider values display on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                const spanId = slider.id.replace(/-opacity|-rotation|-scale/, '') + '-' + slider.name.split('-')[1] + '-value';
+                let displayValue = slider.value;
+                 if (slider.name.includes('rotation')) {
+                    displayValue += ' deg';
+                }
+                updateSliderValue(spanId, displayValue);
+
+                // Also apply initial styles based on default values
+                const layerId = slider.id.replace(/-opacity|-rotation|-scale|-color/, '') + '-preview';
+                if (slider.name.includes('opacity')) {
+                    updateLayerStyle(layerId, 'opacity', slider.value);
+                } else if (slider.name.includes('rotation')) {
+                     updateLayerStyle(layerId, 'transform', 'rotate(' + slider.value + 'deg)');
+                } else if (slider.name.includes('scale')) {
+                    // This needs to combine with rotation on init too
+                     const rotationSlider = document.getElementById(slider.id.replace('-scale', '-rotation'));
+                     const initialRotation = rotationSlider ? rotationSlider.value : '0';
+                     updateLayerStyle(layerId, 'transform', 'scale(' + slider.value + ') rotate(' + initialRotation + 'deg)');
+                } else if (slider.name.includes('color')) {
+                     // updateLayerStyle(layerId, 'backgroundColor', slider.value + '33'); // Example alpha
+                }
+            });
+             // Initialize visibility
+            document.querySelectorAll('#layer1-controls input[type="checkbox"], #layer2-controls input[type="checkbox"], #layer3-controls input[type="checkbox"]').forEach(checkbox => {
+                 const layerId = checkbox.closest('section').id.replace('-controls', '-preview');
+                 toggleLayerVisibility(layerId, checkbox.checked);
+            });
+        });
+
+    </script>
+
+</body>
+</html>
