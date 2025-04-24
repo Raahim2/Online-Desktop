@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Islands: A Historical Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for potential future enhancements if Tailwind isn't enough, currently unused */
+        /* Example: Add a subtle texture to the map background */
+        /* #map-container::before { content: ''; position: absolute; inset: 0; background-image: url('data:image/svg+xml,...'); opacity: 0.1; pointer-events: none; } */
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-gray-50 to-cyan-100 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="bg-gray-800 text-white py-4 shadow-lg sticky top-0 z-10">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-center tracking-tight">Phantom Islands: An Interactive Historical Map</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 sm:py-8 flex-grow">
+        <div class="lg:flex lg:gap-8">
+
+            <!-- Map Area -->
+            <section class="lg:w-2/3 mb-8 lg:mb-0">
+                <h2 class="text-xl md:text-2xl font-semibold mb-4 text-center lg:text-left text-gray-700">Explore the Map</h2>
+                <div id="map-container" class="relative border-4 border-gray-500 shadow-xl rounded-lg overflow-hidden aspect-video bg-blue-200">
+                    <!-- Map Background Image -->
+                    <img src="https://via.placeholder.com/1200x800/a0d2eb/4a5568?text=Vintage+World+Map+Placeholder" alt="Stylized World Map" class="absolute inset-0 w-full h-full object-cover opacity-70">
+
+                    <!-- Island Markers Container -->
+                    <div class="absolute inset-0">
+                        <!-- Marker: Hy-Brasil (West of Ireland) -->
+                        <button
+                            onclick="showIslandInfo('hy-brasil')"
+                            aria-label="Show info for Hy-Brasil"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 48%; left: 18%;"
+                            title="Hy-Brasil">
+                            <span class="sr-only">Hy-Brasil</span>
+                        </button>
+
+                        <!-- Marker: Antillia (Mid-Atlantic) -->
+                        <button
+                            onclick="showIslandInfo('antillia')"
+                            aria-label="Show info for Antillia"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 55%; left: 30%;"
+                            title="Antillia">
+                            <span class="sr-only">Antillia</span>
+                        </button>
+
+                        <!-- Marker: Frisland (South of Iceland/Greenland) -->
+                         <button
+                            onclick="showIslandInfo('frisland')"
+                            aria-label="Show info for Frisland"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 35%; left: 25%;"
+                            title="Frisland">
+                            <span class="sr-only">Frisland</span>
+                        </button>
+
+                         <!-- Marker: St. Brendan's Island (Variable Atlantic) -->
+                         <button
+                            onclick="showIslandInfo('st-brendan')"
+                            aria-label="Show info for St. Brendan's Island"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 40%; left: 40%;"
+                            title="St. Brendan's Island">
+                             <span class="sr-only">St. Brendan's Island</span>
+                        </button>
+
+                         <!-- Marker: Thule (Far North) -->
+                         <button
+                            onclick="showIslandInfo('thule')"
+                            aria-label="Show info for Thule"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 20%; left: 50%;"
+                            title="Thule">
+                             <span class="sr-only">Thule</span>
+                        </button>
+
+                         <!-- Marker: Crocker Land (Arctic) -->
+                         <button
+                            onclick="showIslandInfo('crocker-land')"
+                            aria-label="Show info for Crocker Land"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 10%; left: 15%;"
+                            title="Crocker Land">
+                             <span class="sr-only">Crocker Land</span>
+                        </button>
+
+                         <!-- Marker: Buss Island (North Atlantic) -->
+                         <button
+                            onclick="showIslandInfo('buss-island')"
+                            aria-label="Show info for Buss Island"
+                            class="absolute w-4 h-4 md:w-5 md:h-5 bg-red-600 rounded-full border-2 border-white shadow-md cursor-pointer hover:scale-125 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 transition-all duration-200 ease-in-out"
+                            style="top: 42%; left: 22%;"
+                            title="Buss Island">
+                             <span class="sr-only">Buss Island</span>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mt-3 text-center lg:text-left italic">Click on a red marker to learn about a phantom island.</p>
+            </section>
+
+            <!-- Information Panel -->
+            <aside id="info-panel-wrapper" class="lg:w-1/3 lg:sticky lg:top-24 h-fit">
+                <div id="info-panel" class="bg-white p-5 sm:p-6 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ease-in-out">
+                    <div id="info-content" class="prose prose-sm sm:prose-base max-w-none prose-h3:text-indigo-700 prose-h3:font-semibold prose-h3:mb-3 prose-p:text-gray-700 prose-p:leading-relaxed prose-img:rounded prose-img:shadow">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700 !mt-0">Island Information</h3>
+                        <p class="text-gray-600">Welcome! Select an island marker <span class="inline lg:hidden">(above)</span><span class="hidden lg:inline">(on the left)</span> to view its history and details here.</p>
+                        <img src="https://via.placeholder.com/300x200/e2e8f0/64748b?text=Select+an+Island" alt="Placeholder graphic" class="w-full h-auto rounded mt-4">
+                    </div>
+                     <button id="close-info" onclick="resetInfoPanel()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out hidden text-sm font-medium">Clear Selection</button>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer class="bg-gray-700 text-gray-300 text-center py-4 mt-10 sm:mt-12">
+        <p class="text-xs sm:text-sm">&copy; 2023 Phantom Cartography Archives. Map data is illustrative.</p>
+    </footer>
+
+    <script>
+        const islandData = {
+            'hy-brasil': {
+                name: 'Hy-Brasil',
+                location: 'Atlantic Ocean, West of Ireland',
+                history: 'Appeared on maps from 1325 (Genoese chart by Angelino Dulcert) until the 1870s. Often depicted as a circular island, sometimes with a river dividing it. Legends described it as shrouded in mist, appearing only once every seven years. Numerous expeditions failed to find it, and it was eventually removed from charts.',
+                image: 'https://via.placeholder.com/400x250/87ceeb/ffffff?text=Hy-Brasil+Concept'
+            },
+            'antillia': {
+                name: 'Antillia (Island of Seven Cities)',
+                location: 'Atlantic Ocean, West of Portugal/Spain',
+                history: 'First appeared on 15th-century Portuguese charts (e.g., Pizzigano map, 1424). Legend connects it to Visigothic bishops fleeing the Muslim conquest of Hispania, founding seven cities. Its large, rectangular shape influenced exploration, possibly inspiring Columbus. Disappeared from maps as Atlantic exploration became more accurate.',
+                image: 'https://via.placeholder.com/400x250/f0e68c/ffffff?text=Antillia+Concept'
+            },
+            'frisland': {
+                name: 'Frisland',
+                location: 'North Atlantic, South of Iceland',
+                history: 'Prominently featured on the Zeno map (published 1558), allegedly based on 14th-century voyages by the Zeno brothers. It appeared on maps for over a century, often confused with Iceland or the Faroe Islands. Now considered a cartographic error or fabrication, possibly a duplicated Iceland.',
+                image: 'https://via.placeholder.com/400x250/add8e6/ffffff?text=Frisland+Concept'
+            },
+            'st-brendan': {
+                name: "Saint Brendan's Island",
+                location: 'Variable, generally North Atlantic',
+                history: 'Based on the legendary voyage of Saint Brendan the Navigator (c. 6th century), described in the "Navigatio Sancti Brendani Abbatis". Appeared on numerous maps (e.g., Hereford Mappa Mundi c. 1300) well into the early modern period, often shifting location. Likely inspired by real islands (like the Canaries or Azores), atmospheric phenomena, or icebergs.',
+                image: 'https://via.placeholder.com/400x250/90ee90/ffffff?text=St.+Brendan+Concept'
+            },
+             'thule': {
+                name: 'Thule (Ultima Thule)',
+                location: 'Far North, often associated with Iceland, Greenland, Norway, or Shetland',
+                history: 'First described by Greek explorer Pytheas of Massalia (c. 325 BC). Represented the northernmost limit of the known world in ancient and medieval geography. Its exact identity remains debated, possibly referring to coastal Norway, Iceland, or the Shetland/Orkney Islands. The term "Ultima Thule" came to mean any distant place beyond the known world.',
+                image: 'https://via.placeholder.com/400x250/d3d3d3/ffffff?text=Thule+Concept'
+            },
+             'crocker-land': {
+                name: 'Crocker Land',
+                location: 'Arctic Ocean, North of Ellesmere Island',
+                history: 'Reported by Robert Peary in 1906 during an Arctic expedition, named after one of his financial backers. Peary claimed to see distant landmasses. A dedicated expedition in 1913 led by Donald MacMillan failed to find it, concluding it was likely a mirage (Fata Morgana).',
+                image: 'https://via.placeholder.com/400x250/ffffff/64748b?text=Crocker+Land+Mirage'
+            },
+             'buss-island': {
+                name: 'Buss Island',
+                location: 'North Atlantic, between Ireland and Frisland',
+                history: 'First reported by Martin Frobisher\'s expedition in 1578 from the ship \'Emmanuel\' (a type of ship called a buss). It appeared on maps for over 250 years, gradually shrinking and shifting location. Expeditions in the 18th century failed to find it, and it was eventually attributed to misidentification or navigational error.',
+                image: 'https://via.placeholder.com/400x250/b0c4de/ffffff?text=Buss+Island+Concept'
+            }
+        };
+
+        const infoContentEl = document.getElementById('info-content');
+        const infoPanelWrapperEl = document.getElementById('info-panel-wrapper');
+        const closeButtonEl = document.getElementById('close-info');
+        const initialInfoContent = infoContentEl.innerHTML; // Store initial content
+
+        function showIslandInfo(islandId) {
+            const data = islandData[islandId];
+            const activeMarkerClass = 'ring-4 ring-red-400 ring-offset-2 ring-offset-blue-300 scale-125';
+            const inactiveMarkerClass = 'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 hover:scale-125';
+
+            // Reset all markers first
+            document.querySelectorAll('#map-container button').forEach(btn => {
+                btn.classList.remove(...activeMarkerClass.split(' '));
+                btn.classList.add(...inactiveMarkerClass.split(' '));
+            });
+
+            // Highlight the clicked marker
+            const clickedButton = document.querySelector(`button[onclick="showIslandInfo('${islandId}')"]`);
+            if (clickedButton) {
+                clickedButton.classList.remove(...inactiveMarkerClass.split(' '));
+                clickedButton.classList.add(...activeMarkerClass.split(' '));
+            }
+
+
+            if (data) {
+                infoContentEl.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700 !mt-0">${data.name}</h3>
+                    <img src="${data.image}" alt="Conceptual image of ${data.name}" class="w-full h-auto rounded mb-4 shadow-md aspect-[16/10] object-cover">
+                    <p class="text-sm font-semibold text-gray-500 mb-1">Approx. Location: <span class="font-normal text-gray-700">${data.location}</span></p>
+                    <p class="text-sm font-semibold text-gray-500 mb-3">Historical Notes:</p>
+                    <p class="text-gray-700 text-base leading-relaxed">${data.history}</p>
+                `;
+                // infoPanelWrapperEl.classList.remove('opacity-0', 'invisible'); // Make panel visible if using opacity transition
+                closeButtonEl.classList.remove('hidden'); // Show close button
+                infoPanelWrapperEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Scroll panel into view on smaller screens
+            }
+        }
+
+        function resetInfoPanel() {
+             infoContentEl.innerHTML = initialInfoContent; // Restore initial content
+             closeButtonEl.classList.add('hidden'); // Hide close button
+
+             // Reset marker styles
+             const activeMarkerClass = 'ring-4 ring-red-400 ring-offset-2 ring-offset-blue-300 scale-125';
+             const inactiveMarkerClass = 'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-300 hover:scale-125';
+             document.querySelectorAll('#map-container button').forEach(btn => {
+                btn.classList.remove(...activeMarkerClass.split(' '));
+                btn.classList.add(...inactiveMarkerClass.split(' '));
+            });
+        }
+
+        // Optional: Add listener to reset panel when clicking outside the info panel or markers?
+        // document.addEventListener('click', function(event) {
+        //     const mapContainer = document.getElementById('map-container');
+        //     const infoPanel = document.getElementById('info-panel');
+        //     const isClickInsideMap = mapContainer.contains(event.target);
+        //     const isClickInsideInfo = infoPanel.contains(event.target);
+
+        //     // Check if the click is NOT on a marker (which are buttons inside mapContainer)
+        //     const isClickOnMarker = event.target.tagName === 'BUTTON' && mapContainer.contains(event.target);
+
+        //     if (!isClickInsideInfo && !isClickOnMarker && !closeButtonEl.classList.contains('hidden')) {
+        //         // Only reset if the panel is currently showing info (close button is visible)
+        //         // and the click was not on a marker or inside the info panel itself.
+        //         // Be careful with this logic, might interfere with marker clicks sometimes.
+        //         // resetInfoPanel();
+        //     }
+        // });
+
+    </script>
+
+</body>
+</html>
