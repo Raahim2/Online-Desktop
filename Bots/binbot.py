@@ -25,7 +25,7 @@ IDEA_THEMES = [
     "English Literature", "celestial bodies and space", "mythology and folklore",
     "urban exploration themes", "optical illusions", "sound visualization",
     "educational micro-interactions", "UI/UX", "cyberpunk city elements",
-    "generative patterns", "interactive storytelling snippets"
+    "generative patterns", "Games"
 ]
 
 # --- Helper Functions (Keep slugify, clean_gemini_code_output, commit_to_github, gemini as before) ---

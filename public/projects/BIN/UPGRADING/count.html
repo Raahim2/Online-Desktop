@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Counter</title>
+</head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+<style>
+    @font-face {
+        font-family: "Digital";
+        src: url("https://cdn11.bigcommerce.com/s-gmlde/content/DS-DIGI.TTF");
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .mainbox {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        width: 500px;
+        height: 500px;
+    }
+
+    #count {
+        width: 177px;
+        height: 177px;
+        position: relative;
+        top: -261px;
+        right: -143px;
+        border-radius: 100px;
+        font-family: 'Russo One', sans-serif;
+        background-color: black;
+        color: white;
+        border: 3px solid white;
+        font-size: 45px;
+    }
+
+    #reset {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        top: -389px;
+        right: -112px;
+        border-radius: 100px;
+        font-family: 'Russo One', sans-serif;
+        background-color: black;
+        color: white;
+        border: 3px solid white;
+    }
+
+    #screen {
+        border: 5px solid black;
+        display: inline-block;
+        width: 210px;
+        height: 111px;
+        position: relative;
+        top: -456px;
+        right: 123px;
+        font-size: 108px;
+        font-family: Digital, sans-serif;
+        background-color: aqua;
+    }
+
+    img {
+        width: 970px;
+        height: 531px;
+    }
+</style>
+
+<body>
+
+
+    <div class="mainbox">
+        <div class="box">
+            <img src="https://www.smarttasbeeh.com/wp-content/uploads/2019/01/ogimage.png" alt="">
+            <button onclick="inc()" id="count">Count</button>
+            <button onclick="reset()" id="reset">Reset</button>
+            <div id="screen">0</div>
+        </div>
+
+    </div>
+
+
+
+</body>
+
+<script>
+    var count = 0;
+    var countElement = document.getElementById("screen");
+
+    function inc() {
+        count++;
+        countElement.innerHTML = count;
+    }
+
+    function reset() {
+        count = 0;
+        countElement.innerHTML = count;
+    }
+
+
+</script>
+
+</html>
