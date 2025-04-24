@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Matching Game</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Styles for Card Flip Animation (can't be easily done purely with Tailwind utilities) -->
+    <style>
+        /* Basic card perspective */
+        .card {
+            perspective: 1000px;
+        }
+
+        /* The element that flips */
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        /* Flip the card when .flipped class is added */
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Front and Back face positioning */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem; /* Corresponds to rounded-md */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Corresponds to shadow-md */
+        }
+
+        /* Back face default style (visible initially) */
+        .card-back {
+           /* background-color: #4f46e5; /* Tailwind indigo-600 */
+           /* color: white; */
+        }
+
+        /* Front face style (hidden initially) */
+        .card-front {
+            /* background-color: white; */
+            /* color: #1f2937; /* Tailwind gray-800 */
+            transform: rotateY(180deg);
+        }
+
+        /* Style for matched cards - fade out and become non-interactive */
+        .card.matched {
+            opacity: 0;
+            /* visibility: hidden; Remove if opacity transition is enough */
+            transition: opacity 0.5s ease-out;
+            pointer-events: none; /* Prevent clicking matched cards */
+        }
+        /* Optional: Add slight delay to visibility if needed */
+        /* .card.matched {
+            transition: opacity 0.5s ease-out, visibility 0s linear 0.5s;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        } */
+
+         /* Simple pattern for card back */
+        .card-back-pattern {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+
+    <div class="w-full max-w-4xl mx-auto text-center">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-800 mb-6 shadow-sm">Memory Match</h1>
+
+        <div id="status-area" class="mb-4 h-8 text-lg font-semibold text-purple-700">
+            <span id="moves-count">Moves: 0</span> - <span id="pairs-found">Pairs Found: 0 / 8</span>
+        </div>
+
+        <div id="game-board" class="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6 p-2 bg-white/50 rounded-lg shadow-lg">
+            <!-- Cards will be generated here by JavaScript -->
+        </div>
+
+        <button id="reset-button" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition duration-150 ease-in-out">
+            Reset Game
+        </button>
+
+         <div id="win-message" class="mt-6 p-4 bg-green-100 text-green-800 rounded-lg shadow hidden text-xl font-semibold">
+            Congratulations! You found all pairs! 🎉
+        </div>
+    </div>
+
+    <script>
+        const gameBoard = document.getElementById('game-board');
+        const statusArea = document.getElementById('status-area');
+        const movesCountSpan = document.getElementById('moves-count');
+        const pairsFoundSpan = document.getElementById('pairs-found');
+        const resetButton = document.getElementById('reset-button');
+        const winMessage = document.getElementById('win-message');
+
+        // --- Game Symbols ---
+        // Using emojis for simplicity. Ensure you have pairs.
+        const symbols = ['🍎', '🍌', '🍒', '🍇', '🍓', '🥝', '🍍', '🍊'];
+        let cards = []; // Will hold card objects { symbol, element, id }
+        let flippedCards = []; // Max 2 cards currently flipped
+        let matchedPairs = 0;
+        let moves = 0;
+        let lockBoard = false; // Prevent clicking during animation/check
+        let totalPairs = symbols.length;
+
+        // --- Functions ---
+
+        function shuffle(array) {
+            // Fisher-Yates (aka Knuth) Shuffle
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            // 1. Reset Game State
+            gameBoard.innerHTML = ''; // Clear previous cards
+            winMessage.classList.add('hidden');
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            lockBoard = false;
+            updateStatus();
+
+            // 2. Prepare Card Symbols (Duplicate and Shuffle)
+            const cardSymbols = shuffle([...symbols, ...symbols]); // Create pairs and shuffle
+
+            // 3. Create Card Elements
+            cardSymbols.forEach((symbol, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card', 'aspect-square', 'cursor-pointer'); // Base card styles
+                cardElement.dataset.symbol = symbol; // Store symbol for checking
+                cardElement.dataset.id = index; // Unique ID for each card element
+
+                cardElement.innerHTML = `
+                    <div class="card-inner w-full h-full">
+                        <div class="card-back bg-indigo-500 text-white flex items-center justify-center rounded-md shadow-md card-back-pattern">
+                           <!-- Optional Back Icon -->
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                           </svg>
+                        </div>
+                        <div class="card-front bg-white text-gray-800 flex items-center justify-center rounded-md shadow-md text-3xl sm:text-4xl font-bold">
+                            ${symbol}
+                        </div>
+                    </div>
+                `;
+
+                cardElement.addEventListener('click', handleCardClick);
+                gameBoard.appendChild(cardElement);
+                cards.push({ symbol: symbol, element: cardElement, id: index });
+            });
+
+             // Adjust grid columns based on total cards for better layout
+             const numCards = cardSymbols.length;
+             let cols = 'grid-cols-4'; // Default for 16 cards
+             if (numCards <= 12) cols = 'grid-cols-3 sm:grid-cols-4';
+             if (numCards > 16 && numCards <= 24) cols = 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6';
+             if (numCards > 24) cols = 'grid-cols-5 sm:grid-cols-6 md:grid-cols-8';
+             // Remove existing grid classes and add the new one
+             gameBoard.className = gameBoard.className.replace(/grid-cols-\d+/g, '') + ` ${cols}`;
+
+        }
+
+        function handleCardClick(event) {
+            if (lockBoard) return; // Prevent clicks if board is locked
+            const clickedCardElement = event.currentTarget;
+
+            // Prevent clicking the same card twice or an already matched card
+            if (clickedCardElement === flippedCards[0]?.element || clickedCardElement.classList.contains('matched')) {
+                return;
+            }
+
+            flipCard(clickedCardElement);
+
+            const clickedCardData = cards.find(card => card.id == clickedCardElement.dataset.id);
+            flippedCards.push(clickedCardData);
+
+            if (flippedCards.length === 2) {
+                lockBoard = true; // Lock board while checking
+                moves++;
+                updateStatus();
+                checkForMatch();
+            }
+        }
+
+        function flipCard(cardElement) {
+            cardElement.classList.add('flipped');
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                flippedCards.forEach(card => card.element.classList.remove('flipped'));
+                resetTurn();
+            }, 1000); // Wait 1 second before flipping back
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.symbol === card2.symbol) {
+                // It's a match!
+                matchedPairs++;
+                updateStatus();
+                disableCards();
+                checkWinCondition();
+                // Reset turn immediately after disabling (no visual delay needed)
+                setTimeout(resetTurn, 300); // Short delay to allow matched animation start
+            } else {
+                // Not a match
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            // Add 'matched' class for visual feedback (e.g., fade out)
+            flippedCards.forEach(card => {
+                 card.element.classList.add('matched');
+                 // Optional: Remove event listener to be absolutely sure
+                 // card.element.removeEventListener('click', handleCardClick);
+            });
+        }
+
+        function resetTurn() {
+            flippedCards = [];
+            lockBoard = false;
+        }
+
+        function updateStatus() {
+            movesCountSpan.textContent = `Moves: ${moves}`;
+            pairsFoundSpan.textContent = `Pairs Found: ${matchedPairs} / ${totalPairs}`;
+        }
+
+        function checkWinCondition() {
+             if (matchedPairs === totalPairs) {
+                setTimeout(() => { // Delay win message slightly
+                   winMessage.classList.remove('hidden');
+                }, 600); // Should appear after last pair fades
+            }
+        }
+
+        // --- Event Listeners ---
+        resetButton.addEventListener('click', createBoard);
+
+        // --- Initialize Game ---
+        document.addEventListener('DOMContentLoaded', createBoard);
+
+    </script>
+
+</body>
+</html>
+```
+
+**Explanation:**
+
+1.  **HTML Structure (`index.html`):**
+    *   Standard HTML5 boilerplate.
+    *   **Viewport Meta Tag:** Essential for responsiveness (`<meta name="viewport"...>`).
+    *   **Tailwind CSS CDN:** Includes Tailwind via its CDN `<script>`. This is the standard way to use Tailwind in single-file demos without a build step.
+    *   **Custom CSS (`<style>` tag):** Contains CSS rules for the card flip animation (`perspective`, `transform-style`, `backface-visibility`, `rotateY`) and the `matched` state (opacity fade). These are harder to achieve purely with Tailwind utility classes. A simple pattern is added to the card back using `background-image`.
+    *   **Body Layout:** Uses Flexbox (`flex`, `flex-col`, `items-center`, `justify-center`) and `min-h-screen` to center the game vertically and horizontally. A subtle gradient background is added.
+    *   **Game Container:** A `max-w-4xl` container holds the title, status, board, and button.
+    *   **Title (`<h1>`):** Styled with Tailwind text utilities.
+    *   **Status Area (`#status-area`):** Displays moves and pairs found.
+    *   **Game Board (`#game-board`):** Uses Tailwind Grid (`grid`, `gap-`, `grid-cols-`). The `grid-cols-` class will be dynamically adjusted by JavaScript based on the number of cards for better responsiveness. It has a semi-transparent white background and shadow.
+    *   **Card Placeholder:** Cards will be dynamically inserted here. The structure for a single card (with `card`, `card-inner`, `card-front`, `card-back` divs) is defined within the JavaScript `createBoard` function.
+    *   **Reset Button (`#reset-button`):** Styled button using Tailwind.
+    *   **Win Message (`#win-message`):** A hidden `div` styled with Tailwind, shown upon game completion.
+
+2.  **JavaScript (`<script>` tag):**
+    *   **Variables:** Selects DOM elements, sets up `symbols` array, and initializes game state variables (`cards`, `flippedCards`, `matchedPairs`, `moves`, `lockBoard`, `totalPairs`).
+    *   **`shuffle(array)`:** Implements the Fisher-Yates algorithm to randomize the order of card symbols.
+    *   **`createBoard()`:**
+        *   Resets the game state and clears the board.
+        *   Duplicates the `symbols` array to create pairs.
+        *   Shuffles the paired symbols.
+        *   Dynamically creates the HTML for each card using the structure defined in the CSS (`card`, `card-inner`, etc.).
+        *   Sets a `data-symbol` attribute on each card element to easily identify its value.
+        *   Adds the appropriate symbol/emoji to the `.card-front`.
+        *   Attaches a `click` event listener (`handleCardClick`) to each card.
+        *   Appends the created card element to the `gameBoard`.
+        *   Dynamically adjusts the `grid-cols-*` on the `gameBoard` based on the total number of cards for better layout across different game sizes.
+    *   **`handleCardClick(event)`:**
+        *   Triggered when a card is clicked.
+        *   Prevents actions if the board is locked (`lockBoard`), the card is already matched, or the same card is clicked twice.
+        *   Calls `flipCard` to add the `flipped` class (triggering the CSS animation).
+        *   Adds the clicked card's data to the `flippedCards` array.
+        *   If two cards are flipped, it locks the board, increments moves, updates status, and calls `checkForMatch`.
+    *   **`flipCard(cardElement)`:** Adds the `flipped` class to the element.
+    *   **`unflipCards()`:** Uses `setTimeout` to wait briefly (1 second) before removing the `flipped` class from the non-matching pair, allowing the user to see the second card. Calls `resetTurn` afterwards.
+    *   **`checkForMatch()`:** Compares the `symbol` property of the two cards in `flippedCards`.
+        *   If they match: Increments `matchedPairs`, updates status, calls `disableCards`, checks for win condition, and calls `resetTurn` after a short delay.
+        *   If they don't match: Calls `unflipCards`.
+    *   **`disableCards()`:** Adds the `matched` class to the matched pair. This class triggers the CSS fade-out effect and sets `pointer-events: none`.
+    *   **`resetTurn()`:** Clears the `flippedCards` array and unlocks the board (`lockBoard = false`).
+    *   **`updateStatus()`:** Updates the text content of the status display spans.
+    *   **`checkWinCondition()`:** Checks if `matchedPairs` equals `totalPairs`. If so, it reveals the win message after a short delay.
+    *   **Event Listeners:** An event listener is added to the reset button to restart the game (`createBoard`). An initial call to `createBoard` is made when the DOM is fully loaded.
+
+3.  **Responsiveness:**
+    *   Achieved primarily through Tailwind's responsive prefixes (e.g., `sm:`, `md:`) on grid columns (`grid-cols-*`), text sizes (`sm:text-4xl`), and gaps (`sm:gap-3`).
+    *   The `aspect-square` class on cards helps maintain their shape within the responsive grid.
+    *   The dynamic adjustment of `grid-cols-*` in `createBoard` ensures the board layout adapts well even if you change the number of symbols.
