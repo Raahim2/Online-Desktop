@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRT Glitch Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal custom styles for effects not easily achievable with Tailwind */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            font-family: 'VT323', monospace;
+            /* Apply a subtle overall glow */
+            text-shadow: 0 0 5px rgba(50, 255, 50, 0.3);
+        }
+
+        .crt-scanlines::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.25) 0px,
+                rgba(0, 0, 0, 0.25) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none; /* Allow interaction with content behind */
+            z-index: 10;
+            animation: crt-flicker 0.1s infinite alternate;
+        }
+
+        /* Subtle flicker animation */
+        @keyframes crt-flicker {
+            0% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+
+        /* Glitch effect animation */
+        @keyframes glitch-effect {
+          0% { transform: translate(0); text-shadow: 0 0 5px rgba(50, 255, 50, 0.3); }
+          5% { transform: translate(-2px, 2px); text-shadow: 2px 0 1px red, -2px 0 1px blue; }
+          10% { transform: translate(2px, -2px); text-shadow: -2px 0 1px red, 2px 0 1px blue; }
+          15% { transform: translate(0); text-shadow: 0 0 5px rgba(50, 255, 50, 0.3); }
+          /* Add more steps for complex glitch */
+          100% { transform: translate(0); text-shadow: 0 0 5px rgba(50, 255, 50, 0.3); }
+        }
+
+        .apply-glitch {
+            animation: glitch-effect 0.3s linear infinite alternate;
+        }
+
+        /* Style for the simulated terminal output */
+        #terminal-output span {
+            display: block; /* Each line on a new line */
+            white-space: pre-wrap; /* Wrap long lines */
+            word-break: break-all; /* Break long words */
+        }
+
+        /* Blinking cursor simulation */
+        .cursor::after {
+            content: '_';
+            display: inline-block;
+            background-color: #32ff32; /* Match text color */
+            color: #32ff32; /* Match text color */
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+            box-shadow: 0 0 5px #32ff32;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+    </style>
+</head>
+<body class="bg-black text-green-400 flex items-center justify-center min-h-screen p-4">
+
+    <div class="crt-screen-container w-full max-w-4xl bg-gray-900 border-4 border-gray-700 rounded-xl shadow-2xl overflow-hidden relative">
+        <!-- CRT Scanlines Overlay -->
+        <div class="crt-scanlines"></div>
+
+        <!-- Main Content Area -->
+        <div class="relative z-0 p-6 md:p-8 lg:p-10 space-y-6">
+
+            <!-- Header -->
+            <header class="border-b-2 border-green-400/30 pb-2 mb-4">
+                <h1 class="text-3xl md:text-4xl text-center text-amber-400">[ CRT GLITCH TERMINAL v1.0 ]</h1>
+            </header>
+
+            <!-- Simulated Terminal Output -->
+            <section class="terminal-output-area bg-black/50 p-4 rounded border border-green-400/50 h-64 md:h-80 overflow-y-auto">
+                <pre id="terminal-output" class="text-sm md:text-base leading-relaxed whitespace-pre-wrap"></pre>
+                <div id="input-line" class="flex items-center">
+                    <span class="text-amber-400 mr-2">&gt;</span>
+                    <span id="current-command" class="flex-1"></span>
+                    <span class="cursor"></span>
+                </div>
+            </section>
+
+            <!-- Control Buttons -->
+            <section class="controls text-center space-x-4">
+                <button id="glitchButton" onclick="toggleGlitch()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white border-2 border-red-800 rounded shadow-md transition-colors duration-200 text-lg">
+                    ! GLITCH !
+                </button>
+                 <button onclick="runBootSequence()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-800 rounded shadow-md transition-colors duration-200 text-lg">
+                    REBOOT
+                </button>
+            </section>
+
+            <!-- Glitched Image Placeholder -->
+            <section class="glitch-image-area text-center mt-6">
+                <h2 class="text-xl text-amber-400 mb-2">// SYSTEM_MONITOR //</h2>
+                <div class="inline-block border-2 border-green-400/50 p-1 rounded">
+                   <img id="glitchImage" src="https://via.placeholder.com/300x200/111111/32FF32?text=SYSTEM+OK" alt="System Monitor Placeholder" class="block mx-auto transition-transform duration-100">
+                </div>
+                 <p class="text-xs mt-2 text-gray-500">[ Placeholder Image - Subject to Glitch Effects ]</p>
+            </section>
+
+            <!-- Footer -->
+            <footer class="pt-4 mt-4 border-t-2 border-green-400/30 text-center text-xs text-gray-500">
+                <p>&copy; 2023 Anonymous Corp. // Secure Connection Established //</p>
+                <p>Rendered via HTML & Tailwind CSS</p>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        const terminalOutput = document.getElementById('terminal-output');
+        const currentCommand = document.getElementById('current-command');
+        const glitchButton = document.getElementById('glitchButton');
+        const glitchImage = document.getElementById('glitchImage');
+        const bodyElement = document.body;
+        let isGlitching = false;
+        let typeTimeout;
+        let bootSequenceRunning = false;
+
+        const bootMessages = [
+            "INITIATING BOOT SEQUENCE...",
+            "BIOS v4.7.2 CHECKING...",
+            "MEMORY TEST: 16384KB OK",
+            "DETECTING HARD DRIVE...",
+            "  > PRIMARY MASTER: SYS_DRIVE (OK)",
+            "  > PRIMARY SLAVE: DATA_VAULT (OK)",
+            "LOADING KERNEL MODULES...",
+            "  > [core.sys] loaded.",
+            "  > [network.drv] loaded.",
+            "  > [security.mod] loaded.",
+            "MOUNTING FILESYSTEMS...",
+            "  > [/dev/sda1] mounted on /",
+            "  > [/dev/sdb1] mounted on /data",
+            "STARTING SYSTEM SERVICES...",
+            "  > [cron] started.",
+            "  > [sshd] started.",
+            "  > [firewall] active.",
+            "NETWORK INTERFACE eth0: UP (192.168.1.101)",
+            "SYSTEM READY.",
+            "Awaiting user input...",
+        ];
+
+        function typeLine(line, index, callback) {
+            if (index < line.length) {
+                const span = document.createElement('span');
+                span.textContent += line[index];
+                terminalOutput.appendChild(span);
+                // Scroll to bottom
+                terminalOutput.parentElement.scrollTop = terminalOutput.parentElement.scrollHeight;
+                typeTimeout = setTimeout(() => typeLine(line, index + 1, callback), 10); // Faster typing
+            } else {
+                 // Add a small delay before the next line
+                 setTimeout(callback, 50);
+            }
+        }
+
+         function typeSingleLine(text, element, delay = 50, callback = () => {}) {
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, delay);
+                } else {
+                   callback();
+                }
+            }
+            typeChar();
+        }
+
+
+        function runBootSequence() {
+            if (bootSequenceRunning) return; // Prevent multiple runs
+            bootSequenceRunning = true;
+
+            // Clear previous output and command
+            terminalOutput.innerHTML = '';
+            currentCommand.textContent = '';
+            clearTimeout(typeTimeout); // Clear any ongoing typing
+
+            let lineIndex = 0;
+
+            function nextLine() {
+                if (lineIndex < bootMessages.length) {
+                    const span = document.createElement('span');
+                    terminalOutput.appendChild(span);
+                    typeSingleLine(bootMessages[lineIndex], span, 10, () => {
+                         // Scroll to bottom after line is typed
+                        terminalOutput.parentElement.scrollTop = terminalOutput.parentElement.scrollHeight;
+                        lineIndex++;
+                        setTimeout(nextLine, 50); // Delay between lines
+                    });
+                } else {
+                    // Finished boot sequence
+                    typeSingleLine("Welcome!", currentCommand, 50, () => {
+                         bootSequenceRunning = false; // Allow rerunning
+                    });
+                }
+            }
+            nextLine();
+        }
+
+        function toggleGlitch() {
+            isGlitching = !isGlitching;
+            if (isGlitching) {
+                bodyElement.classList.add('apply-glitch');
+                glitchImage.classList.add('apply-glitch');
+                glitchButton.textContent = '!! GLITCHING !!';
+                glitchButton.classList.remove('bg-red-600', 'hover:bg-red-700', 'border-red-800');
+                glitchButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600', 'border-yellow-700', 'animate-pulse');
+                // Change image source for more effect
+                glitchImage.src = `https://via.placeholder.com/300x200/FF0000/FFFFFF?text=SYSTEM+ERROR!`;
+
+            } else {
+                bodyElement.classList.remove('apply-glitch');
+                glitchImage.classList.remove('apply-glitch');
+                glitchButton.textContent = '! GLITCH !';
+                glitchButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'border-yellow-700', 'animate-pulse');
+                glitchButton.classList.add('bg-red-600', 'hover:bg-red-700', 'border-red-800');
+                 // Restore original image
+                glitchImage.src = `https://via.placeholder.com/300x200/111111/32FF32?text=SYSTEM+OK`;
+            }
+        }
+
+        // Initial boot sequence on load
+        document.addEventListener('DOMContentLoaded', runBootSequence);
+
+    </script>
+
+</body>
+</html>
