@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <!-- Include Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Add a subtle animation for feedback */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feedback-animate {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-10 w-full max-w-md text-center transform transition-all duration-300">
+
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">Guess the Number!</h1>
+
+        <p class="text-gray-600 mb-6 text-lg">
+            I'm thinking of a number between <span id="min-range">1</span> and <span id="max-range">100</span>.
+        </p>
+
+        <div class="mb-4">
+            <label for="guessInput" class="sr-only">Enter your guess</label>
+            <input
+                type="number"
+                id="guessInput"
+                placeholder="Enter your guess"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-xl transition"
+                min="1"
+                max="100"
+            >
+        </div>
+
+        <button
+            id="guessButton"
+            type="button"
+            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-purple-600 hover:to-pink-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 text-lg"
+        >
+            Submit Guess
+        </button>
+
+        <div id="feedback" class="mt-6 min-h-[3rem] flex items-center justify-center text-xl font-semibold">
+            <!-- Feedback will appear here -->
+        </div>
+
+        <p class="mt-2 text-gray-500 text-sm">
+            Attempts: <span id="attemptsCount" class="font-medium">0</span>
+        </p>
+
+        <button
+            id="restartButton"
+            type="button"
+            class="mt-6 w-full bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-gray-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hidden"
+        >
+            Play Again?
+        </button>
+
+    </div>
+
+    <script>
+        // --- Game Configuration ---
+        const MIN_RANGE = 1;
+        const MAX_RANGE = 100;
+
+        // --- DOM Elements ---
+        const guessInput = document.getElementById('guessInput');
+        const guessButton = document.getElementById('guessButton');
+        const feedbackDisplay = document.getElementById('feedback');
+        const attemptsCountDisplay = document.getElementById('attemptsCount');
+        const restartButton = document.getElementById('restartButton');
+        const minRangeDisplay = document.getElementById('min-range');
+        const maxRangeDisplay = document.getElementById('max-range');
+
+        // --- Game State ---
+        let secretNumber;
+        let attempts;
+        let gameActive;
+
+        // --- Helper Functions ---
+        function generateSecretNumber() {
+            return Math.floor(Math.random() * (MAX_RANGE - MIN_RANGE + 1)) + MIN_RANGE;
+        }
+
+        function updateFeedback(message, type = 'info') {
+            feedbackDisplay.textContent = message;
+            feedbackDisplay.classList.remove('text-green-600', 'text-red-600', 'text-blue-600', 'text-yellow-600', 'feedback-animate');
+            // Force reflow to restart animation
+            void feedbackDisplay.offsetWidth;
+
+            switch (type) {
+                case 'success':
+                    feedbackDisplay.classList.add('text-green-600');
+                    break;
+                case 'error':
+                    feedbackDisplay.classList.add('text-red-600');
+                    break;
+                case 'low':
+                    feedbackDisplay.classList.add('text-blue-600');
+                    break;
+                case 'high':
+                    feedbackDisplay.classList.add('text-red-600'); // Using red for high as well for clarity
+                    break;
+                case 'warning':
+                    feedbackDisplay.classList.add('text-yellow-600');
+                    break;
+                default: // 'info'
+                    feedbackDisplay.classList.add('text-gray-700');
+            }
+            feedbackDisplay.classList.add('feedback-animate');
+        }
+
+        function endGame(success = false) {
+            gameActive = false;
+            guessInput.disabled = true;
+            guessButton.disabled = true;
+            guessButton.classList.add('opacity-50', 'cursor-not-allowed');
+            restartButton.classList.remove('hidden');
+            if (success) {
+                updateFeedback(`🎉 Correct! The number was ${secretNumber}. 🎉`, 'success');
+            } else {
+                // Optional: Add logic for losing after max attempts if desired
+                updateFeedback(`Game Over! The number was ${secretNumber}.`, 'info');
+            }
+        }
+
+        // --- Game Logic ---
+        function checkGuess() {
+            if (!gameActive) return;
+
+            const userGuessStr = guessInput.value;
+            const userGuess = parseInt(userGuessStr);
+
+            // Clear previous feedback (optional, depends on desired UX)
+            // updateFeedback('');
+
+            // --- Input Validation ---
+            if (userGuessStr.trim() === '' || isNaN(userGuess)) {
+                updateFeedback('Please enter a valid number.', 'warning');
+                guessInput.focus();
+                return;
+            }
+
+            if (userGuess < MIN_RANGE || userGuess > MAX_RANGE) {
+                updateFeedback(`Your guess must be between ${MIN_RANGE} and ${MAX_RANGE}.`, 'warning');
+                guessInput.value = ''; // Clear invalid input
+                guessInput.focus();
+                return;
+            }
+
+            // --- Process Valid Guess ---
+            attempts++;
+            attemptsCountDisplay.textContent = attempts;
+            guessInput.value = ''; // Clear input after processing
+            guessInput.focus();
+
+            if (userGuess === secretNumber) {
+                endGame(true); // Win condition
+            } else if (userGuess < secretNumber) {
+                updateFeedback('Too low! Try a higher number.', 'low');
+            } else { // userGuess > secretNumber
+                updateFeedback('Too high! Try a lower number.', 'high');
+            }
+        }
+
+        function initializeGame() {
+            secretNumber = generateSecretNumber();
+            attempts = 0;
+            gameActive = true;
+
+            // Update UI
+            minRangeDisplay.textContent = MIN_RANGE;
+            maxRangeDisplay.textContent = MAX_RANGE;
+            guessInput.min = MIN_RANGE;
+            guessInput.max = MAX_RANGE;
+            attemptsCountDisplay.textContent = attempts;
+            updateFeedback('Take your first guess!', 'info');
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+            guessButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            restartButton.classList.add('hidden');
+            guessInput.value = '';
+            guessInput.focus(); // Set focus to input on start/restart
+
+            // console.log(`Dev hint: Secret number is ${secretNumber}`); // Uncomment for debugging
+        }
+
+        // --- Event Listeners ---
+        guessButton.addEventListener('click', checkGuess);
+
+        // Allow pressing Enter key to submit guess
+        guessInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent potential form submission if wrapped in form
+                checkGuess();
+            }
+        });
+
+        restartButton.addEventListener('click', initializeGame);
+
+        // --- Initial Game Setup ---
+        document.addEventListener('DOMContentLoaded', initializeGame);
+
+    </script>
+
+</body>
+</html>
+```
+
+**Explanation:**
+
+1.  **HTML Structure (`index.html`):**
+    *   Standard HTML5 boilerplate.
+    *   Includes the Tailwind CSS CDN via a `<script>` tag in the `<head>`.
+    *   A simple `<style>` block adds a fade-in animation class (`feedback-animate`) for the feedback text.
+    *   The `<body>` uses Tailwind classes for a gradient background (`bg-gradient-to-br...`) and centers the main game container (`flex items-center justify-center min-h-screen`).
+    *   The main game container (`div`) has a white background, rounded corners, shadow, padding, and a max width for responsiveness.
+    *   Semantic elements like `<h1>`, `<p>`, `<label>` (visually hidden with `sr-only`), `<input>`, and `<button>` are used.
+    *   Specific `id` attributes are assigned to elements that need to be manipulated by JavaScript (`guessInput`, `guessButton`, `feedback`, `attemptsCount`, `restartButton`, `min-range`, `max-range`).
+    *   The `input` has `type="number"` and `min`/`max` attributes for basic validation.
+    *   Tailwind utility classes are heavily used for styling all elements (padding, margin, text size, colors, borders, shadows, focus states, hover effects, transitions).
+    *   The "Play Again?" button (`restartButton`) is initially hidden using the `hidden` class.
+
+2.  **CSS (Embedded via Tailwind):**
+    *   All styling is done using Tailwind utility classes directly in the HTML `class` attributes.
+    *   The small `@keyframes` rule provides a subtle visual enhancement for feedback messages.
+
+3.  **JavaScript Logic (Embedded in `<script>`):**
+    *   **Configuration:** `MIN_RANGE` and `MAX_RANGE` constants define the game's bounds.
+    *   **DOM References:** Variables store references to the necessary HTML elements obtained using `getElementById`.
+    *   **Game State:** Variables `secretNumber`, `attempts`, and `gameActive` track the current state of the game.
+    *   **`generateSecretNumber()`:** Creates a random integer within the defined range.
+    *   **`updateFeedback()`:** A helper function to display messages to the user. It clears previous color classes, sets the text content, adds the appropriate Tailwind color class based on the `type` argument (`success`, `error`, `low`, `high`, `warning`, `info`), and applies the fade-in animation.
+    *   **`endGame()`:** Called when the game finishes (correct guess). Disables input/button, shows the restart button, and displays the final feedback.
+    *   **`checkGuess()`:** The core game logic function triggered by the button click or Enter key.
+        *   It first checks if the game is active.
+        *   It retrieves and validates the user's input (checks for empty, non-numeric, or out-of-range values).
+        *   If valid, it increments `attempts`, updates the display, clears the input field.
+        *   Compares the guess to the `secretNumber` and calls `updateFeedback` with the appropriate message ("Too low!", "Too high!") or `endGame(true)` if correct.
+        *   Sets focus back to the input field.
+    *   **`initializeGame()`:** Sets up or resets the game. Generates a new secret number, resets attempts, updates UI elements (range display, attempts count, feedback), enables inputs/buttons, hides the restart button, and sets focus.
+    *   **Event Listeners:**
+        *   An event listener is added to the `guessButton` for `click` events, calling `checkGuess`.
+        *   An event listener is added to the `guessInput` for `keyup` events. If the Enter key is pressed, it also calls `checkGuess`.
+        *   An event listener is added to the `restartButton` for `click` events, calling `initializeGame`.
+    *   **Initial Setup:** The `initializeGame` function is called when the DOM is fully loaded (`DOMContentLoaded`) to start the game automatically.
