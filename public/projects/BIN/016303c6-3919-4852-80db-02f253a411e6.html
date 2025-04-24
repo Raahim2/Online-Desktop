@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop Dashboard Builder</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Interact.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <style>
+        /* Custom Styles */
+        .widget-instance {
+            touch-action: none; /* Prevent default browser touch actions */
+            user-select: none; /* Prevent text selection */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            min-height: 80px; /* Ensure widgets aren't too small */
+            min-width: 150px;
+            position: absolute; /* Crucial for positioning */
+            transition: box-shadow 0.2s ease-in-out; /* Feedback on hover/drag */
+        }
+
+        .widget-instance:hover {
+            box-shadow: 0 0 0 2px theme('colors.blue.500');
+        }
+
+        .widget-instance.dragging,
+        .widget-instance.resizing {
+             z-index: 1000;
+             opacity: 0.8;
+             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+        }
+
+        /* Resize handle styling (optional but good UX) */
+         .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: theme('colors.blue.600');
+            border: 1px solid white;
+            border-radius: 2px;
+            bottom: 0;
+            right: 0;
+            cursor: nwse-resize;
+            z-index: 10; /* Ensure it's clickable */
+        }
+
+        /* Style for widget templates in the sidebar */
+        .widget-template {
+            cursor: grab;
+        }
+        .widget-template:active {
+            cursor: grabbing;
+        }
+
+        /* Dropzone highlight */
+        #dashboard-grid.can-drop {
+             background-color: theme('colors.blue.100');
+             border-color: theme('colors.blue.400');
+        }
+
+        /* Custom HTML Widget Preview */
+        .custom-html-preview {
+            width: 100%;
+            height: calc(100% - 3rem); /* Adjust based on header/controls */
+            border: none;
+            overflow: auto;
+        }
+
+        /* Make textareas resize nicely */
+        .widget-instance textarea {
+            resize: none; /* Disable browser default resize */
+        }
+
+        /* Prevent interaction with content during drag/resize */
+        .widget-instance.dragging *,
+        .widget-instance.resizing * {
+            pointer-events: none;
+        }
+         .widget-instance .resize-handle {
+             pointer-events: all !important; /* Re-enable pointer events for the handle itself */
+         }
+        .widget-instance > *:not(.resize-handle):not(.widget-header) {
+            pointer-events: all; /* Re-enable for content when not dragging/resizing */
+        }
+        .widget-header {
+             cursor: move;
+             background-color: theme('colors.gray.100');
+             border-bottom: 1px solid theme('colors.gray.300');
+             padding: 0.25rem 0.5rem;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             font-size: 0.875rem; /* text-sm */
+             line-height: 1.25rem;
+             height: 30px; /* Fixed height for header */
+         }
+        .widget-content {
+             padding: 0.5rem;
+             height: calc(100% - 30px); /* Calculate content height based on fixed header */
+             overflow: auto;
+         }
+        .delete-widget-btn {
+            cursor: pointer;
+            padding: 0.1rem 0.3rem;
+            margin-left: 0.5rem;
+        }
+         .delete-widget-btn:hover {
+            color: theme('colors.red.600');
+            background-color: theme('colors.red.100');
+            border-radius: theme('borderRadius.sm');
+         }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex flex-col md:flex-row h-screen">
+
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 bg-white p-4 shadow-md overflow-y-auto flex-shrink-0">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700">Add Widgets</h2>
+            <div class="space-y-3">
+                <!-- Widget Templates -->
+                <div class="widget-template border border-gray-300 p-3 rounded bg-gray-50 hover:bg-gray-100"
+                     data-widget-type="chart"
+                     data-widget-config='{"title": "Chart Widget"}'>
+                    <span class="font-medium">📊 Chart</span>
+                    <p class="text-xs text-gray-500">Placeholder for chart data.</p>
+                </div>
+
+                <div class="widget-template border border-gray-300 p-3 rounded bg-gray-50 hover:bg-gray-100"
+                     data-widget-type="text"
+                     data-widget-config='{"title": "Text Box", "content": "Editable text..."}'>
+                    <span class="font-medium">📝 Text Box</span>
+                    <p class="text-xs text-gray-500">Editable text area.</p>
+                </div>
+
+                <div class="widget-template border border-gray-300 p-3 rounded bg-gray-50 hover:bg-gray-100"
+                     data-widget-type="image"
+                     data-widget-config='{"title": "Image Widget", "src": "https://via.placeholder.com/150"}'>
+                    <span class="font-medium">🖼️ Image</span>
+                    <p class="text-xs text-gray-500">Display an image.</p>
+                </div>
+
+                <div class="widget-template border border-gray-300 p-3 rounded bg-gray-50 hover:bg-gray-100"
+                     data-widget-type="customHtml"
+                     data-widget-config='{"title": "Custom HTML", "html": "<p>Edit me!</p>"}'>
+                    <span class="font-medium">💻 Custom HTML</span>
+                    <p class="text-xs text-gray-500">Add your own HTML snippet.</p>
+                </div>
+
+                <button id="clear-dashboard-btn" class="w-full mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm">
+                    Clear Dashboard
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+            <div id="dashboard-grid" class="relative w-full h-full bg-white rounded shadow-inner border-2 border-dashed border-gray-300 min-h-[600px]">
+                <!-- Widgets will be dropped here -->
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboardGrid = document.getElementById('dashboard-grid');
+            const clearButton = document.getElementById('clear-dashboard-btn');
+            const localStorageKey = 'dashboardLayout_v1'; // Added versioning in case structure changes later
+
+            // --- Core Functions ---
+
+            function generateId() {
+                return `widget_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            }
+
+            function saveDashboardState() {
+                const widgets = [];
+                dashboardGrid.querySelectorAll('.widget-instance').forEach(widgetEl => {
+                    const config = JSON.parse(widgetEl.dataset.widgetConfig || '{}');
+
+                    // Update config with current content if applicable
+                    const type = widgetEl.dataset.widgetType;
+                    if (type === 'text') {
+                        config.content = widgetEl.querySelector('textarea')?.value || config.content;
+                    } else if (type === 'image') {
+                        config.src = widgetEl.querySelector('img')?.src || config.src;
+                        // Optionally add input for src change later
+                    } else if (type === 'customHtml') {
+                         config.html = widgetEl.querySelector('textarea')?.value || config.html;
+                    }
+                     // Update title from potential input or keep existing
+                     config.title = widgetEl.querySelector('.widget-title-text')?.textContent || config.title;
+
+
+                    widgets.push({
+                        id: widgetEl.id,
+                        type: type,
+                        x: parseFloat(widgetEl.dataset.x) || 0,
+                        y: parseFloat(widgetEl.dataset.y) || 0,
+                        w: widgetEl.offsetWidth, // Store actual rendered width
+                        h: widgetEl.offsetHeight, // Store actual rendered height
+                        config: config
+                    });
+                });
+                localStorage.setItem(localStorageKey, JSON.stringify(widgets));
+                console.log('Dashboard state saved.');
+            }
+
+            function loadDashboardState() {
+                const savedState = localStorage.getItem(localStorageKey);
+                if (savedState) {
+                    try {
+                        const widgets = JSON.parse(savedState);
+                         // Clear existing widgets before loading
+                        dashboardGrid.innerHTML = '';
+                        widgets.forEach(widgetData => {
+                            createWidgetElement(widgetData);
+                        });
+                        console.log('Dashboard state loaded.');
+                    } catch (e) {
+                        console.error("Error parsing saved dashboard state:", e);
+                        localStorage.removeItem(localStorageKey); // Clear corrupted data
+                    }
+                } else {
+                    console.log('No saved dashboard state found.');
+                }
+            }
+
+            function createWidgetElement(widgetData) {
+                const { id, type, x, y, w, h, config } = widgetData;
+
+                const widgetEl = document.createElement('div');
+                widgetEl.id = id;
+                widgetEl.className = 'widget-instance bg-white border border-gray-300 rounded shadow-sm overflow-hidden flex flex-col';
+                widgetEl.style.width = `${w}px`;
+                widgetEl.style.height = `${h}px`;
+                widgetEl.style.transform = `translate(${x}px, ${y}px)`;
+                widgetEl.dataset.x = x;
+                widgetEl.dataset.y = y;
+                widgetEl.dataset.widgetType = type;
+                widgetEl.dataset.widgetConfig = JSON.stringify(config); // Store config back
+
+                 // --- Widget Header ---
+                const header = document.createElement('div');
+                header.className = 'widget-header'; // Applied style from <style> block
+                header.innerHTML = `
+                    <span class="widget-title-text font-medium text-gray-600 truncate">${config.title || 'Widget'}</span>
+                    <button class="delete-widget-btn text-gray-400 hover:text-red-500" title="Delete Widget">&times;</button>
+                `;
+                widgetEl.appendChild(header);
+
+                 // --- Widget Content ---
+                const content = document.createElement('div');
+                content.className = 'widget-content flex-1'; // Applied style from <style> block
+
+                switch (type) {
+                    case 'chart':
+                        content.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400 italic text-sm">Chart Placeholder</div>`;
+                        break;
+                    case 'text':
+                        content.innerHTML = `<textarea class="w-full h-full border-0 p-1 focus:ring-1 focus:ring-blue-300 rounded-sm text-sm">${config.content || ''}</textarea>`;
+                         // Save on change
+                        content.querySelector('textarea').addEventListener('input', saveDashboardState);
+                        break;
+                    case 'image':
+                         // Basic image display - could add controls to change src
+                        content.innerHTML = `<img src="${config.src || 'https://via.placeholder.com/150'}" alt="${config.title || 'Image widget'}" class="w-full h-full object-contain">`;
+                        break;
+                    case 'customHtml':
+                        content.innerHTML = `
+                            <div class="flex flex-col h-full">
+                                <textarea class="w-full h-1/2 border p-1 text-xs font-mono focus:ring-1 focus:ring-blue-300 rounded-sm" placeholder="Enter HTML here...">${config.html || ''}</textarea>
+                                <div class="h-1/2 border-t mt-1 overflow-auto p-1">
+                                    <span class="text-xs text-gray-500 block mb-1">Preview:</span>
+                                    <div class="custom-html-preview-content">${config.html || ''}</div>
+                                </div>
+                            </div>
+                        `;
+                         // Update preview and save on change
+                        const textarea = content.querySelector('textarea');
+                        const preview = content.querySelector('.custom-html-preview-content');
+                        textarea.addEventListener('input', () => {
+                            preview.innerHTML = textarea.value; // Basic preview (no sanitization - careful!)
+                            saveDashboardState();
+                        });
+                        break;
+                    default:
+                        content.innerHTML = `<div class="p-2 text-sm text-red-500">Unknown widget type: ${type}</div>`;
+                }
+                widgetEl.appendChild(content);
+
+                // --- Resize Handle ---
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle'; // Applied style from <style> block
+                widgetEl.appendChild(resizeHandle);
+
+                // --- Delete Button Logic ---
+                 header.querySelector('.delete-widget-btn').addEventListener('click', (e) => {
+                     e.stopPropagation(); // Prevent drag start
+                     if (confirm('Are you sure you want to delete this widget?')) {
+                         widgetEl.remove();
+                         saveDashboardState();
+                     }
+                 });
+
+                dashboardGrid.appendChild(widgetEl);
+
+                // Make the newly created widget interactive
+                makeWidgetInteractive(widgetEl);
+
+                return widgetEl; // Return the element if needed elsewhere
+            }
+
+            function makeWidgetInteractive(element) {
+                 const position = { x: parseFloat(element.dataset.x) || 0, y: parseFloat(element.dataset.y) || 0 };
+
+                 interact(element)
+                    .draggable({
+                        allowFrom: '.widget-header', // Only allow dragging from header
+                        inertia: true,
+                        modifiers: [
+                            interact.modifiers.restrictRect({
+                                restriction: 'parent',
+                                endOnly: true // Allow moving freely but snap back if dropped outside
+                            })
+                        ],
+                        autoScroll: true,
+                        listeners: {
+                             start (event) {
+                                 event.target.classList.add('dragging');
+                             },
+                            move(event) {
+                                position.x += event.dx;
+                                position.y += event.dy;
+                                event.target.style.transform = `translate(${position.x}px, ${position.y}px)`;
+                            },
+                            end(event) {
+                                event.target.classList.remove('dragging');
+                                element.dataset.x = position.x;
+                                element.dataset.y = position.y;
+                                saveDashboardState();
+                            }
+                        }
+                    })
+                    .resizable({
+                        edges: { left: false, right: '.resize-handle', bottom: '.resize-handle', top: false }, // Use handle for bottom-right resize
+                        listeners: {
+                             start (event) {
+                                 event.target.classList.add('resizing');
+                             },
+                            move(event) {
+                                let { x, y } = event.target.dataset;
+                                x = parseFloat(x) || 0;
+                                y = parseFloat(y) || 0;
+
+                                // Update size
+                                Object.assign(event.target.style, {
+                                    width: `${event.rect.width}px`,
+                                    height: `${event.rect.height}px`,
+                                });
+
+                                // Update position dataset (needed if resizing from top/left, though we aren't here)
+                                // Object.assign(event.target.dataset, { x, y })
+                            },
+                            end(event) {
+                                event.target.classList.remove('resizing');
+                                // Width/height are already set in style, save triggers reading offsetWidth/Height
+                                saveDashboardState();
+                            }
+                        },
+                        modifiers: [
+                            // Keep aspect ratio disabled
+                            // interact.modifiers.aspectRatio({ ratio: 'preserve' }),
+
+                            // Minimum size
+                            interact.modifiers.restrictSize({
+                                min: { width: 150, height: 80 }
+                            }),
+                            // Restrict to parent bounds (optional, can feel constraining)
+                            // interact.modifiers.restrictRect({ restriction: 'parent' })
+                        ],
+                        inertia: false // Inertia doesn't make much sense for resizing
+                    });
+             }
+
+
+            // --- Initialize Interact.js ---
+
+            // 1. Make sidebar templates draggable
+            interact('.widget-template')
+                .draggable({
+                    inertia: true,
+                    autoScroll: true,
+                    listeners: {
+                        start(event) {
+                             // Could create a clone or visual feedback element here
+                            event.target.classList.add('opacity-50');
+                        },
+                        move(event) {
+                            const { currentTarget, dx, dy } = event;
+                            const x = (parseFloat(currentTarget.getAttribute('data-x')) || 0) + dx;
+                            const y = (parseFloat(currentTarget.getAttribute('data-y')) || 0) + dy;
+
+                            currentTarget.style.transform = `translate(${x}px, ${y}px)`;
+                            currentTarget.setAttribute('data-x', x);
+                            currentTarget.setAttribute('data-y', y);
+                        },
+                        end(event) {
+                            event.target.classList.remove('opacity-50');
+                             // Reset transform and position data - the dropzone handles creation
+                             event.target.style.transform = 'none';
+                             event.target.removeAttribute('data-x');
+                             event.target.removeAttribute('data-y');
+                            // If not dropped in dropzone, it just snaps back visually
+                        }
+                    }
+                });
+
+            // 2. Make dashboard grid a dropzone
+            interact('#dashboard-grid').dropzone({
+                accept: '.widget-template', // Only accept templates
+                overlap: 0.25, // Require 25% overlap to trigger drop
+
+                ondropactivate: function (event) {
+                    // Add visual feedback to the dropzone
+                    event.target.classList.add('can-drop', 'border-blue-400');
+                    event.relatedTarget.classList.add('cursor-copy'); // Indicate copy action
+                },
+                ondragleave: function (event) {
+                    // Optional: remove feedback if dragged out
+                    event.target.classList.remove('can-drop');
+                },
+                ondrop: function (event) {
+                    const draggableElement = event.relatedTarget; // The template being dragged
+                    const dropzoneElement = event.target;
+
+                    const type = draggableElement.dataset.widgetType;
+                    const config = JSON.parse(draggableElement.dataset.widgetConfig || '{}');
+                    const id = generateId();
+
+                    // Calculate drop position relative to the dashboard grid
+                    const dropzoneRect = dropzoneElement.getBoundingClientRect();
+                    const dropX = event.client.x - dropzoneRect.left - (window.scrollX || window.pageXOffset);
+                    const dropY = event.client.y - dropzoneRect.top - (window.scrollY || window.pageYOffset);
+
+                    // Sensible default size (can be customized per widget type later)
+                    const defaultWidth = 250;
+                    const defaultHeight = 150;
+
+                    const newWidgetData = {
+                        id: id,
+                        type: type,
+                        x: Math.max(0, dropX - defaultWidth / 2), // Center roughly under cursor, clamp at 0
+                        y: Math.max(0, dropY - defaultHeight / 2),
+                        w: defaultWidth,
+                        h: defaultHeight,
+                        config: config
+                    };
+
+                    createWidgetElement(newWidgetData);
+                    saveDashboardState(); // Save immediately after adding
+                },
+                ondropdeactivate: function (event) {
+                    // Remove visual feedback from dropzone
+                    event.target.classList.remove('can-drop', 'border-blue-400');
+                    event.relatedTarget.classList.remove('cursor-copy');
+                }
+            });
+
+             // 3. Make existing widgets (loaded from storage) interactive
+            dashboardGrid.querySelectorAll('.widget-instance').forEach(makeWidgetInteractive);
+
+
+            // --- Event Listeners ---
+            clearButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the entire dashboard? This cannot be undone.')) {
+                    dashboardGrid.innerHTML = ''; // Clear visually
+                    localStorage.removeItem(localStorageKey); // Clear storage
+                    console.log('Dashboard cleared.');
+                }
+            });
+
+
+            // --- Initial Load ---
+            loadDashboardState();
+
+        }); // End DOMContentLoaded
+    </script>
+
+</body>
+</html>
+```
+
+**Explanation:**
+
+1.  **HTML Structure:**
+    *   Basic HTML5 boilerplate.
+    *   Includes CDN links for Tailwind CSS and Interact.js in the `<head>`.
+    *   A `<style>` block contains custom CSS rules for widgets, handles, and interaction states (like `.dragging`, `.can-drop`). Tailwind's `theme()` function is used to access theme values (like colors) within the custom CSS.
+    *   The `<body>` uses Flexbox (`flex`, `md:flex-row`) for a responsive two-column layout (sidebar and main content).
+    *   **Sidebar (`<aside>`):** Contains example "Widget Templates". Each template is a `div` with `widget-template` class, `data-widget-type`, and `data-widget-config` (as a JSON string) to define its behavior and default settings when added. A "Clear Dashboard" button is included.
+    *   **Main Dashboard Area (`<main>`):** Contains the `#dashboard-grid` `div`. This is the relative container where widgets will be absolutely positioned and the target dropzone for Interact.js.
+
+2.  **Tailwind CSS:**
+    *   Used extensively for layout, spacing, typography, colors, borders, shadows, etc., directly within the HTML `class` attributes.
+    *   Responsive prefixes (`md:`) are used for the sidebar/main layout.
+    *   The Play CDN automatically processes these classes.
+
+3.  **JavaScript (within `<script>` tag):**
+    *   **`DOMContentLoaded`:** Ensures the script runs after the HTML is parsed.
+    *   **`localStorageKey`:** Defines the key used for storing data in local storage.
+    *   **`generateId()`:** Simple function to create unique IDs for new widgets.
+    *   **`saveDashboardState()`:**
+        *   Selects all `.widget-instance` elements within the grid.
+        *   Iterates through them, extracting `id`, `type`, position (`data-x`, `data-y`), size (`offsetWidth`, `offsetHeight`), and configuration (`data-widget-config`).
+        *   **Crucially:** It updates the `config` object with the *current* content from input elements (like textareas) before saving.
+        *   Stores the resulting array of widget objects as a JSON string in `localStorage`.
+    *   **`loadDashboardState()`:**
+        *   Retrieves the JSON string from `localStorage`.
+        *   Parses the JSON. If successful, it clears the current dashboard and iterates through the saved widget data, calling `createWidgetElement` for each one.
+        *   Includes basic error handling for JSON parsing.
+    *   **`createWidgetElement(widgetData)`:**
+        *   The core function for creating the HTML structure of a single widget based on its data (`id`, `type`, `x`, `y`, `w`, `h`, `config`).
+        *   Sets the element's `id`, classes, inline styles for `width`, `height`, and `transform: translate()`.
+        *   Stores position and config in `data-*` attributes.
+        *   Includes a standard **Widget Header** with a title and a delete button.
+        *   Includes a **Widget Content** area, populated based on the `widgetData.type`:
+            *   `chart`: Simple placeholder text.
+            *   `text`: A `textarea` with the content. An `input` listener is added to trigger `saveDashboardState` on changes.
+            *   `image`: An `img` tag with the source URL.
+            *   `customHtml`: A `textarea` for HTML input and a `div` below it for a *basic, unsanitized* preview. An `input` listener updates the preview and saves state. **Note:** Rendering arbitrary HTML is a security risk in real applications (XSS). This implementation is for demonstration; proper sanitization or sandboxing (e.g., using an `iframe`) would be needed.
+        *   Adds a **Resize Handle** element.
+        *   Adds an event listener to the **Delete Button**.
+        *   Appends the created widget to the `dashboardGrid`.
+        *   Calls `makeWidgetInteractive()` to enable drag/resize for the new widget.
+    *   **`makeWidgetInteractive(element)`:**
+        *   Uses `interact(element)` to make a specific widget instance draggable and resizable.
+        *   **`draggable`:**
+            *   `allowFrom: '.widget-header'` restricts dragging initiation to the header.
+            *   Uses modifiers to restrict movement within the parent (`#dashboard-grid`).
+            *   Listens for `start`, `move` (updates `transform` and internal position variables), and `end` (updates `data-x`, `data-y` and calls `saveDashboardState`).
+            *   Adds/removes `.dragging` class for visual feedback.
+        *   **`resizable`:**
+            *   `edges`: Configured to use the `.resize-handle` div for resizing (bottom-right corner).
+            *   Listens for `start`, `move` (updates element's `width` and `height` styles), and `end` (calls `saveDashboardState`).
+            *   Uses modifiers to restrict minimum size.
+            *   Adds/removes `.resizing` class.
+    *   **Interact.js Initialization:**
+        *   Sets up dragging for the `.widget-template` elements in the sidebar.
+        *   Sets up `#dashboard-grid` as a `dropzone`, defining what it accepts (`.widget-template`) and the `ondrop` logic (calculates position, creates the widget via `createWidgetElement`, saves state). Includes visual feedback hooks (`ondropactivate`, `ondragleave`, `ondropdeactivate`).
+        *   Calls `makeWidgetInteractive` for any widgets loaded initially from `localStorage`.
+    *   **Event Listeners:** Adds the listener for the "Clear Dashboard" button.
+    *   **Initial Load:** Calls `loadDashboardState()` to populate the dashboard when the page loads.
+
+4.  **Key Features Implemented:**
+    *   Single HTML file structure.
+    *   Tailwind CSS for styling via CDN.
+    *   Interact.js for drag, drop, and resize via CDN.
+    *   Sidebar with draggable widget templates.
+    *   Dashboard area acting as a dropzone.
+    *   Widgets added dynamically on drop.
+    *   Real-time visual feedback (position/size update, dropzone highlighting, cursor changes, opacity/shadow changes via CSS classes).
+    *   Widgets are draggable (by header) and resizable (by handle).
+    *   Different widget types (Chart placeholder, Text, Image, basic Custom HTML).
+    *   Persistent storage in Local Storage (saves layout, size, type, and content).
+    *   Load from Local Storage on page load.
+    *   Basic responsive layout for sidebar/main area.
+    *   Delete functionality per widget.
+    *   Clear dashboard functionality.
