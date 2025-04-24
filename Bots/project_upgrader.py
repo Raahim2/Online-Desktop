@@ -93,7 +93,7 @@ def commit_to_github(token, repo_url, branch, file_path, commit_message, content
         return {'status': 'failure', 'error': put_response.json()}
 
 
-def gemini(prompt, gemini_api_key=API_KEY, model="gemini-1.5-pro-latest", temperature=0.7, top_p=1.0):
+def gemini(prompt, gemini_api_key=API_KEY, model="gemini-2.5-pro-exp-03-25", temperature=0.7, top_p=1.0):
     """
     Function to interact with the Gemini API.
     (Keep the function identical to binbot.py's version)
@@ -190,26 +190,36 @@ def upgrade_project(input_html_path):
     # 3. Construct the Upgrade Prompt
     # This prompt needs to guide the AI effectively.
     upgrade_prompt = f"""
-You are an expert web developer specializing in enhancing existing web pages.
-Your task is to upgrade the following HTML code.
+You are an expert web developer tasked with *enhancing* and *expanding* upon an existing HTML webpage, making it objectively better and more feature-rich.
+
+**CRITICAL INSTRUCTION: DO NOT REMOVE existing functionality, content sections, or major visual elements from the original code.** Your goal is to ADD TO and IMPROVE upon the existing base, not simplify or replace it. Preserve the core concept and features.
 
 **Analysis of Original Code:**
-(You should mentally analyze the provided code to understand its purpose, structure, and potential areas for improvement.)
+(Mentally analyze the provided code below to understand its purpose, structure, existing features, and visual style.)
 
-**Upgrade Requirements:**
+**Upgrade Mandate:**
 
-1.  **Enhance Functionality/Interactivity:** Add meaningful features, interactions, or content that logically extend the original concept. Make it more engaging or useful.
-2.  **Improve UI/UX:** Refine the visual design using Tailwind CSS. Improve layout, spacing, typography, color scheme, and overall aesthetics. Make it look more polished, modern, and intuitive. Ensure responsiveness is maintained or improved.
-3.  **Maintain Core Concept:** The upgrade should build upon the original idea, not replace it with something completely different.
-4.  **Single File Output:** The entire upgraded code MUST be contained within a single HTML file.
-5.  **HTML & Tailwind CSS Only:** Use only standard HTML5 and Tailwind CSS. Ensure Tailwind is included via CDN: `<script src="https://cdn.tailwindcss.com"></script>`. Do NOT add external CSS files or significant `<style>` blocks. Minimal inline JS (`onclick`, etc.) or a small embedded `<script>` tag at the end of `<body>` is acceptable if necessary for the enhancements, but prioritize CSS/HTML solutions.
-6.  **Clean Code:** Output well-formatted, readable HTML.
-7.  **COMPLETE CODE ONLY:** Output ONLY the raw, complete upgraded HTML code starting from `<!DOCTYPE html>` and ending with `</html>`. Do NOT include explanations, markdown formatting (like ```html), or conversational text.
+1.  **Add New Features/Content:** Introduce at least one significant new feature, interactive element, or content section that logically builds upon the original concept. Examples:
+    *   If it's a display, add sorting/filtering options (even if just placeholders).
+    *   If it's static, add subtle hover effects, transitions, or a simple tabbed interface.
+    *   If it shows data, add more data points or a complementary visualization.
+    *   Add a relevant new section (e.g., a 'details' panel, a 'settings' mock-up, an 'about' section).
+    *   Incorporate more detailed placeholder text or images relevant to the theme.
+2.  **Enhance UI/UX:** Improve the visual appeal and usability using Tailwind CSS *without removing existing layout*.
+    *   Refine spacing, typography, and color usage for better readability and aesthetics.
+    *   Ensure layout remains fully responsive, potentially improving breakpoints.
+    *   Add subtle visual cues like improved button styles, clearer visual hierarchy, or better handling of overflow.
+3.  **Preserve Original Functionality:** Reiterate: All original interactive elements (if any) and content structures must remain functional and present in the upgraded version.
+4.  **Strict Technical Constraints:**
+    *   **Single File Output:** The entire upgraded code MUST be in one single HTML file.
+    *   **HTML & Tailwind CSS Only:** Use only standard HTML5 and Tailwind CSS via CDN (`<script src="https://cdn.tailwindcss.com"></script>`). No external CSS or significant `<style>` blocks. Minimal inline JS (`onclick`, etc.) or a small embedded `<script>` at the end of `<body>` is acceptable ONLY for the *newly added* enhancements, if essential.
+    *   **Clean Code:** Output well-formatted, readable HTML.
+5.  **OUTPUT COMPLETE CODE ONLY:** Start directly with `<!DOCTYPE html>` and end with `</html>`. Do NOT include explanations, markdown formatting (like ```html), commentary, or conversational text.
 
-**Original HTML Code to Upgrade:**
+**Original HTML Code to Upgrade (Preserve and Enhance This):**
 ```html
 {original_html_content}
-Begin the upgraded HTML code now:
+Begin the upgraded HTML code now try to make it as good as possible by increasing the lines of code.
 """
     
     print("\nRequesting upgrade from Gemini...")
@@ -270,4 +280,4 @@ Begin the upgraded HTML code now:
     print(commit_result)
     """
 
-upgrade_project("public/projects/BIN/your_project_file.html") # Replace with your actual file path
+upgrade_project("public/projects/BIN/Dash.html") # Replace with your actual file path

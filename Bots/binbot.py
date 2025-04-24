@@ -178,108 +178,106 @@ def gemini(prompt, gemini_api_key=API_KEY, model="gemini-1.5-pro-latest", temper
 # --- Main Execution ---
 
 # 1. Generate a Unique Project Idea
-print("Generating project idea...")
-random_theme = random.choice(IDEA_THEMES)
-print(f"Injecting random theme: '{random_theme}'")
+def generate_project():
+    print("Generating project idea...")
+    random_theme = random.choice(IDEA_THEMES)
+    print(f"Injecting random theme: '{random_theme}'")
 
-# **MODIFIED** idea generation prompt
-idea_generation_prompt = (
-    f"Generate ONE highly creative, unique, and uncommon project idea suitable for a SINGLE HTML file using only Tailwind CSS. "
-    f"The idea should strongly relate to the theme of: '{random_theme}'. "
-    "Focus on ideas that allow for interesting UI/UX elements or visualizations. "
-    "Think outside the box - be imaginative and specific! "
-    "AVOID common examples like: simple portfolio, blog, basic calculator, to-do list, weather app, clock, login form, generic landing page. "
-    "Output ONLY the project idea name or a very short description (max 15 words). Do not add quotes around the output."
-)
+    idea_generation_prompt = (
+        f"Generate ONE highly creative, unique, and uncommon project idea suitable for a SINGLE HTML file using only Tailwind CSS. "
+        f"The idea should strongly relate to the theme of: '{random_theme}'. "
+        "Focus on ideas that allow for interesting UI/UX elements or visualizations. "
+        "Think outside the box - be imaginative and specific! "
+        "AVOID common examples like: simple portfolio, blog, basic calculator, to-do list, weather app, clock, login form, generic landing page. "
+        "Output ONLY the project idea name or a very short description (max 15 words). Do not add quotes around the output."
+    )
 
-# **MODIFIED** Use higher temperature for more variance in idea generation
-project_idea = gemini(
-    idea_generation_prompt,
-    model=GEMINI_MODEL_IDEA,
-    temperature=0.95, # Increased temperature
-    top_p=0.9 # Adjust top_p slightly if needed, often good with high temp
-)
+    project_idea = gemini(
+        idea_generation_prompt,
+        model=GEMINI_MODEL_IDEA,
+        temperature=0.95, # Increased temperature
+        top_p=0.9 # Adjust top_p slightly if needed, often good with high temp
+    )
 
-if not project_idea:
-    print("Failed to generate a project idea. Exiting.")
-    exit()
+    if not project_idea:
+        print("Failed to generate a project idea. Exiting.")
+        exit()
 
-# Clean up potential leading/trailing spaces or quotes just in case
-project_idea = project_idea.strip().strip('"')
+    project_idea = project_idea.strip().strip('"')
 
-print(f"Generated Project Idea: {project_idea}")
+    print(f"Generated Project Idea: {project_idea}")
 
-# 2. Construct the Detailed Code Generation Prompt (Keep this prompt structure as it's very specific)
-code_generation_prompt = f"""
-Generate the complete HTML code for a single-page website based on this specific project idea: '{project_idea}'.
+    code_generation_prompt = f"""
+    Generate the complete HTML code for a single-page website based on this specific project idea: '{project_idea}'.
 
-**Strict Requirements:**
+    **Strict Requirements:**
 
-1.  **Single File Output:** The entire code MUST be contained within a single HTML file (`.html`).
-2.  **HTML & Tailwind CSS Only:** Use only standard HTML5 and Tailwind CSS for ALL styling. Include Tailwind via its CDN script: `<script src="https://cdn.tailwindcss.com"></script>` within the `<head>`. Do NOT use external CSS files or `<style>` blocks unless absolutely necessary for very specific, minor tweaks not achievable with Tailwind classes.
-3.  **UI/UX Focus:** Prioritize a clean, visually appealing, and intuitive user interface and user experience. Make it look polished and modern. Use appropriate Tailwind utilities for layout (Flexbox, Grid), spacing, typography, colors, and effects. Implement the core concept of '{project_idea}'.
-4.  **Responsiveness:** The layout MUST be fully responsive and adapt gracefully to different screen sizes (mobile, tablet, desktop). Use Tailwind's responsive modifiers (e.g., `sm:`, `md:`, `lg:`).
-5.  **Clean & Structured Code:** Write well-formatted, readable HTML with semantic tags where appropriate (e.g., `<header>`, `<nav>`, `<main>`, `<article>`, `<section>`, `<footer>`). Use comments sparingly only where needed for clarification.
-6.  **Placeholder Content:** Include relevant placeholder text and potentially images using placeholder services (like `https://via.placeholder.com/400x300` or similar). Ensure placeholders fit the design and the theme '{project_idea}'.
-7.  **Interactivity (Optional but Encouraged):** If the project idea suggests interactivity, implement it using minimal inline JavaScript within HTML attributes (`onclick="..."`) or a small `<script>` tag at the end of the `<body>`. AVOID complex JavaScript logic; focus on the HTML/CSS structure. If JS is added, ensure it's simple and enhances the UI/UX based on '{project_idea}'.
-8.  **COMPLETE CODE ONLY:** Output ONLY the raw, complete HTML code starting from `<!DOCTYPE html>` and ending with `</html>`. Do NOT include:
-    *   Any explanations before or after the code.
-    *   Any descriptive text about the code.
-    *   Markdown formatting like ```html ... ``` surrounding the code block.
-    *   Any conversational text.
+    1.  **Single File Output:** The entire code MUST be contained within a single HTML file (`.html`).
+    2.  **HTML & Tailwind CSS Only:** Use only standard HTML5 and Tailwind CSS for ALL styling. Include Tailwind via its CDN script: `<script src="https://cdn.tailwindcss.com"></script>` within the `<head>`. Do NOT use external CSS files or `<style>` blocks unless absolutely necessary for very specific, minor tweaks not achievable with Tailwind classes.
+    3.  **UI/UX Focus:** Prioritize a clean, visually appealing, and intuitive user interface and user experience. Make it look polished and modern. Use appropriate Tailwind utilities for layout (Flexbox, Grid), spacing, typography, colors, and effects. Implement the core concept of '{project_idea}'.
+    4.  **Responsiveness:** The layout MUST be fully responsive and adapt gracefully to different screen sizes (mobile, tablet, desktop). Use Tailwind's responsive modifiers (e.g., `sm:`, `md:`, `lg:`).
+    5.  **Clean & Structured Code:** Write well-formatted, readable HTML with semantic tags where appropriate (e.g., `<header>`, `<nav>`, `<main>`, `<article>`, `<section>`, `<footer>`). Use comments sparingly only where needed for clarification.
+    6.  **Placeholder Content:** Include relevant placeholder text and potentially images using placeholder services (like `https://via.placeholder.com/400x300` or similar). Ensure placeholders fit the design and the theme '{project_idea}'.
+    7.  **Interactivity (Optional but Encouraged):** If the project idea suggests interactivity, implement it using minimal inline JavaScript within HTML attributes (`onclick="..."`) or a small `<script>` tag at the end of the `<body>`. AVOID complex JavaScript logic; focus on the HTML/CSS structure. If JS is added, ensure it's simple and enhances the UI/UX based on '{project_idea}'.
+    8.  **COMPLETE CODE ONLY:** Output ONLY the raw, complete HTML code starting from `<!DOCTYPE html>` and ending with `</html>`. Do NOT include:
+        *   Any explanations before or after the code.
+        *   Any descriptive text about the code.
+        *   Markdown formatting like ```html ... ``` surrounding the code block.
+        *   Any conversational text.
 
-**Project Idea to Implement:** {project_idea}
+    **Project Idea to Implement:** {project_idea}
 
-Begin the HTML code now:
-"""
+    Begin the HTML code now:
+    """
 
-print("\nGenerating HTML code based on the idea...")
-# Keep temperature moderate for code generation to avoid overly 'creative' (broken) code
-raw_code = gemini(code_generation_prompt, model=GEMINI_MODEL_CODE, temperature=0.5)
+    print("\nGenerating HTML code based on the idea...")
+    # Keep temperature moderate for code generation to avoid overly 'creative' (broken) code
+    raw_code = gemini(code_generation_prompt, model=GEMINI_MODEL_CODE, temperature=0.5)
 
-if not raw_code:
-    print("Failed to generate the code. Exiting.")
-    exit()
+    if not raw_code:
+        print("Failed to generate the code. Exiting.")
+        exit()
 
-# 3. Clean the Generated Code
-print("\nCleaning generated code...")
-cleaned_code = clean_gemini_code_output(raw_code)
+    # 3. Clean the Generated Code
+    print("\nCleaning generated code...")
+    cleaned_code = clean_gemini_code_output(raw_code)
 
-if not cleaned_code:
-     print("Code cleaning resulted in empty content. Cannot commit. Exiting.")
-     exit()
+    if not cleaned_code:
+        print("Code cleaning resulted in empty content. Cannot commit. Exiting.")
+        exit()
 
-# Optional: Print first few lines of cleaned code for verification
-print("\nCleaned Code Snippet (first 500 chars):")
-print(cleaned_code[:500] + "...")
-print("-" * 20)
+    # Optional: Print first few lines of cleaned code for verification
+    print("\nCleaned Code Snippet (first 500 chars):")
+    print(cleaned_code[:500] + "...")
+    print("-" * 20)
 
 
-# 4. Commit to GitHub
-unique_id = uuid.uuid4()
-file_path = f"{COMMIT_PATH_PREFIX.strip('/')}/{unique_id}.html" # Ensure no double slashes
-# Make commit message slightly more descriptive including the theme might help track variety
-commit_message = f"feat: Add unique project '{project_idea[:40]}...' ({random_theme}) ({unique_id})"
+    unique_id = uuid.uuid4()
+    file_path = f"{COMMIT_PATH_PREFIX.strip('/')}/{unique_id}.html" # Ensure no double slashes
+    commit_message = f"feat: Add unique project '{project_idea[:40]}...' ({random_theme}) ({unique_id})"
 
 
-print(f"\nAttempting to commit to: {TARGET_REPO_URL}")
-print(f"File path: {file_path}")
-print(f"Branch: {TARGET_BRANCH}")
-print(f"Commit message: {commit_message}")
+    print(f"\nAttempting to commit to: {TARGET_REPO_URL}")
+    print(f"File path: {file_path}")
+    print(f"Branch: {TARGET_BRANCH}")
+    print(f"Commit message: {commit_message}")
 
-commit_result = commit_to_github(
-    token=GITHUB_TOKEN,
-    repo_url=TARGET_REPO_URL,
-    branch=TARGET_BRANCH,
-    file_path=file_path,
-    commit_message=commit_message,
-    content=cleaned_code
-)
+    commit_result = commit_to_github(
+        token=GITHUB_TOKEN,
+        repo_url=TARGET_REPO_URL,
+        branch=TARGET_BRANCH,
+        file_path=file_path,
+        commit_message=commit_message,
+        content=cleaned_code
+    )
 
-print("\nCommit Result:")
-print(commit_result)
+    print("\nCommit Result:")
+    print(commit_result)
 
-if commit_result['status'] == 'success':
-    print("\nProcess completed successfully!")
-else:
-    print("\nProcess failed during commit.")
+    if commit_result['status'] == 'success':
+        print("\nProcess completed successfully!")
+    else:
+        print("\nProcess failed during commit.")
+
+generate_project()
+generate_project()
