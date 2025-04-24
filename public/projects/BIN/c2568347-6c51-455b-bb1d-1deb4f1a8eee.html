@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Procedural Terrain Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for the terrain display background */
+        #terrain-display {
+            background-image: url('https://via.placeholder.com/800x600.png/4a5568/cbd5e0?text=Click+Generate+to+Start');
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-600 dark:text-indigo-400">TerrainGen Pro</h1>
+            <span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">Interactive Procedural Terrain</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Controls Panel -->
+            <aside class="w-full lg:w-1/3 xl:w-1/4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg h-fit lg:sticky lg:top-24">
+                <h2 class="text-xl font-semibold mb-6 border-b border-gray-300 dark:border-gray-600 pb-3 text-gray-800 dark:text-gray-200">Controls</h2>
+
+                <!-- Generation Parameters -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-4 text-gray-700 dark:text-gray-300">Parameters</h3>
+                    <div class="space-y-5">
+                        <div>
+                            <label for="seed" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Seed</label>
+                            <input type="text" id="seed" name="seed" placeholder="Random if empty" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="scale" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Feature Scale</label>
+                            <input type="range" id="scale" name="scale" min="10" max="200" value="80" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-400">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block text-right">Controls size of mountains/valleys</span>
+                        </div>
+                         <div>
+                            <label for="roughness" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Roughness</label>
+                            <input type="range" id="roughness" name="roughness" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-400">
+                             <span class="text-xs text-gray-500 dark:text-gray-400 block text-right">Adjusts terrain jaggedness</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Biome Customization -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-4 text-gray-700 dark:text-gray-300">Biome</h3>
+                    <div class="space-y-5">
+                        <div>
+                            <label for="biome" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Select Type</label>
+                            <select id="biome" name="biome" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option value="forest">Forest</option>
+                                <option value="desert">Desert</option>
+                                <option value="tundra">Tundra</option>
+                                <option value="mountains">Mountains</option>
+                                <option value="islands">Tropical Islands</option>
+                                <option value="volcanic">Volcanic</option>
+                            </select>
+                        </div>
+                         <div id="biome-description" class="text-sm text-gray-600 dark:text-gray-400 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-600 min-h-[70px]">
+                            Select a biome to see its typical characteristics.
+                         </div>
+                         <div>
+                            <label for="waterLevel" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Water Level</label>
+                            <input type="range" id="waterLevel" name="waterLevel" min="0" max="100" value="30" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-400">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block text-right">Adjusts the sea/water level</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Action Button -->
+                <button id="generate-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75">
+                    Generate Terrain
+                </button>
+                <p id="status-text" class="text-sm text-center mt-4 text-gray-500 dark:text-gray-400 h-5"></p>
+
+            </aside>
+
+            <!-- Terrain Display Area -->
+            <section class="w-full lg:w-2/3 xl:w-3/4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
+                 <h2 class="text-xl font-semibold mb-4 text-center lg:text-left text-gray-800 dark:text-gray-200">Terrain Preview</h2>
+                 <div id="terrain-display" class="flex-grow rounded-md border border-gray-300 dark:border-gray-600 min-h-[400px] md:min-h-[500px] lg:min-h-[600px] flex items-end justify-start p-4 relative overflow-hidden">
+                     <!-- Placeholder is handled by CSS background -->
+                     <div id="display-info" class="bg-black bg-opacity-60 text-white p-3 rounded-md text-sm transition-opacity duration-300 opacity-0">
+                         <p><strong class="font-medium">Biome:</strong> <span id="info-biome">N/A</span></p>
+                         <p><strong class="font-medium">Seed:</strong> <span id="info-seed">N/A</span></p>
+                     </div>
+                 </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 dark:bg-gray-800 mt-12 py-6 border-t border-gray-300 dark:border-gray-700">
+        <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400 text-sm">
+            &copy; 2024 Interactive Terrain Generator. Created with HTML & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        const generateBtn = document.getElementById('generate-btn');
+        const terrainDisplay = document.getElementById('terrain-display');
+        const displayInfo = document.getElementById('display-info');
+        const infoBiome = document.getElementById('info-biome');
+        const infoSeed = document.getElementById('info-seed');
+        const statusText = document.getElementById('status-text');
+        const biomeSelect = document.getElementById('biome');
+        const biomeDescription = document.getElementById('biome-description');
+        const seedInput = document.getElementById('seed');
+        const scaleInput = document.getElementById('scale');
+        const roughnessInput = document.getElementById('roughness');
+        const waterLevelInput = document.getElementById('waterLevel');
+
+        const biomeDetails = {
+            forest: {
+                desc: "Dense woodlands with varying elevation, rivers, and rich flora.",
+                color: "228B22" // ForestGreen
+            },
+            desert: {
+                desc: "Vast arid lands with sand dunes, canyons, and sparse vegetation.",
+                color: "F4A460" // SandyBrown
+            },
+            tundra: {
+                desc: "Cold, frozen plains with low-lying shrubs, mosses, and occasional mountains.",
+                color: "ADD8E6" // LightBlue
+            },
+            mountains: {
+                desc: "High altitude regions dominated by steep peaks, ridges, and deep valleys.",
+                color: "696969" // DimGray
+            },
+            islands: {
+                desc: "Chains or clusters of islands surrounded by ocean, featuring beaches and tropical vegetation.",
+                color: "40E0D0" // Turquoise
+            },
+            volcanic: {
+                desc: "Landscapes shaped by volcanic activity, featuring cones, lava flows, and ash plains.",
+                color: "A52A2A" // Brown
+            }
+        };
+
+        // Function to update biome description
+        function updateBiomeInfo() {
+            const selectedBiome = biomeSelect.value;
+            if (biomeDetails[selectedBiome]) {
+                biomeDescription.textContent = biomeDetails[selectedBiome].desc;
+            } else {
+                biomeDescription.textContent = 'Select a biome to see its typical characteristics.';
+            }
+        }
+
+        // Update biome description on selection change
+        biomeSelect.addEventListener('change', updateBiomeInfo);
+
+        // Simulate terrain generation on button click
+        generateBtn.addEventListener('click', function() {
+            statusText.textContent = 'Generating...';
+            displayInfo.classList.add('opacity-0'); // Hide info during generation
+            generateBtn.disabled = true;
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            generateBtn.textContent = 'Generating...';
+
+            // Simulate async generation process
+            setTimeout(() => {
+                const seedValue = seedInput.value.trim() || Math.floor(Math.random() * 1000000);
+                const selectedBiome = biomeSelect.value;
+                const biomeColor = biomeDetails[selectedBiome]?.color || '808080'; // Default Gray
+
+                // Update the placeholder image URL to simulate change
+                // Using via.placeholder.com with biome color and seed for visual feedback
+                const placeholderUrl = `https://via.placeholder.com/800x600.png/${biomeColor}/ffffff?text=${selectedBiome.charAt(0).toUpperCase() + selectedBiome.slice(1)}+%7C+Seed:+${seedValue}`;
+                // Alternative using picsum for random images:
+                // const placeholderUrl = `https://picsum.photos/seed/${seedValue}/800/600?blur=1`;
+
+                terrainDisplay.style.backgroundImage = `url('${placeholderUrl}')`;
+
+                // Update display info
+                infoBiome.textContent = selectedBiome.charAt(0).toUpperCase() + selectedBiome.slice(1);
+                infoSeed.textContent = seedValue;
+                displayInfo.classList.remove('opacity-0'); // Show info
+
+                statusText.textContent = `Terrain Generated!`;
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                generateBtn.textContent = 'Generate Terrain';
+
+                // Clear status message after a few seconds
+                setTimeout(() => { statusText.textContent = ''; }, 3000);
+
+            }, 1200); // Simulate 1.2 second generation time
+        });
+
+        // Initialize biome description on page load
+        updateBiomeInfo();
+
+    </script>
+
+</body>
+</html>
