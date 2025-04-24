@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Regex Tester & DOM Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for highlighted matches */
+        .highlight {
+            background-color: #fde047; /* yellow-300 */
+            border-radius: 0.125rem; /* rounded-sm */
+            padding: 0 0.125rem;
+            font-weight: 600; /* font-semibold */
+            box-shadow: 0 0 0 1px #facc15; /* yellow-400 */
+        }
+        /* Style for error messages */
+        .error-message {
+            color: #dc2626; /* red-600 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+        /* Ensure pre wraps text */
+        pre {
+            white-space: pre-wrap;       /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold">Visual Regex Tester</h1>
+            <p class="mt-1 text-indigo-200">Test Regular Expressions with Live Preview & Replacement</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 mt-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <!-- Left Column: Inputs -->
+            <section class="lg:w-1/2 flex flex-col gap-6">
+                <!-- Regex Input -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <label for="regex-input" class="block text-sm font-medium text-gray-700 mb-1">Regular Expression</label>
+                    <div class="flex items-center border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+                        <span class="pl-3 pr-1 text-gray-400">/</span>
+                        <input type="text" id="regex-input" placeholder="Enter your pattern here (e.g., \b\w+\b)" class="flex-grow p-2 border-0 focus:ring-0 text-sm font-mono">
+                        <span class="pr-3 pl-1 text-gray-400">/</span>
+                        <div class="flex items-center space-x-2 pr-3 border-l border-gray-300 pl-3">
+                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                <input type="checkbox" id="flag-g" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-1"> g
+                            </label>
+                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                <input type="checkbox" id="flag-i" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-1"> i
+                            </label>
+                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                <input type="checkbox" id="flag-m" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-1"> m
+                            </label>
+                        </div>
+                    </div>
+                     <div id="regex-error" class="error-message h-5"></div> <!-- Placeholder for error messages -->
+                </div>
+
+                <!-- Replacement Input -->
+                <div class="bg-white p-5 rounded-lg shadow">
+                    <label for="replacement-input" class="block text-sm font-medium text-gray-700 mb-1">Replacement String</label>
+                    <input type="text" id="replacement-input" placeholder="Use $1, $2... for capture groups" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm font-mono">
+                    <p class="mt-1 text-xs text-gray-500">Leave empty if you only want to highlight matches.</p>
+                </div>
+
+                <!-- Target Text Input -->
+                <div class="bg-white p-5 rounded-lg shadow flex-grow flex flex-col">
+                    <label for="target-text" class="block text-sm font-medium text-gray-700 mb-1">Target Text / HTML</label>
+                    <textarea id="target-text" rows="12" placeholder="Paste the text or HTML you want to test your regex against..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm font-mono flex-grow resize-none">The quick brown fox jumps over the lazy dog.
+Repeat: The quick brown fox.
+Contact us at info@example.com or support@example.org.
+Visit http://example.com for more info.
+Another sentence for testing purposes.</textarea>
+                </div>
+            </section>
+
+            <!-- Right Column: Previews -->
+            <section class="lg:w-1/2 flex flex-col gap-6">
+                <!-- Match Preview -->
+                <div class="bg-white p-5 rounded-lg shadow flex-grow flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Live Match Preview</h3>
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200 flex-grow overflow-auto">
+                        <pre id="match-preview" class="text-sm font-mono text-gray-700"></pre>
+                    </div>
+                     <p class="mt-2 text-sm text-gray-600">Matches found: <span id="match-count" class="font-semibold">0</span></p>
+                </div>
+
+                <!-- Replacement Preview -->
+                <div class="bg-white p-5 rounded-lg shadow flex-grow flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Replacement Result Preview</h3>
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200 flex-grow overflow-auto">
+                         <pre id="replacement-preview" class="text-sm font-mono text-gray-700"></pre>
+                    </div>
+                     <p class="mt-2 text-sm text-gray-600">Preview of the text after applying the replacement.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-sm">
+            &copy; 2023 Visual Regex Tester. Built with HTML & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        const regexInput = document.getElementById('regex-input');
+        const flagG = document.getElementById('flag-g');
+        const flagI = document.getElementById('flag-i');
+        const flagM = document.getElementById('flag-m');
+        const replacementInput = document.getElementById('replacement-input');
+        const targetText = document.getElementById('target-text');
+        const matchPreview = document.getElementById('match-preview');
+        const replacementPreview = document.getElementById('replacement-preview');
+        const matchCount = document.getElementById('match-count');
+        const regexError = document.getElementById('regex-error');
+
+        function escapeHTML(str) {
+            // Basic escaping to prevent HTML injection when displaying text
+            // Note: This is NOT foolproof for complex scenarios but works for basic text display.
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function updatePreview() {
+            const pattern = regexInput.value;
+            const replacement = replacementInput.value;
+            const text = targetText.value;
+            const flags = (flagG.checked ? 'g' : '') + (flagI.checked ? 'i' : '') + (flagM.checked ? 'm' : '');
+
+            // Clear previous results and errors
+            matchPreview.innerHTML = escapeHTML(text); // Start with original text, escaped
+            replacementPreview.textContent = text; // Show original text if no replacement
+            matchCount.textContent = '0';
+            regexError.textContent = '';
+
+            if (!pattern || !text) {
+                 // If no pattern or text, show original text and exit
+                matchPreview.innerHTML = escapeHTML(text);
+                replacementPreview.textContent = text;
+                return;
+            }
+
+            try {
+                const regex = new RegExp(pattern, flags);
+                let highlightedHTML = escapeHTML(text);
+                let currentMatchCount = 0;
+
+                // --- Match Highlighting ---
+                // Use replace with a callback for highlighting to handle overlaps with global flag correctly
+                // We need to work on the escaped HTML to avoid breaking tags
+                if (pattern) { // Only highlight if there's a pattern
+                    let resultHTML = '';
+                    let lastIndex = 0;
+                    const escapedText = escapeHTML(text); // Work on the escaped version
+
+                    // Use matchAll if available and global flag is set for robust iteration
+                    if (flags.includes('g') && typeof text.matchAll === 'function') {
+                        for (const match of text.matchAll(regex)) {
+                           currentMatchCount++;
+                           const escapedMatch = escapeHTML(match[0]);
+                           // Find the match in the *escaped* text to get correct indices
+                           const matchIndexInEscaped = escapedText.indexOf(escapedMatch, lastIndex);
+
+                           if (matchIndexInEscaped !== -1) {
+                               resultHTML += escapedText.substring(lastIndex, matchIndexInEscaped);
+                               resultHTML += `<span class="highlight">${escapedMatch}</span>`;
+                               lastIndex = matchIndexInEscaped + escapedMatch.length;
+                           } else {
+                               // Fallback if match not found in escaped (unlikely but possible with complex chars)
+                               // This part might need refinement for edge cases
+                               resultHTML += escapedText.substring(lastIndex, match.index);
+                               resultHTML += `<span class="highlight">${escapedMatch}</span>`;
+                               lastIndex = match.index + match[0].length;
+                           }
+                        }
+                        resultHTML += escapedText.substring(lastIndex);
+                        highlightedHTML = resultHTML;
+
+                    } else {
+                        // Fallback for non-global or older browsers
+                        // Note: Non-global replace only replaces the first match for highlighting
+                        highlightedHTML = escapedText.replace(regex, (match) => {
+                            currentMatchCount++; // Increment count even for non-global
+                            return `<span class="highlight">${escapeHTML(match)}</span>`;
+                        });
+                        // For non-global, count might be just 1 if a match exists
+                        if (!flags.includes('g') && regex.test(text)) {
+                             currentMatchCount = 1;
+                        } else if (!flags.includes('g')) {
+                             currentMatchCount = 0;
+                        }
+                        // If global flag wasn't checked, count might be inaccurate here without matchAll
+                        // Recalculate count for non-matchAll global scenario
+                        if (flags.includes('g') && typeof text.matchAll !== 'function') {
+                           const matches = text.match(regex);
+                           currentMatchCount = matches ? matches.length : 0;
+                        }
+                    }
+                     matchPreview.innerHTML = highlightedHTML; // Update preview with highlights
+                }
+
+
+                // --- Replacement Preview ---
+                if (replacement !== null && replacement !== undefined) { // Check if replacement field has content
+                     replacementPreview.textContent = text.replace(regex, replacement);
+                } else {
+                    replacementPreview.textContent = text; // Show original if no replacement string
+                }
+
+                // Update match count
+                matchCount.textContent = currentMatchCount.toString();
+
+            } catch (e) {
+                // Display regex errors
+                regexError.textContent = e.message;
+                // Reset previews on error
+                matchPreview.innerHTML = escapeHTML(text);
+                replacementPreview.textContent = text;
+                matchCount.textContent = '0';
+            }
+        }
+
+        // Event Listeners
+        regexInput.addEventListener('input', updatePreview);
+        replacementInput.addEventListener('input', updatePreview);
+        targetText.addEventListener('input', updatePreview);
+        flagG.addEventListener('change', updatePreview);
+        flagI.addEventListener('change', updatePreview);
+        flagM.addEventListener('change', updatePreview);
+
+        // Initial preview on page load
+        document.addEventListener('DOMContentLoaded', updatePreview);
+    </script>
+
+</body>
+</html>
