@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mondrian Evolution Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style block for thick grid lines */
+        #mondrian-canvas {
+            background-color: black; /* Simulates thick lines via gaps */
+            border: 4px solid black; /* Outer border */
+            aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
+            width: 90%; /* Responsive width */
+            max-width: 600px; /* Max size */
+            height: auto; /* Height adjusts to width */
+            margin: auto; /* Center the canvas */
+        }
+        /* Ensure grid items fill their space */
+        #mondrian-canvas > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem; /* Small text for potential labels */
+            color: rgba(0,0,0,0.2); /* Subtle text */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">Mondrian Evolution Simulator</h1>
+            <p class="text-center text-gray-600 mt-1">Watch abstract color blocks evolve</p>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center">
+
+        <section id="simulator-area" class="w-full max-w-3xl flex flex-col items-center">
+            <!-- Mondrian Canvas Area -->
+            <div id="mondrian-canvas" class="grid grid-cols-4 grid-rows-4 gap-2 mb-8">
+                <!-- Initial Blocks - JS will manipulate these -->
+                <div id="block-0" class="bg-white col-span-2 row-span-2"></div>
+                <div id="block-1" class="bg-yellow-400 col-span-2"></div>
+                <div id="block-2" class="bg-red-600 row-span-2"></div>
+                <div id="block-3" class="bg-white"></div>
+                <div id="block-4" class="bg-blue-600 col-span-2 row-span-2"></div>
+                <div id="block-5" class="bg-white"></div>
+                <div id="block-6" class="bg-yellow-400"></div>
+                <div id="block-7" class="bg-white"></div>
+                <div id="block-8" class="bg-red-600"></div>
+            </div>
+
+            <!-- Controls Area -->
+            <div id="controls" class="flex flex-wrap justify-center gap-3 md:gap-4">
+                <button id="startButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">
+                    Start Evolution
+                </button>
+                <button id="stopButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out" disabled>
+                    Stop Evolution
+                </button>
+                <button id="stepButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">
+                    Step Forward
+                </button>
+                <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">
+                    Reset
+                </button>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                Evolution Speed: <span id="speedDisplay">1</span> step(s) per second
+            </div>
+             <input type="range" id="speedSlider" min="1" max="10" value="1" class="w-48 md:w-64 mt-2 cursor-pointer">
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-auto">
+        <p>&copy; 2023 Mondrian Simulator. Inspired by Piet Mondrian.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('mondrian-canvas');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const stepButton = document.getElementById('stepButton');
+        const resetButton = document.getElementById('resetButton');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+
+        const mondrianColors = ['bg-red-600', 'bg-blue-600', 'bg-yellow-400', 'bg-white', 'bg-gray-200']; // Added gray for variety
+        let blocks = []; // Will hold references to block divs
+        let evolutionInterval = null;
+        let evolutionSpeed = 1000; // Milliseconds per step (default 1 step/sec)
+
+        const initialGridState = [
+            { id: 'block-0', class: 'bg-white col-span-2 row-span-2' },
+            { id: 'block-1', class: 'bg-yellow-400 col-span-2' },
+            { id: 'block-2', class: 'bg-red-600 row-span-2' },
+            { id: 'block-3', class: 'bg-white' },
+            { id: 'block-4', class: 'bg-blue-600 col-span-2 row-span-2' },
+            { id: 'block-5', class: 'bg-white' },
+            { id: 'block-6', class: 'bg-yellow-400' },
+            { id: 'block-7', class: 'bg-white' },
+            { id: 'block-8', class: 'bg-red-600' },
+        ];
+
+        function setupInitialGrid() {
+            canvas.innerHTML = ''; // Clear existing blocks
+            blocks = []; // Clear block references
+            initialGridState.forEach(state => {
+                const block = document.createElement('div');
+                block.id = state.id;
+                block.className = state.class; // Apply initial Tailwind classes
+                canvas.appendChild(block);
+                blocks.push(block); // Store reference
+            });
+        }
+
+        function getRandomColor() {
+            return mondrianColors[Math.floor(Math.random() * mondrianColors.length)];
+        }
+
+        function evolveStep() {
+            if (blocks.length === 0) return;
+
+            // Simple evolution: randomly change the color of one block
+            const randomIndex = Math.floor(Math.random() * blocks.length);
+            const blockToChange = blocks[randomIndex];
+            const currentColorClass = mondrianColors.find(cls => blockToChange.classList.contains(cls)) || 'bg-white'; // Find current color class
+            let newColorClass = getRandomColor();
+
+            // Avoid setting the same color
+            while (newColorClass === currentColorClass) {
+                newColorClass = getRandomColor();
+            }
+
+            // Remove old color class and add new one
+            blockToChange.classList.remove(currentColorClass);
+            blockToChange.classList.add(newColorClass);
+
+            // Optional: Add a subtle visual indicator of change
+            blockToChange.classList.add('transition', 'duration-300', 'ease-in-out', 'transform', 'scale-95');
+            setTimeout(() => {
+                blockToChange.classList.remove('transform', 'scale-95');
+            }, 150);
+        }
+
+        function startEvolution() {
+            if (evolutionInterval) return; // Already running
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            stepButton.disabled = true; // Disable step when running automatically
+            resetButton.disabled = true; // Disable reset when running
+            evolutionInterval = setInterval(evolveStep, evolutionSpeed);
+        }
+
+        function stopEvolution() {
+            clearInterval(evolutionInterval);
+            evolutionInterval = null;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            stepButton.disabled = false;
+            resetButton.disabled = false;
+        }
+
+        function resetGrid() {
+            stopEvolution(); // Ensure it's stopped
+            setupInitialGrid(); // Rebuild the initial state
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            stepButton.disabled = false;
+            resetButton.disabled = false;
+        }
+
+        function updateSpeed() {
+            const stepsPerSecond = parseInt(speedSlider.value, 10);
+            evolutionSpeed = 1000 / stepsPerSecond; // Calculate interval in ms
+            speedDisplay.textContent = `${stepsPerSecond} step(s) per second`;
+            if (evolutionInterval) { // If running, restart with new speed
+                stopEvolution();
+                startEvolution();
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', startEvolution);
+        stopButton.addEventListener('click', stopEvolution);
+        stepButton.addEventListener('click', () => {
+            if (!evolutionInterval) { // Only allow step if not running
+                evolveStep();
+            }
+        });
+        resetButton.addEventListener('click', resetGrid);
+        speedSlider.addEventListener('input', updateSpeed);
+
+        // Initial Setup
+        document.addEventListener('DOMContentLoaded', () => {
+            setupInitialGrid();
+            updateSpeed(); // Set initial speed display
+            stopButton.disabled = true; // Start in stopped state
+        });
+
+    </script>
+
+</body>
+</html>
