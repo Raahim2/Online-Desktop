@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker - Radial Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for potential fine-tuning if needed */
+        /* Ensure buttons are clickable even when overlapping slightly due to transforms */
+        .mood-button {
+            z-index: 20;
+        }
+        #central-display {
+             z-index: 10;
+        }
+        /* Style to prevent emoji selection on click/drag */
+        .mood-button span {
+            user-select: none; /* Standard syntax */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE 10+ */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-100 via-indigo-100 to-purple-100 min-h-screen flex flex-col items-center justify-center font-sans p-4 antialiased">
+
+    <main class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-10 w-full max-w-3xl">
+
+        <header class="text-center mb-8 md:mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">How are you feeling?</h1>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base">Tap a mood on the dial to select it.</p>
+        </header>
+
+        <!-- Radial Dashboard Section -->
+        <section class="relative flex items-center justify-center w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 mx-auto mb-8 md:mb-12">
+            <!-- Dashed Circle Guide -->
+            <div class="absolute inset-0 w-full h-full rounded-full border-2 border-dashed border-indigo-200"></div>
+
+            <!-- Central Display Area -->
+            <div id="central-display" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                 <!-- Placeholder for dynamic background color change -->
+                 <div id="central-bg" class="absolute inset-4 sm:inset-6 md:inset-8 rounded-full bg-white transition-colors duration-300 ease-in-out shadow-inner"></div>
+                 <div class="relative z-10">
+                    <span class="text-xs sm:text-sm text-gray-500 mb-1 block">Selected Mood</span>
+                    <span id="selected-mood-text" class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 transition-all duration-200">-</span>
+                    <span id="selected-mood-emoji" class="text-4xl sm:text-5xl md:text-6xl mt-1 sm:mt-2 block transition-transform duration-200 ease-out">🤔</span>
+                </div>
+            </div>
+
+            <!-- Mood Buttons Container (Buttons positioned by JS) -->
+            <div id="mood-buttons-container" class="absolute inset-0 w-full h-full">
+                <!-- Mood Buttons (Data attributes used by JS) -->
+                <button
+                    data-mood="Happy" data-emoji="😊" data-color="yellow" data-bg="bg-yellow-400" data-hover="hover:bg-yellow-500" data-ring="ring-yellow-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-yellow-300 hover:bg-yellow-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Happy">
+                    <span>😊</span>
+                </button>
+                 <button
+                    data-mood="Content" data-emoji="🙂" data-color="sky" data-bg="bg-sky-400" data-hover="hover:bg-sky-500" data-ring="ring-sky-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-sky-300 hover:bg-sky-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Content">
+                    <span>🙂</span>
+                </button>
+                 <button
+                    data-mood="Excited" data-emoji="🤩" data-color="pink" data-bg="bg-pink-400" data-hover="hover:bg-pink-500" data-ring="ring-pink-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-pink-300 hover:bg-pink-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Excited">
+                    <span>🤩</span>
+                </button>
+                 <button
+                    data-mood="Calm" data-emoji="😌" data-color="green" data-bg="bg-green-400" data-hover="hover:bg-green-500" data-ring="ring-green-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-green-300 hover:bg-green-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Calm">
+                    <span>😌</span>
+                </button>
+                <button
+                    data-mood="Sad" data-emoji="😢" data-color="indigo" data-bg="bg-indigo-400" data-hover="hover:bg-indigo-500" data-ring="ring-indigo-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-indigo-300 hover:bg-indigo-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Sad">
+                    <span>😢</span>
+                </button>
+                 <button
+                    data-mood="Anxious" data-emoji="😟" data-color="purple" data-bg="bg-purple-400" data-hover="hover:bg-purple-500" data-ring="ring-purple-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-purple-300 hover:bg-purple-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Anxious">
+                    <span>😟</span>
+                </button>
+                <button
+                    data-mood="Tired" data-emoji="😴" data-color="gray" data-bg="bg-gray-400" data-hover="hover:bg-gray-500" data-ring="ring-gray-500"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gray-300 hover:bg-gray-400 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Tired">
+                    <span>😴</span>
+                </button>
+                 <button
+                    data-mood="Angry" data-emoji="😠" data-color="red" data-bg="bg-red-500" data-hover="hover:bg-red-600" data-ring="ring-red-600"
+                    class="mood-button absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-red-400 hover:bg-red-500 shadow-lg flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-offset-2 focus:ring-offset-white"
+                    aria-label="Angry">
+                    <span>😠</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Log Button Section -->
+        <section class="text-center mt-6 md:mt-8">
+            <button id="log-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Log Mood Entry
+            </button>
+        </section>
+
+        <!-- Placeholder History Section -->
+        <section class="mt-10 md:mt-12 border-t border-gray-200 pt-6 md:pt-8">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-700 mb-4 text-center">Recent Entries</h2>
+            <div class="space-y-3 max-w-md mx-auto">
+                <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center shadow-sm hover:bg-gray-100 transition-colors duration-150">
+                    <span class="text-sm text-gray-500">Yesterday - 3:15 PM</span>
+                    <span class="flex items-center font-medium text-gray-700">Content <span class="ml-1.5 text-lg">🙂</span></span>
+                </div>
+                 <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center shadow-sm hover:bg-gray-100 transition-colors duration-150">
+                    <span class="text-sm text-gray-500">Tuesday - 9:00 AM</span>
+                    <span class="flex items-center font-medium text-gray-700">Happy <span class="ml-1.5 text-lg">😊</span></span>
+                </div>
+                 <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center shadow-sm hover:bg-gray-100 transition-colors duration-150">
+                    <span class="text-sm text-gray-500">Monday - 7:30 PM</span>
+                    <span class="flex items-center font-medium text-gray-700">Tired <span class="ml-1.5 text-lg">😴</span></span>
+                </div>
+                 <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-center items-center shadow-sm">
+                    <span class="text-sm text-gray-400 italic">No more entries</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center text-gray-500 text-xs sm:text-sm mt-8 pb-4">
+        &copy; 2023 Your Mood Tracker. Built with HTML & Tailwind CSS.
+    </footer>
+
+    <script>
+        const selectedMoodText = document.getElementById('selected-mood-text');
+        const selectedMoodEmoji = document.getElementById('selected-mood-emoji');
+        const centralBg = document.getElementById('central-bg');
+        const moodButtonsContainer = document.getElementById('mood-buttons-container');
+        const moodButtons = moodButtonsContainer.querySelectorAll('.mood-button');
+        const logButton = document.getElementById('log-button');
+        let currentSelectedButton = null;
+
+        // --- Radial Positioning Logic ---
+        function positionMoodButtons() {
+            const container = moodButtonsContainer.parentElement; // The relative container section
+            if (!container) return;
+
+            const radius = container.offsetWidth / 2 * 0.80; // Adjust radius multiplier as needed (e.g., 0.8 for 80%)
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+            const angleStep = (2 * Math.PI) / moodButtons.length;
+
+            moodButtons.forEach((button, index) => {
+                // Calculate angle, starting from the top (-PI/2 radians or -90 degrees)
+                const angle = angleStep * index - (Math.PI / 2);
+
+                // Calculate position (x, y)
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+
+                // Apply position using transform for centering
+                button.style.position = 'absolute'; // Ensure it's absolute
+                button.style.left = `${x}px`;
+                button.style.top = `${y}px`;
+                // Translate by -50% of button's own width/height to center it on the calculated point
+                button.style.transform = `translate(-50%, -50%)`;
+
+                // Optional: Keep emoji upright (already default, no rotation applied)
+                const emojiSpan = button.querySelector('span');
+                 if (emojiSpan) {
+                     emojiSpan.style.transform = 'none';
+                 }
+            });
+        }
+
+        // --- Mood Selection Logic ---
+        function selectMood(buttonElement) {
+            if (!buttonElement) return;
+
+            const moodName = buttonElement.dataset.mood;
+            const moodEmoji = buttonElement.dataset.emoji;
+            const moodColor = buttonElement.dataset.color; // e.g., 'yellow'
+            const ringClass = buttonElement.dataset.ring; // e.g., 'ring-yellow-500'
+            const bgClass = buttonElement.dataset.bg; // e.g., 'bg-yellow-400'
+
+            // Update central display text and emoji
+            selectedMoodText.textContent = moodName;
+            selectedMoodEmoji.textContent = moodEmoji;
+            selectedMoodEmoji.style.transform = 'scale(1.1)'; // Add a little pop effect
+            setTimeout(() => { selectedMoodEmoji.style.transform = 'scale(1)'; }, 150);
+
+
+            // Update central background color (use a lighter shade)
+            const lightBgClass = `bg-${moodColor}-100`;
+            // Remove previous color classes before adding new one
+            centralBg.className = centralBg.className.replace(/bg-\w+-\d+/g, '') + ` ${lightBgClass}`;
+
+
+            // Remove highlight from previously selected button
+            if (currentSelectedButton && currentSelectedButton !== buttonElement) {
+                currentSelectedButton.classList.remove('ring-4', 'scale-110');
+                // Remove specific ring color class
+                 const prevRingClass = currentSelectedButton.dataset.ring;
+                 if (prevRingClass) currentSelectedButton.classList.remove(prevRingClass);
+            }
+
+             // Add highlight to the clicked button
+             // Remove potentially existing ring classes first to avoid conflicts
+             moodButtons.forEach(btn => {
+                 const rClass = btn.dataset.ring;
+                 if (rClass) btn.classList.remove('ring-4', rClass);
+             });
+             // Add the ring and scale effect to the newly selected button
+            buttonElement.classList.add('ring-4', 'scale-110', ringClass);
+
+
+            currentSelectedButton = buttonElement;
+
+            // Enable log button
+            logButton.disabled = false;
+        }
+
+        // --- Event Listeners ---
+        moodButtons.forEach(button => {
+            button.addEventListener('click', () => selectMood(button));
+        });
+
+        // Add listener for log button (placeholder action)
+        logButton.addEventListener('click', () => {
+            if (currentSelectedButton) {
+                const moodName = currentSelectedButton.dataset.mood;
+                alert(`Mood logged: ${moodName}`);
+                // Here you would typically send data to a server or local storage
+            }
+        });
+
+        // --- Initial Setup & Resize Handling ---
+        // Run positioning on load and resize
+        window.addEventListener('load', positionMoodButtons);
+        window.addEventListener('resize', positionMoodButtons);
+
+        // Call initial positioning in case load event fired before script execution or for cached pages
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+             setTimeout(positionMoodButtons, 50); // Small delay to ensure layout is stable
+        } else {
+            document.addEventListener('DOMContentLoaded', positionMoodButtons);
+        }
+
+    </script>
+
+</body>
+</html>
