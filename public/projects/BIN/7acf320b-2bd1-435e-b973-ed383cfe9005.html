@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mondrian Canvas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for visual feedback during drag */
+        .drop-zone-over {
+            outline: 3px dashed #fbbf24; /* amber-400 */
+            outline-offset: -4px;
+            background-color: rgba(251, 191, 36, 0.1); /* amber-400 with opacity */
+        }
+        .dragging {
+            opacity: 0.5;
+            cursor: grabbing !important;
+            border: 2px dashed #9ca3af; /* gray-400 */
+        }
+        /* Define explicit color classes for easier JS manipulation and consistency */
+        .color-red { background-color: #dc2626; } /* red-600 */
+        .color-blue { background-color: #2563eb; } /* blue-600 */
+        .color-yellow { background-color: #facc15; } /* yellow-400 */
+        .color-black { background-color: #1f2937; } /* gray-800 - using dark gray for less harshness */
+        .color-white { background-color: #f9fafb; } /* gray-50 */
+
+        /* Style for the grid container to create the black lines */
+        .mondrian-grid {
+            background-color: #1f2937; /* Grid line color (dark gray) */
+            border: 6px solid #1f2937; /* Outer border */
+            gap: 6px; /* Thickness of the grid lines */
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%; /* Maintain 1:1 aspect ratio */
+            position: relative;
+        }
+        .mondrian-grid > div {
+             /* Default cell background */
+            background-color: #f9fafb; /* gray-50 */
+            position: absolute; /* Position cells within the aspect ratio container */
+            border: 1px solid #1f2937; /* Add subtle border to cells themselves */
+        }
+
+        /* Specific grid cell positioning and spanning based on a Mondrian layout */
+        /* Using absolute positioning within the relative parent to bypass standard grid flow */
+        /* This allows more flexible Mondrian-like layouts */
+        #cell-1 { top: 0; left: 0; width: 50%; height: 50%; }
+        #cell-2 { top: 0; left: 50%; width: 25%; height: 25%; }
+        #cell-3 { top: 0; left: 75%; width: 25%; height: 50%; }
+        #cell-4 { top: 25%; left: 50%; width: 25%; height: 25%; }
+        #cell-5 { top: 50%; left: 0; width: 25%; height: 50%; }
+        #cell-6 { top: 50%; left: 25%; width: 25%; height: 25%; }
+        #cell-7 { top: 50%; left: 50%; width: 50%; height: 25%; }
+        #cell-8 { top: 75%; left: 25%; width: 50%; height: 25%; }
+        #cell-9 { top: 75%; left: 75%; width: 25%; height: 25%; }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <header class="bg-white shadow-sm py-4 sticky top-0 z-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 tracking-tight">Interactive Mondrian Canvas</h1>
+            <p class="text-center text-sm sm:text-base text-gray-500 mt-1">Drag colors from the palette onto the canvas blocks below.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+
+            <!-- Palette Section -->
+            <aside class="w-full lg:w-1/4 xl:w-1/5 lg:sticky lg:top-24 self-start">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700 border-b pb-2">Color Palette</h2>
+                <div id="palette" class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <!-- Draggable Color Blocks -->
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="color-red"
+                         class="h-16 sm:h-20 w-full color-red cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-white font-semibold text-xs uppercase tracking-wider">Red</div>
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="color-blue"
+                         class="h-16 sm:h-20 w-full color-blue cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-white font-semibold text-xs uppercase tracking-wider">Blue</div>
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="color-yellow"
+                         class="h-16 sm:h-20 w-full color-yellow cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-gray-800 font-semibold text-xs uppercase tracking-wider">Yellow</div>
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="color-black"
+                         class="h-16 sm:h-20 w-full color-black cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-white font-semibold text-xs uppercase tracking-wider">Black</div>
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="color-white"
+                         class="h-16 sm:h-20 w-full color-white cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-gray-800 font-semibold text-xs uppercase tracking-wider border border-gray-200">White</div>
+                    <div draggable="true" ondragstart="handleDragStart(event)" data-color-class="reset-color"
+                         class="h-16 sm:h-20 w-full bg-gray-200 cursor-grab rounded shadow hover:shadow-md active:shadow-inner transition-all duration-150 flex items-center justify-center text-gray-600 font-semibold text-xs uppercase tracking-wider border border-gray-300" title="Drag to reset a block to white">Reset</div>
+                </div>
+                 <p class="text-xs text-gray-500 mt-4 italic">Tip: Drag the 'Reset' block to make a canvas section white again.</p>
+            </aside>
+
+            <!-- Canvas Section -->
+            <section class="w-full lg:w-3/4 xl:w-4/5 flex-grow">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700 border-b pb-2 lg:hidden">Canvas</h2> <!-- Hidden on larger screens -->
+                <div class="max-w-3xl mx-auto lg:mx-0">
+                    <div id="mondrian-canvas" class="mondrian-grid shadow-lg rounded overflow-hidden">
+                        <!-- Grid Cells (Drop Zones) - Positioned Absolutely -->
+                        <div id="cell-1" class="drop-zone color-red" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-2" class="drop-zone" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-3" class="drop-zone color-blue" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-4" class="drop-zone color-yellow" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-5" class="drop-zone" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-6" class="drop-zone color-black" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-7" class="drop-zone" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-8" class="drop-zone" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                        <div id="cell-9" class="drop-zone color-white" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 text-center py-5 mt-16">
+        <p class="text-sm">&copy; 2023 Interactive Mondrian Demo. Built with HTML & Tailwind CSS.</p>
+        <p class="text-xs mt-1">Inspired by the works of Piet Mondrian.</p>
+    </footer>
+
+    <script>
+        let draggedItem = null;
+        // Define the classes used for colors (must match CSS)
+        const colorClasses = ['color-red', 'color-blue', 'color-yellow', 'color-black', 'color-white'];
+        const defaultColorClass = 'color-white'; // The class applied by 'reset' or default
+
+        function handleDragStart(event) {
+            // Use `currentTarget` to ensure we get the element the listener is attached to
+            const target = event.currentTarget;
+            const colorClass = target.getAttribute('data-color-class');
+            event.dataTransfer.setData('text/plain', colorClass);
+            event.dataTransfer.effectAllowed = 'move';
+            // Add dragging class slightly delayed to allow browser to render drag image
+            setTimeout(() => {
+                target.classList.add('dragging');
+            }, 0);
+            draggedItem = target;
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault(); // Necessary to allow dropping
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(event) {
+            const target = event.currentTarget;
+            // Highlight potential drop target when item enters it
+            if (target.classList.contains('drop-zone')) {
+                target.classList.add('drop-zone-over');
+            }
+        }
+
+        function handleDragLeave(event) {
+            const target = event.currentTarget;
+            // Remove highlight when item leaves
+            if (target.classList.contains('drop-zone')) {
+                target.classList.remove('drop-zone-over');
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault(); // Prevent default browser behavior
+            const targetElement = event.currentTarget;
+
+            // Ensure dropping on a valid drop zone
+            if (targetElement.classList.contains('drop-zone')) {
+                targetElement.classList.remove('drop-zone-over'); // Remove highlight
+
+                // Get the color class name from the dragged data
+                const droppedColorClass = event.dataTransfer.getData('text/plain');
+
+                // Remove any existing color classes from the target
+                colorClasses.forEach(cls => {
+                    targetElement.classList.remove(cls);
+                });
+
+                // Add the new color class, or reset to default if 'reset-color'
+                if (droppedColorClass === 'reset-color') {
+                    targetElement.classList.add(defaultColorClass);
+                } else if (colorClasses.includes(droppedColorClass)) {
+                    targetElement.classList.add(droppedColorClass);
+                } else {
+                     // Fallback or error case: reset to default
+                     targetElement.classList.add(defaultColorClass);
+                }
+            }
+
+            // Clean up dragging styles from source element if it still exists
+             if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+            }
+            draggedItem = null; // Reset dragged item tracker
+        }
+
+        // Add dragend listener to the document to clean up styles if drag is cancelled
+        document.addEventListener('dragend', (event) => {
+            // Remove dragging class from the source element
+            if (draggedItem) {
+                 draggedItem.classList.remove('dragging');
+            }
+            draggedItem = null;
+
+            // Remove any lingering hover effects on drop zones globally
+             document.querySelectorAll('.drop-zone-over').forEach(el => {
+                 el.classList.remove('drop-zone-over');
+             });
+        }, false);
+
+        // Note: Event listeners are attached via inline attributes (ondragstart, ondrop, etc.)
+        // as requested, keeping the JS minimal within the script tag.
+
+    </script>
+
+</body>
+</html>
