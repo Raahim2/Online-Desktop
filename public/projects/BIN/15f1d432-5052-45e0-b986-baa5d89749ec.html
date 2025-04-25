@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CRT Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for text glow and blinking cursor */
+        .text-glow {
+            text-shadow: 0 0 5px currentColor, 0 0 7px currentColor;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .cursor-blink {
+          animation: blink 1.2s step-end infinite;
+          background-color: currentColor; /* Make cursor a block */
+          display: inline-block;
+          width: 0.6em; /* Adjust cursor width */
+          height: 1.2em; /* Adjust cursor height */
+          margin-left: 2px;
+          vertical-align: middle; /* Align cursor with text */
+        }
+        /* Style for range input track/thumb for better consistency */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #4a5568; /* gray-700 */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #48bb78; /* green-500 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #48bb78; /* green-500 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Reset default border */
+        }
+         /* Basic scrollbar styling for terminal */
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-output::-webkit-scrollbar-track {
+            background: #1a202c; /* gray-900 */
+        }
+        .terminal-output::-webkit-scrollbar-thumb {
+            background-color: #4a5568; /* gray-700 */
+            border-radius: 4px;
+            border: 2px solid #1a202c; /* gray-900 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center justify-center min-h-screen p-4 font-sans">
+
+    <div class="w-full max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-green-400 text-glow">Interactive CRT Terminal</h1>
+            <p class="text-gray-400 mt-2">A simulated retro terminal experience with customizable scanlines.</p>
+        </header>
+
+        <main class="bg-gray-800 p-2 md:p-3 rounded-lg shadow-2xl border border-gray-700">
+            <!-- CRT Screen Area -->
+            <div id="crt-screen" class="bg-black rounded relative overflow-hidden aspect-[4/3] md:aspect-[16/9] flex flex-col">
+                <!-- Scanlines Overlay -->
+                <div id="scanlines" class="absolute inset-0 pointer-events-none z-10 bg-repeat" style="background-image: linear-gradient(rgba(0, 0, 0, 0.3) 50%, transparent 50%); background-size: 100% 3px; opacity: 0.4;"></div>
+
+                <!-- Terminal Content -->
+                <div class="terminal-output flex-grow p-4 md:p-6 text-green-400 font-mono text-sm md:text-base leading-relaxed overflow-y-auto relative z-0">
+                    <pre class="text-glow whitespace-pre-wrap">Welcome to RetroTerm v1.0
+(c) 2024 Simulated Systems Inc.
+
+Initializing system... OK
+Loading kernel modules... OK
+Mounting file systems... OK
+Starting network services... OK
+Checking hardware configuration...
+  CPU: Simulated 8086 @ 4.77MHz
+  RAM: 640KB Conventional Memory
+  Display: CGA Emulation (CRT Mode)
+  Input: Keyboard
+
+System ready.
+
+<span class="text-yellow-400">root@retroterm</span>:<span class="text-blue-400">~</span># ls -l
+total 12
+drwxr-xr-x 2 root root 4096 Oct 26 09:15 documents
+-rw-r--r-- 1 root root 1024 Oct 26 09:10 config.sys
+-rwxr-xr-x 1 root root 2048 Oct 25 18:30 run_simulation.sh
+
+<span class="text-yellow-400">root@retroterm</span>:<span class="text-blue-400">~</span># echo "Hello, CRT World!"
+Hello, CRT World!
+
+<span class="text-yellow-400">root@retroterm</span>:<span class="text-blue-400">~</span># <span id="cursor" class="cursor-blink"></span></pre>
+                </div>
+            </div>
+        </main>
+
+        <!-- Controls Area -->
+        <footer class="mt-6 w-full max-w-md mx-auto bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700">
+            <h2 class="text-lg font-semibold text-center mb-4 text-gray-300">CRT Customization</h2>
+            <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="scanlineToggle" class="form-checkbox h-5 w-5 text-green-500 bg-gray-700 border-gray-600 rounded focus:ring-green-500" checked>
+                    <label for="scanlineToggle" class="text-gray-300">Enable Scanlines</label>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <label for="scanlineIntensity" class="text-gray-300 text-sm whitespace-nowrap">Intensity:</label>
+                    <input type="range" id="scanlineIntensity" min="0" max="0.8" step="0.05" value="0.4" class="w-full cursor-pointer">
+                </div>
+            </div>
+             <p class="text-xs text-gray-500 text-center mt-4">Adjust scanline visibility and intensity.</p>
+        </footer>
+    </div>
+
+    <script>
+        const scanlines = document.getElementById('scanlines');
+        const scanlineToggle = document.getElementById('scanlineToggle');
+        const scanlineIntensity = document.getElementById('scanlineIntensity');
+        const terminalOutput = document.querySelector('.terminal-output'); // Get terminal output area
+
+        function updateScanlines() {
+            if (scanlineToggle.checked) {
+                const intensityValue = parseFloat(scanlineIntensity.value);
+                // Make darker lines more prominent at higher intensity
+                const darkOpacity = 0.2 + intensityValue * 0.5; // Adjust multiplier as needed
+                scanlines.style.opacity = 1; // Keep overlay fully opaque
+                scanlines.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, ${darkOpacity}) 50%, transparent 50%)`;
+                // Optional: Adjust line thickness dynamically (example)
+                // const lineThickness = 2 + intensityValue * 2; // e.g., 2px to 3.6px
+                // scanlines.style.backgroundSize = `100% ${lineThickness}px`;
+                scanlines.style.backgroundSize = `100% 3px`; // Keep fixed size for now
+                scanlines.style.display = 'block'; // Ensure it's visible
+            } else {
+                scanlines.style.display = 'none'; // Hide the overlay completely
+            }
+        }
+
+        scanlineToggle.addEventListener('change', updateScanlines);
+        scanlineIntensity.addEventListener('input', updateScanlines);
+
+        // Initial setup
+        updateScanlines();
+
+        // Auto-scroll to bottom (optional, if content were dynamic)
+        // terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+        // Note: Blinking cursor is handled by CSS animation defined in the <style> tag.
+    </script>
+
+</body>
+</html>
