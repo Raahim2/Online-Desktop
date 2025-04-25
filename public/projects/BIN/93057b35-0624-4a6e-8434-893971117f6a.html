@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Radial Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal custom CSS for SVG animation */
+        .segment-circle {
+            transition: stroke-dashoffset 0.8s ease-out, stroke 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            transform-origin: 50% 50%;
+            opacity: 0.8; /* Slightly transparent segments */
+        }
+        .segment-circle:hover {
+            opacity: 1;
+            stroke-width: 14; /* Slightly thicker on hover */
+        }
+        .segment-label {
+            transition: fill 0.3s ease-in-out, font-weight 0.3s ease-in-out;
+            cursor: default;
+        }
+        .segment-label.active {
+            font-weight: 600; /* Bold */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased">
+
+    <div class="container mx-auto px-4 py-8 min-h-screen flex flex-col">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">Interactive Radial Dashboard</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">Visualizing Key Metrics</p>
+        </header>
+
+        <main class="flex-grow flex flex-col lg:flex-row items-center justify-center gap-8 md:gap-12">
+
+            <!-- Radial Chart Container -->
+            <section class="relative w-full max-w-sm md:max-w-md lg:max-w-lg aspect-square flex items-center justify-center p-4">
+                <svg id="radial-chart" viewBox="0 0 200 200" class="w-full h-full">
+                    <!-- Center Display Area -->
+                    <circle cx="100" cy="100" r="45" fill="transparent" class="stroke-gray-200 dark:stroke-gray-700" stroke-width="1"/>
+                    <text id="center-value" x="100" y="100" text-anchor="middle" dy=".3em" class="text-3xl font-bold fill-indigo-600 dark:fill-indigo-400 transition-all duration-300">---</text>
+                    <text id="center-label" x="100" y="118" text-anchor="middle" dy=".3em" class="text-xs uppercase fill-gray-500 dark:fill-gray-400 transition-all duration-300">Select Segment</text>
+
+                    <!-- Segments will be added here by JS -->
+                    <!-- Example Segment (Structure)
+                    <g class="segment-group" data-id="1" data-value="75" data-label="Metric A" data-color="text-blue-500">
+                        <circle class="segment-circle stroke-blue-500"
+                                cx="100" cy="100" r="80"
+                                stroke-width="12"
+                                fill="transparent"
+                                stroke-linecap="round"
+                                transform="rotate(-90 100 100)"
+                                stroke-dasharray="502.65"
+                                stroke-dashoffset="125.66">
+                        </circle>
+                         <text class="segment-label fill-gray-600 dark:fill-gray-300" x="100" y="15" text-anchor="middle">Metric A (75%)</text>
+                    </g>
+                    -->
+                </svg>
+            </section>
+
+            <!-- Data Details / Legend -->
+            <section class="w-full lg:w-1/3 space-y-4 px-4">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-300 dark:border-gray-700">Segment Details</h2>
+                <div id="details-panel" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-3 min-h-[150px] flex flex-col justify-center">
+                    <h3 id="details-label" class="text-lg font-medium text-indigo-600 dark:text-indigo-400">Select a segment</h3>
+                    <p id="details-value" class="text-2xl font-bold">--%</p>
+                    <p id="details-description" class="text-sm text-gray-600 dark:text-gray-400">Hover over or click a segment on the chart to see details here.</p>
+                </div>
+                <div id="legend" class="mt-6 space-y-2">
+                     <h3 class="text-lg font-medium mb-2">Legend</h3>
+                     <!-- Legend items will be added here -->
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 py-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400">&copy; 2023 Interactive Dashboard. Built with HTML & Tailwind CSS.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartData = [
+                { id: 'cpu', label: 'CPU Usage', value: 75, color: 'text-blue-500', strokeColor: '#3b82f6' }, // blue-500
+                { id: 'memory', label: 'Memory Load', value: 60, color: 'text-green-500', strokeColor: '#22c55e' }, // green-500
+                { id: 'disk', label: 'Disk I/O', value: 45, color: 'text-yellow-500', strokeColor: '#eab308' }, // yellow-500
+                { id: 'network', label: 'Network Traffic', value: 85, color: 'text-red-500', strokeColor: '#ef4444' }, // red-500
+                { id: 'users', label: 'Active Users', value: 30, color: 'text-purple-500', strokeColor: '#a855f7' } // purple-500
+            ];
+
+            const svg = document.getElementById('radial-chart');
+            const centerValue = document.getElementById('center-value');
+            const centerLabel = document.getElementById('center-label');
+            const detailsPanel = document.getElementById('details-panel');
+            const detailsLabel = document.getElementById('details-label');
+            const detailsValue = document.getElementById('details-value');
+            const detailsDescription = document.getElementById('details-description');
+            const legendContainer = document.getElementById('legend');
+
+            const radiusBase = 60;
+            const strokeWidth = 12;
+            const gap = 5; // Gap between rings
+            let cumulativePercent = 0;
+
+            chartData.forEach((item, index) => {
+                const radius = radiusBase + index * (strokeWidth + gap);
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference * (1 - item.value / 100);
+                const initialOffset = circumference; // Start fully hidden for animation
+
+                const segmentGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                segmentGroup.classList.add('segment-group');
+                segmentGroup.setAttribute('data-id', item.id);
+                segmentGroup.setAttribute('data-value', item.value);
+                segmentGroup.setAttribute('data-label', item.label);
+                segmentGroup.setAttribute('data-color-class', item.color);
+                segmentGroup.style.cursor = 'pointer';
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.classList.add('segment-circle');
+                circle.setAttribute('cx', '100');
+                circle.setAttribute('cy', '100');
+                circle.setAttribute('r', radius);
+                circle.setAttribute('stroke-width', strokeWidth);
+                circle.setAttribute('fill', 'transparent');
+                circle.setAttribute('stroke', item.strokeColor);
+                circle.setAttribute('stroke-linecap', 'round');
+                circle.setAttribute('transform', 'rotate(-90 100 100)');
+                circle.setAttribute('stroke-dasharray', `${circumference} ${circumference}`);
+                circle.setAttribute('stroke-dashoffset', initialOffset); // Start hidden
+
+                segmentGroup.appendChild(circle);
+                svg.appendChild(segmentGroup);
+
+                // Animate the circle drawing
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = offset;
+                }, 100 + index * 150); // Stagger animation start
+
+                // Add Legend Item
+                const legendItem = document.createElement('div');
+                legendItem.classList.add('flex', 'items-center', 'space-x-2', 'cursor-pointer', 'p-1', 'rounded', 'hover:bg-gray-200', 'dark:hover:bg-gray-700', 'transition-colors');
+                legendItem.setAttribute('data-id', item.id);
+                legendItem.innerHTML = `
+                    <span class="w-3 h-3 rounded-full ${item.color.replace('text-', 'bg-')}"></span>
+                    <span class="text-sm">${item.label}</span>
+                    <span class="ml-auto text-sm font-medium">${item.value}%</span>
+                `;
+                legendContainer.appendChild(legendItem);
+
+                // --- Interactivity ---
+                const updateDetails = (currentItem) => {
+                    centerValue.textContent = `${currentItem.value}%`;
+                    centerLabel.textContent = currentItem.label;
+                    detailsLabel.textContent = currentItem.label;
+                    detailsValue.textContent = `${currentItem.value}%`;
+                    detailsDescription.textContent = `Current status for ${currentItem.label}.`;
+
+                    // Highlight active elements
+                    document.querySelectorAll('.segment-circle').forEach(c => c.style.opacity = '0.6');
+                    document.querySelectorAll('.legend-item').forEach(li => li.classList.remove('bg-gray-200', 'dark:bg-gray-700'));
+
+                    const activeCircle = segmentGroup.querySelector('.segment-circle');
+                    if (activeCircle) activeCircle.style.opacity = '1';
+
+                    const activeLegend = legendContainer.querySelector(`[data-id="${currentItem.id}"]`);
+                     if (activeLegend) activeLegend.classList.add('bg-gray-200', 'dark:bg-gray-700');
+
+                    // Update center text color (optional)
+                    centerValue.classList.remove('fill-indigo-600', 'dark:fill-indigo-400', ...chartData.map(d => d.color.replace('text-', 'fill-')));
+                    centerValue.classList.add(currentItem.color.replace('text-', 'fill-'));
+
+                };
+
+                const resetDetails = () => {
+                     centerValue.textContent = '---';
+                     centerLabel.textContent = 'Select Segment';
+                     detailsLabel.textContent = 'Select a segment';
+                     detailsValue.textContent = '--%';
+                     detailsDescription.textContent = 'Hover over or click a segment on the chart to see details here.';
+                     document.querySelectorAll('.segment-circle').forEach(c => c.style.opacity = '0.8'); // Reset opacity
+                     document.querySelectorAll('.legend-item').forEach(li => li.classList.remove('bg-gray-200', 'dark:bg-gray-700'));
+                     centerValue.classList.remove(...chartData.map(d => d.color.replace('text-', 'fill-')));
+                     centerValue.classList.add('fill-indigo-600', 'dark:fill-indigo-400');
+                };
+
+                // Add event listeners to SVG group
+                segmentGroup.addEventListener('mouseover', () => updateDetails(item));
+                segmentGroup.addEventListener('mouseout', resetDetails);
+                segmentGroup.addEventListener('click', () => updateDetails(item)); // Can add persistent state here if needed
+
+                // Add event listeners to legend items
+                 legendItem.addEventListener('mouseover', () => updateDetails(item));
+                 legendItem.addEventListener('mouseout', resetDetails);
+                 legendItem.addEventListener('click', () => updateDetails(item));
+
+            });
+
+             // Initial state reset
+             resetDetails();
+
+        });
+    </script>
+
+</body>
+</html>
