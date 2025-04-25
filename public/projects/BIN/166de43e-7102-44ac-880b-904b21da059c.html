@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xylar Interactive Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style block for potential minor tweaks if needed */
+        body {
+            font-family: 'Inter', sans-serif; /* Consider adding a font link if needed, but sticking to Tailwind defaults for now */
+        }
+        /* Add subtle animation for visual feedback */
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(74, 222, 128, 0.5); } /* Tailwind green-400 */
+            50% { border-color: rgba(96, 165, 250, 0.8); } /* Tailwind blue-400 */
+        }
+        .translating-pulse {
+            animation: pulse-border 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
+
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <!-- Placeholder for an alien-themed icon/logo -->
+                <svg class="w-8 h-8 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10h6c2 1 2.343 2.657 2.343 2.657m0 0a8 8 0 01-11.314 0M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path></svg>
+                <h1 class="text-2xl font-bold text-white">Xylar Interactive Translator</h1>
+            </div>
+            <div class="text-sm text-gray-400 hidden md:block">
+                Bridging Galactic Divides
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-6 py-8 md:py-12">
+        <section class="text-center mb-10 md:mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-3">Translate Human Speech</h2>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto">Enter text below to translate it into the Xylar dialect and visualize the phonetic transformations.</p>
+        </section>
+
+        <section class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+
+                <!-- Input Area -->
+                <div class="space-y-4">
+                    <label for="inputText" class="block text-lg font-semibold text-teal-300">Enter Human Text (English):</label>
+                    <textarea id="inputText" name="inputText" rows="8"
+                              class="w-full p-4 bg-gray-700 border-2 border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-100 placeholder-gray-500 transition duration-200 ease-in-out"
+                              placeholder="Type or paste your text here... e.g., 'Hello world, prepare for contact.'"></textarea>
+                </div>
+
+                <!-- Output Area -->
+                <div class="space-y-4">
+                    <label for="outputText" class="block text-lg font-semibold text-purple-400">Xylar Translation:</label>
+                    <textarea id="outputText" name="outputText" rows="8" readonly
+                              class="w-full p-4 bg-gray-700 border-2 border-gray-600 rounded-lg text-gray-100 font-mono text-lg"
+                              placeholder="[Translated Xylar text will appear here...]"></textarea>
+                </div>
+            </div>
+
+            <!-- Translate Button -->
+            <div class="mt-8 text-center">
+                <button id="translateButton" onclick="translateAndVisualize()"
+                        class="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition duration-300 ease-in-out">
+                    Translate & Visualize Shift
+                </button>
+            </div>
+        </section>
+
+        <!-- Visual Phoneme Shift Area -->
+        <section id="visualShiftSection" class="mt-10 md:mt-16 bg-gray-800 p-6 md:p-8 rounded-xl shadow-2xl border-t-4 border-teal-500">
+             <h3 class="text-2xl font-semibold text-gray-300 mb-4 text-center md:text-left">Phoneme Shift Visualization</h3>
+             <div id="visualShiftArea" class="p-4 bg-gray-700 rounded-lg min-h-[100px] border border-gray-600 transition duration-300 ease-in-out">
+                 <p class="text-gray-500 italic text-center md:text-left">Phonetic transformation details will appear here after translation...</p>
+                 <!-- Example placeholder structure (will be replaced by JS) -->
+                 <!--
+                 <div class="flex flex-wrap gap-3">
+                    <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium">
+                        H <svg class="w-4 h-4 mx-1 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg> Xylos
+                    </span>
+                     <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium">
+                        e <svg class="w-4 h-4 mx-1 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg> 'eth
+                    </span>
+                 </div>
+                 -->
+             </div>
+        </section>
+
+        <!-- Placeholder for potential related content/images -->
+        <section class="mt-10 md:mt-16 text-center">
+             <h3 class="text-xl font-semibold text-gray-400 mb-4">Galactic Context</h3>
+             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                     <img src="https://via.placeholder.com/400x250/1f2937/6ee7b7.png?text=Xylar+Homeworld" alt="Placeholder Xylar Homeworld" class="w-full h-40 object-cover rounded mb-3">
+                     <h4 class="text-lg font-semibold text-teal-300 mb-1">Xylar Homeworld</h4>
+                     <p class="text-sm text-gray-400">Visual representation of Xylar Prime.</p>
+                 </div>
+                 <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                     <img src="https://via.placeholder.com/400x250/1f2937/a78bfa.png?text=Xylar+Glyphs" alt="Placeholder Xylar Glyphs" class="w-full h-40 object-cover rounded mb-3">
+                     <h4 class="text-lg font-semibold text-purple-400 mb-1">Common Glyphs</h4>
+                     <p class="text-sm text-gray-400">Examples of written Xylar script.</p>
+                 </div>
+                 <div class="bg-gray-800 p-4 rounded-lg shadow-lg sm:col-span-2 lg:col-span-1">
+                     <img src="https://via.placeholder.com/400x250/1f2937/9ca3af.png?text=First+Contact+Protocol" alt="Placeholder First Contact Protocol" class="w-full h-40 object-cover rounded mb-3">
+                     <h4 class="text-lg font-semibold text-gray-300 mb-1">Communication Protocols</h4>
+                     <p class="text-sm text-gray-400">Standard procedures for interspecies chat.</p>
+                 </div>
+             </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 mt-12 py-6 shadow-inner">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+            &copy; 2024 Galactic Communications Bureau. All rights reserved (within this quadrant).
+            <p class="mt-1">Translator Version XYL-beta-0.9</p>
+        </div>
+    </footer>
+
+    <script>
+        function translateAndVisualize() {
+            const inputText = document.getElementById('inputText').value.trim();
+            const outputTextArea = document.getElementById('outputText');
+            const visualShiftArea = document.getElementById('visualShiftArea');
+            const translateButton = document.getElementById('translateButton');
+            const visualShiftSection = document.getElementById('visualShiftSection');
+
+            outputTextArea.value = ''; // Clear previous output
+            visualShiftArea.innerHTML = '<p class="text-gray-500 italic text-center md:text-left">Processing phonetic shifts...</p>'; // Placeholder while processing
+
+            if (!inputText) {
+                outputTextArea.placeholder = '[Enter text above to begin translation...]';
+                visualShiftArea.innerHTML = '<p class="text-gray-500 italic text-center md:text-left">Phonetic transformation details will appear here after translation...</p>';
+                return;
+            }
+
+            // Add visual feedback during "processing"
+            outputTextArea.classList.add('translating-pulse', 'border-yellow-500');
+            visualShiftSection.classList.add('translating-pulse', 'border-yellow-500');
+            translateButton.disabled = true;
+            translateButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // --- Simulate API call / Complex Processing ---
+            setTimeout(() => {
+                // --- Simple "Alien" Translation Logic ---
+                let translatedText = '';
+                let phonemeMapHtml = '';
+                // More complex mapping for a slightly more "alien" feel
+                const charMap = {
+                    'a': 'ä', 'e': 'ë', 'i': 'ï', 'o': 'ö', 'u': 'ü',
+                    'A': 'Ä', 'E': 'Ë', 'I': 'Ï', 'O': 'Ö', 'U': 'Ü',
+                    's': 'sz', 'S': 'Sz', 'c': 'k', 'C': 'K', 'q': 'kv', 'Q': 'Kv',
+                    't': 'th', 'T': 'Th', 'x': 'kz', 'X': 'Kz', ' ': ' ~ ', // Space transformation
+                    'l': 'll', 'L': 'Ll', 'r': 'rr', 'R': 'Rr'
+                };
+                const vowels = 'aeiouAEIOU';
+                const consonants = 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ';
+
+                for (let i = 0; i < inputText.length; i++) {
+                    const char = inputText[i];
+                    let translatedChar = charMap[char] || char; // Use mapped char or original
+
+                    // Simple rule: double vowels if followed by consonant
+                    if (vowels.includes(char) && i + 1 < inputText.length && consonants.includes(inputText[i+1])) {
+                         translatedChar += char.toLowerCase(); // double the vowel sound
+                    }
+
+                    // Simple rule: Add apostrophe after consonant clusters
+                    if (consonants.includes(char) && i > 0 && consonants.includes(inputText[i-1])) {
+                        if (!translatedText.endsWith("'")) { // Avoid double apostrophes
+                           translatedText += "'";
+                        }
+                    }
+
+                    translatedText += translatedChar;
+
+                    // Build visualization map
+                    if (translatedChar !== char || char === ' ') { // Show changes and space mapping
+                        let colorClass = 'text-teal-400'; // Default for map
+                        if (vowels.includes(char)) colorClass = 'text-purple-400';
+                        if (char === ' ') colorClass = 'text-gray-400';
+
+                         phonemeMapHtml += `
+                            <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium shadow">
+                                <span class="font-mono">${char === ' ' ? "'_'" : char}</span>
+                                <svg class="w-4 h-4 mx-1.5 ${colorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                <span class="font-mono font-bold ${colorClass}">${translatedChar === ' ~ ' ? "'~'" : translatedChar}</span>
+                            </span>`;
+                    } else {
+                         // Optionally show unchanged characters differently or omit them
+                         /*
+                         phonemeMapHtml += `
+                            <span class="inline-flex items-center px-2 py-1 bg-gray-500 rounded-full text-xs font-medium text-gray-300 opacity-75">
+                                ${char} <span class="mx-1">=</span> ${char}
+                            </span>`;
+                         */
+                    }
+                }
+
+                // --- Update UI ---
+                outputTextArea.value = translatedText.replace(/\s{2,}/g, ' '); // Clean up extra spaces if any from logic
+
+                if (phonemeMapHtml) {
+                     visualShiftArea.innerHTML = `<div class="flex flex-wrap gap-2">${phonemeMapHtml}</div>`;
+                } else {
+                     visualShiftArea.innerHTML = '<p class="text-gray-400 text-center md:text-left">No significant phonetic shifts detected for this input.</p>';
+                }
+
+                // Remove visual feedback
+                outputTextArea.classList.remove('translating-pulse', 'border-yellow-500');
+                visualShiftSection.classList.remove('translating-pulse', 'border-yellow-500');
+                translateButton.disabled = false;
+                translateButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            }, 800); // Simulate processing time (800ms)
+        }
+
+        // Optional: Add event listener for Enter key in textarea
+        document.getElementById('inputText').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) { // Trigger translate on Enter, allow Shift+Enter for new line
+                event.preventDefault(); // Prevent default Enter behavior (new line)
+                translateAndVisualize();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
