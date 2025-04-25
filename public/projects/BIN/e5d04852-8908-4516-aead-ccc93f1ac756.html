@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holographic Billboard Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for Glitch Animation & Scanlines */
+        @keyframes glitch {
+          0%, 100% { transform: translate(0, 0); opacity: 1; filter: none; }
+          5% { transform: translate(-2px, 1px) skewX(-2deg); filter: hue-rotate(10deg); }
+          10% { transform: translate(1px, -1px) skewX(1deg); opacity: 0.9; }
+          15% { transform: translate(-1px, 2px) skewX(-1deg); filter: hue-rotate(-5deg); }
+          20% { transform: translate(2px, -1px) skewX(2deg); opacity: 0.95; }
+          25% { transform: translate(-1px, 1px) skewX(-1deg); }
+          50% { transform: translate(0, 0); opacity: 1; filter: none; }
+          55% { transform: translate(2px, -2px) skewX(3deg); filter: hue-rotate(15deg); opacity: 0.85; }
+          60% { transform: translate(-2px, 1px) skewX(-2deg); }
+          95% { transform: translate(1px, -1px) skewX(1deg); filter: hue-rotate(5deg); opacity: 0.98; }
+        }
+        .glitching {
+          animation: glitch 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        @keyframes subtle-glitch {
+          0%, 100% { opacity: 1; filter: brightness(1); }
+          25% { opacity: 0.98; filter: brightness(1.02); }
+          50% { opacity: 1; filter: brightness(1); }
+          75% { opacity: 0.97; filter: brightness(0.98) hue-rotate(2deg); }
+        }
+        .animate-subtle-glitch {
+            animation: subtle-glitch 4s ease-in-out infinite;
+        }
+
+        @keyframes scanlines {
+          0% { background-position: 0 0; }
+          100% { background-position: 0 100%; }
+        }
+        .scanlines::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+          background-size: 100% 4px; /* Adjust line thickness */
+          z-index: 1;
+          pointer-events: none;
+          animation: scanlines 15s linear infinite;
+          opacity: 0.15; /* Adjust scanline visibility */
+        }
+
+        /* Subtle perspective */
+        .perspective-container {
+            perspective: 1000px;
+        }
+        .hologram-effect {
+            transform: rotateY(0deg) rotateX(0deg); /* Initial state, can be adjusted slightly */
+            transition: transform 0.3s ease-out;
+            /* Add a subtle glow */
+            box-shadow: 0 0 20px 5px rgba(0, 229, 255, 0.3), /* Cyan outer glow */
+                        0 0 8px 2px rgba(0, 229, 255, 0.4) inset; /* Cyan inner glow */
+        }
+         /* Optional: Add subtle hover effect for interactivity feel */
+        /* .hologram-effect:hover {
+            transform: rotateY(1deg) rotateX(1deg) scale(1.01);
+        } */
+
+        /* Ensure image covers the area */
+        .billboard-content img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans antialiased">
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 perspective-container">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-cyan-400 mb-2 tracking-tight">Holographic Billboard Sim</h1>
+            <p class="text-lg text-gray-400">Experience the glitchy future of advertising.</p>
+        </header>
+
+        <main class="w-full max-w-3xl flex flex-col items-center">
+
+            <!-- Billboard Display Area -->
+            <div id="billboard" class="relative w-full aspect-video bg-black/50 rounded-lg border-2 border-cyan-500/50 p-1 mb-8 hologram-effect animate-subtle-glitch overflow-hidden">
+                <!-- Scanlines Effect Overlay -->
+                <div class="scanlines w-full h-full"></div>
+                <!-- Ad Content Area -->
+                <div id="billboard-content" class="absolute inset-1 flex items-center justify-center overflow-hidden">
+                    <!-- Placeholder for Ad Content -->
+                    <img id="ad-image" src="https://via.placeholder.com/800x450/00eeee/111111?text=Ad+1:+CyberDrinks" alt="Holographic Ad" class="transition-opacity duration-500 ease-in-out">
+                    <!-- Or use text: -->
+                    <!-- <span id="ad-text" class="text-4xl font-bold text-cyan-300 text-center p-4">Ad Placeholder</span> -->
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <section class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button onclick="changeAd(-1)" class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75">
+                    Previous Ad
+                </button>
+                <button onclick="triggerManualGlitch()" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75">
+                    Trigger Glitch
+                </button>
+                <button onclick="changeAd(1)" class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75">
+                    Next Ad
+                </button>
+            </section>
+
+        </main>
+
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>&copy; 2023 HoloSim Inc. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const ads = [
+            { type: 'image', src: 'https://via.placeholder.com/800x450/00eeee/111111?text=Ad+1:+CyberDrinks', alt: 'Ad for CyberDrinks' },
+            { type: 'image', src: 'https://via.placeholder.com/800x450/ff00ff/eeeeee?text=Ad+2:+SynthWear+Fashion', alt: 'Ad for SynthWear Fashion' },
+            { type: 'image', src: 'https://via.placeholder.com/800x450/ffff00/222222?text=Ad+3:+Neural+Link+Upgrades', alt: 'Ad for Neural Link Upgrades' },
+            { type: 'image', src: 'https://via.placeholder.com/800x450/00ff00/000000?text=Ad+4:+Zero-G+Travel', alt: 'Ad for Zero-G Travel' },
+            // Example of text ad (if you prefer)
+            // { type: 'text', content: 'Visit NeoTokyo! Book Now!', class: 'text-5xl font-bold text-yellow-300 p-4 text-center' }
+        ];
+
+        let currentAdIndex = 0;
+        let glitchTimeout;
+        let autoGlitchInterval;
+
+        const billboardElement = document.getElementById('billboard');
+        const billboardContentElement = document.getElementById('billboard-content');
+        const adImageElement = document.getElementById('ad-image');
+        // const adTextElement = document.getElementById('ad-text'); // Uncomment if using text ads
+
+        function displayAd(index) {
+            const ad = ads[index];
+            // Fade out current ad
+            billboardContentElement.classList.add('opacity-0');
+
+            setTimeout(() => {
+                // Clear previous content
+                // adImageElement.style.display = 'none';
+                // adTextElement.style.display = 'none';
+
+                if (ad.type === 'image') {
+                    adImageElement.src = ad.src;
+                    adImageElement.alt = ad.alt;
+                    adImageElement.style.display = 'block';
+                }
+                // else if (ad.type === 'text') {
+                //     adTextElement.textContent = ad.content;
+                //     adTextElement.className = ad.class; // Apply specific text styles
+                //     adTextElement.style.display = 'block';
+                // }
+
+                // Fade in new ad
+                billboardContentElement.classList.remove('opacity-0');
+                triggerAutoGlitch(); // Trigger a small glitch on ad change
+            }, 300); // Match timeout with fade duration
+        }
+
+        function changeAd(direction) {
+            currentAdIndex = (currentAdIndex + direction + ads.length) % ads.length;
+            displayAd(currentAdIndex);
+        }
+
+        function triggerGlitch(duration = 500, intensityClass = 'glitching') {
+             // Don't apply if already glitching intensely
+            if (billboardElement.classList.contains('glitching') && intensityClass === 'glitching') return;
+
+            billboardElement.classList.add(intensityClass);
+            clearTimeout(glitchTimeout); // Clear any existing timeout
+
+            glitchTimeout = setTimeout(() => {
+                billboardElement.classList.remove(intensityClass);
+            }, duration);
+        }
+
+        function triggerManualGlitch() {
+            triggerGlitch(600, 'glitching'); // Longer, more intense glitch
+        }
+
+        function triggerAutoGlitch() {
+             // Random chance for a subtle glitch effect on change or interval
+             if (Math.random() < 0.6) { // 60% chance
+                 triggerGlitch(300 + Math.random() * 300); // Random duration subtle glitch
+             }
+        }
+
+        function startAutoGlitching() {
+            clearInterval(autoGlitchInterval); // Clear existing interval
+            autoGlitchInterval = setInterval(() => {
+                if (Math.random() < 0.15) { // 15% chance each interval
+                    triggerGlitch(200 + Math.random() * 400); // Random duration subtle glitch
+                }
+            }, 5000); // Check every 5 seconds
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            displayAd(currentAdIndex);
+            startAutoGlitching(); // Start random background glitching
+        });
+
+    </script>
+
+</body>
+</html>
