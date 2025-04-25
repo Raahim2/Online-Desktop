@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map: Medieval Plague Doctor Routes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for SVG hover effects if Tailwind classes aren't sufficient */
+        .map-point:hover, .map-route:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .map-point.active {
+             /* Example: Make active point slightly larger or different color */
+             /* Note: Direct SVG manipulation via JS might be needed for complex effects */
+             stroke: #facc15; /* yellow-400 */
+             stroke-width: 3px;
+        }
+         .map-route.active {
+             stroke: #facc15; /* yellow-400 */
+             stroke-width: 4px;
+        }
+        /* Basic smooth transition for info panel */
+        #info-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 font-sans antialiased">
+
+    <header class="bg-gray-800 dark:bg-black shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">Medieval Plague Doctor Routes</h1>
+            <span class="text-gray-400 text-sm hidden sm:inline">An Interactive Exploration</span>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6 lg:p-8 mt-4">
+
+        <div class="flex flex-col md:flex-row gap-6 lg:gap-8">
+
+            <!-- Map Area -->
+            <section class="w-full md:w-2/3 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <h2 class="text-lg font-semibold p-4 border-b border-gray-200 dark:border-gray-700">Interactive Map</h2>
+                <div class="p-4 relative aspect-video">
+                    <!-- Simulated Map using SVG -->
+                    <svg id="plague-map" viewBox="0 0 800 500" class="w-full h-full bg-gray-200 dark:bg-gray-700 rounded" preserveAspectRatio="xMidYMid meet">
+                        <!-- Background (Placeholder Map Texture/Color) -->
+                        <rect width="100%" height="100%" fill="#e5e7eb" class="dark:fill-[#374151]"/>
+                        <image href="https://via.placeholder.com/800x500/cccccc/969696?text=Placeholder+Map+of+Region" width="100%" height="100%" opacity="0.5"/>
+
+                        <!-- Routes (Lines) -->
+                        <line id="route1" data-id="route1" x1="150" y1="150" x2="350" y2="250" stroke="#4b5563" stroke-width="3" class="map-route hover:stroke-red-600 dark:stroke-gray-400 dark:hover:stroke-red-500" onclick="showInfo('route1', this)"/>
+                        <line id="route2" data-id="route2" x1="350" y1="250" x2="500" y2="180" stroke="#4b5563" stroke-width="3" class="map-route hover:stroke-blue-600 dark:stroke-gray-400 dark:hover:stroke-blue-500" onclick="showInfo('route2', this)"/>
+                        <line id="route3" data-id="route3" x1="500" y1="180" x2="650" y2="350" stroke="#4b5563" stroke-width="3" class="map-route hover:stroke-green-600 dark:stroke-gray-400 dark:hover:stroke-green-500" onclick="showInfo('route3', this)"/>
+                        <line id="route4" data-id="route4" x1="150" y1="150" x2="250" y2="400" stroke="#4b5563" stroke-width="3" class="map-route hover:stroke-purple-600 dark:stroke-gray-400 dark:hover:stroke-purple-500" onclick="showInfo('route4', this)"/>
+
+
+                        <!-- Cities/Stops (Circles) -->
+                        <circle id="cityA" data-id="cityA" cx="150" cy="150" r="10" fill="#dc2626" class="map-point" onclick="showInfo('cityA', this)"/>
+                        <text x="145" y="140" font-size="12" fill="#1f2937" class="dark:fill-gray-300 hidden sm:block">City A</text>
+
+                        <circle id="cityB" data-id="cityB" cx="350" cy="250" r="10" fill="#dc2626" class="map-point" onclick="showInfo('cityB', this)"/>
+                        <text x="345" y="240" font-size="12" fill="#1f2937" class="dark:fill-gray-300 hidden sm:block">City B</text>
+
+                        <circle id="cityC" data-id="cityC" cx="500" cy="180" r="10" fill="#dc2626" class="map-point" onclick="showInfo('cityC', this)"/>
+                         <text x="495" y="170" font-size="12" fill="#1f2937" class="dark:fill-gray-300 hidden sm:block">City C</text>
+
+                        <circle id="cityD" data-id="cityD" cx="650" cy="350" r="10" fill="#dc2626" class="map-point" onclick="showInfo('cityD', this)"/>
+                        <text x="645" y="340" font-size="12" fill="#1f2937" class="dark:fill-gray-300 hidden sm:block">City D</text>
+
+                        <circle id="cityE" data-id="cityE" cx="250" cy="400" r="10" fill="#dc2626" class="map-point" onclick="showInfo('cityE', this)"/>
+                         <text x="245" y="390" font-size="12" fill="#1f2937" class="dark:fill-gray-300 hidden sm:block">City E</text>
+
+                    </svg>
+                     <p class="text-xs text-gray-500 dark:text-gray-400 p-2 text-center">Click on cities (circles) or routes (lines) to learn more.</p>
+                </div>
+            </section>
+
+            <!-- Information Panel -->
+            <aside class="w-full md:w-1/3 bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col">
+                <h2 class="text-lg font-semibold p-4 border-b border-gray-200 dark:border-gray-700">Details</h2>
+                <div id="info-panel" class="p-4 lg:p-6 flex-grow overflow-y-auto">
+                    <div id="info-content">
+                        <h3 id="info-title" class="text-xl font-semibold mb-3 text-indigo-600 dark:text-indigo-400">Welcome</h3>
+                        <img id="info-image" src="https://via.placeholder.com/400x250/a0aec0/ffffff?text=Plague+Doctor+Image" alt="Placeholder Image" class="w-full h-48 object-cover rounded-md mb-4 shadow">
+                        <p id="info-text" class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            Click on a point or route on the map to display information about plague doctors, their journeys, and the cities they visited during medieval epidemics. Explore the paths taken by these historical figures who navigated treacherous landscapes amidst widespread disease.
+                        </p>
+                    </div>
+                     <div id="loading-indicator" class="hidden text-center py-10">
+                        <p class="text-gray-500 dark:text-gray-400">Loading details...</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+
+    </main>
+
+    <footer class="mt-12 py-6 border-t border-gray-300 dark:border-gray-700">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>&copy; 2023 Medieval Routes Explorer. All rights reserved (Placeholder).</p>
+            <p>Map data is illustrative and for demonstration purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        const infoTitle = document.getElementById('info-title');
+        const infoText = document.getElementById('info-text');
+        const infoImage = document.getElementById('info-image');
+        const infoContent = document.getElementById('info-content');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const mapElements = document.querySelectorAll('.map-point, .map-route');
+
+        const details = {
+            cityA: {
+                title: "City A: Florence (Example)",
+                text: "Florence was heavily impacted by the Black Death in 1348. Plague doctors were employed by the city council, often facing immense danger. Their contracts detailed payments, duties, and citizenship rights if they survived.",
+                image: "https://via.placeholder.com/400x250/ef4444/ffffff?text=Florence+1348"
+            },
+            cityB: {
+                title: "City B: Marseille (Example)",
+                text: "As a major port city, Marseille experienced recurrent plague outbreaks. Records show the hiring of 'medici della peste' who wore the characteristic beaked masks filled with aromatic herbs, believed to protect against miasma.",
+                image: "https://via.placeholder.com/400x250/3b82f6/ffffff?text=Marseille+Port"
+            },
+            cityC: {
+                title: "City C: Venice (Example)",
+                text: "Venice established some of the earliest quarantine systems (lazarettos). Plague doctors here were crucial, though often isolated. Their iconic costume became strongly associated with the city.",
+                image: "https://via.placeholder.com/400x250/10b981/ffffff?text=Venice+Canals"
+            },
+             cityD: {
+                title: "City D: Avignon (Example)",
+                text: "During the Avignon Papacy, the city suffered greatly from the plague. Guy de Chauliac, physician to Pope Clement VI, documented the disease and treated patients, surviving the outbreak himself.",
+                image: "https://via.placeholder.com/400x250/f97316/ffffff?text=Avignon+Papacy"
+            },
+             cityE: {
+                title: "City E: London (Example)",
+                text: "London faced multiple devastating plague waves, including the Great Plague of 1665. Parish records and bills of mortality provide grim details. Plague doctors were present but often overwhelmed.",
+                image: "https://via.placeholder.com/400x250/8b5cf6/ffffff?text=London+1665"
+            },
+            route1: {
+                title: "Route: Florence to Marseille",
+                text: "A perilous journey likely taken by land or sea. Doctors traveling between major cities carried news, treatments (often ineffective), and sometimes, inadvertently, the disease itself. Travel was slow and dangerous.",
+                image: "https://via.placeholder.com/400x250/6b7280/ffffff?text=Medieval+Travel"
+            },
+            route2: {
+                title: "Route: Marseille to Venice",
+                text: "Connecting two vital Mediterranean ports. This route highlights the spread of plague along trade networks. Doctors might travel with merchants or on dedicated missions.",
+                image: "https://via.placeholder.com/400x250/6d28d9/ffffff?text=Sea+Trade+Route"
+            },
+             route3: {
+                title: "Route: Venice to Avignon",
+                text: "A land route crossing challenging terrain. Doctors might be summoned by wealthy patrons or religious orders, undertaking long journeys to offer their services.",
+                image: "https://via.placeholder.com/400x250/16a34a/ffffff?text=Alpine+Passage"
+            },
+             route4: {
+                title: "Route: Florence to London",
+                text: "A hypothetical long-distance route representing the broad reach required. Communication and travel between Italy and England existed, though direct doctor travel specifically for plague might be less documented than regional efforts.",
+                image: "https://via.placeholder.com/400x250/be185d/ffffff?text=Long+Journey"
+            },
+            default: {
+                 title: "Select a Location or Route",
+                 text: "Click on a point or route on the map to display information about plague doctors, their journeys, and the cities they visited during medieval epidemics.",
+                 image: "https://via.placeholder.com/400x250/a0aec0/ffffff?text=Plague+Doctor+Image"
+            }
+        };
+
+        let activeElement = null;
+
+        function showInfo(id, element) {
+            const detail = details[id] || details.default;
+
+            // Simulate loading
+            infoContent.style.opacity = '0';
+            loadingIndicator.classList.remove('hidden');
+
+
+            setTimeout(() => {
+                infoTitle.textContent = detail.title;
+                infoText.textContent = detail.text;
+                infoImage.src = detail.image;
+                infoImage.alt = detail.title; // Update alt text
+
+                loadingIndicator.classList.add('hidden');
+                infoContent.style.opacity = '1';
+
+                // Remove active class from previous element
+                if (activeElement) {
+                    activeElement.classList.remove('active');
+                }
+                // Add active class to the clicked element
+                if (element) {
+                    element.classList.add('active');
+                    activeElement = element;
+                }
+
+            }, 200); // Short delay to simulate loading
+        }
+
+         // Initialize with default message
+        showInfo('default', null);
+
+    </script>
+
+</body>
+</html>
