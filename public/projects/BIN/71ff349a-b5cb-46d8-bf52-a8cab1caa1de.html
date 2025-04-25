@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Periodic Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for explicit grid positioning not easily done with Tailwind defaults */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(0, 1fr));
+            grid-template-rows: repeat(10, minmax(0, auto)); /* 7 main rows + gap + 2 lanthanide/actinide rows */
+            gap: 4px; /* Tailwind gap-1 equivalent */
+        }
+        /* Assign grid positions using inline styles for simplicity in this single file */
+        .element-cell {
+            aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2px; /* Minimal padding */
+            border-radius: 4px; /* Tailwind rounded-sm */
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .element-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .element-symbol {
+            font-size: clamp(0.75rem, 2.5vw, 1.25rem); /* Responsive font size */
+            font-weight: bold;
+        }
+        .element-number {
+            font-size: clamp(0.5rem, 1.5vw, 0.75rem); /* Responsive font size */
+            position: absolute;
+            top: 2px;
+            left: 3px;
+        }
+         .element-name {
+            font-size: clamp(0.4rem, 1vw, 0.6rem); /* Responsive font size */
+             text-align: center;
+             line-height: 1;
+             margin-top: 2px;
+        }
+
+        /* Detail view initial state */
+        #element-detail-view {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            pointer-events: none; /* Initially not interactive */
+        }
+        #element-detail-view.visible {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto; /* Interactive when visible */
+        }
+
+        /* Color category classes (apply to element cells and detail view border/bg) */
+        .cat-alkali-metal { background-color: #f9a8d4; color: #500724; } /* pink-300, pink-900 */
+        .cat-alkaline-earth-metal { background-color: #fdba74; color: #7c2d12; } /* orange-300, orange-900 */
+        .cat-lanthanide { background-color: #fde047; color: #713f12; } /* yellow-300, yellow-900 */
+        .cat-actinide { background-color: #fca5a5; color: #7f1d1d; } /* red-300, red-900 */
+        .cat-transition-metal { background-color: #a5b4fc; color: #312e81; } /* indigo-300, indigo-900 */
+        .cat-post-transition-metal { background-color: #6ee7b7; color: #064e3b; } /* emerald-300, emerald-900 */
+        .cat-metalloid { background-color: #93c5fd; color: #1e3a8a; } /* blue-300, blue-900 */
+        .cat-diatomic-nonmetal { background-color: #86efac; color: #14532d; } /* green-300, green-900 */
+        .cat-polyatomic-nonmetal { background-color: #86efac; color: #14532d; } /* green-300, green-900 */
+        .cat-noble-gas { background-color: #c4b5fd; color: #4c1d95; } /* violet-300, violet-900 */
+        .cat-unknown { background-color: #d1d5db; color: #1f2937; } /* gray-300, gray-800 */
+
+        .detail-border-cat-alkali-metal { border-color: #f9a8d4; }
+        .detail-border-cat-alkaline-earth-metal { border-color: #fdba74; }
+        .detail-border-cat-lanthanide { border-color: #fde047; }
+        .detail-border-cat-actinide { border-color: #fca5a5; }
+        .detail-border-cat-transition-metal { border-color: #a5b4fc; }
+        .detail-border-cat-post-transition-metal { border-color: #6ee7b7; }
+        .detail-border-cat-metalloid { border-color: #93c5fd; }
+        .detail-border-cat-diatomic-nonmetal { border-color: #86efac; }
+        .detail-border-cat-polyatomic-nonmetal { border-color: #86efac; }
+        .detail-border-cat-noble-gas { border-color: #c4b5fd; }
+        .detail-border-cat-unknown { border-color: #d1d5db; }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+    <header class="p-4 sm:p-6 text-center bg-gray-800 shadow-md">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Interactive Periodic Table</h1>
+        <p class="text-sm sm:text-base text-gray-400 mt-1">Click an element to see details</p>
+    </header>
+
+    <main class="p-2 sm:p-4 md:p-6 lg:p-8">
+        <div class="periodic-table max-w-7xl mx-auto relative">
+            <!-- Row 1 -->
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 1; grid-row: 1;" onclick="showDetails('H', 'Hydrogen', 1, 'Commonly found in water.', 'cat-diatomic-nonmetal', 1.008)">
+                <span class="element-number">1</span>
+                <span class="element-symbol">H</span>
+                <span class="element-name">Hydrogen</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 1;" onclick="showDetails('He', 'Helium', 2, 'Used in balloons.', 'cat-noble-gas', 4.0026)">
+                <span class="element-number">2</span>
+                <span class="element-symbol">He</span>
+                <span class="element-name">Helium</span>
+            </button>
+
+            <!-- Row 2 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 2;" onclick="showDetails('Li', 'Lithium', 3, 'Used in batteries.', 'cat-alkali-metal', 6.94)">
+                <span class="element-number">3</span>
+                <span class="element-symbol">Li</span>
+                <span class="element-name">Lithium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 2;" onclick="showDetails('Be', 'Beryllium', 4, 'Light but strong metal.', 'cat-alkaline-earth-metal', 9.0122)">
+                <span class="element-number">4</span>
+                <span class="element-symbol">Be</span>
+                <span class="element-name">Beryllium</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 13; grid-row: 2;" onclick="showDetails('B', 'Boron', 5, 'Used in fiberglass.', 'cat-metalloid', 10.81)">
+                <span class="element-number">5</span>
+                <span class="element-symbol">B</span>
+                <span class="element-name">Boron</span>
+            </button>
+            <button class="element-cell relative cat-polyatomic-nonmetal" style="grid-column: 14; grid-row: 2;" onclick="showDetails('C', 'Carbon', 6, 'Basis of organic life.', 'cat-polyatomic-nonmetal', 12.011)">
+                <span class="element-number">6</span>
+                <span class="element-symbol">C</span>
+                <span class="element-name">Carbon</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 15; grid-row: 2;" onclick="showDetails('N', 'Nitrogen', 7, 'Makes up most of the air.', 'cat-diatomic-nonmetal', 14.007)">
+                <span class="element-number">7</span>
+                <span class="element-symbol">N</span>
+                <span class="element-name">Nitrogen</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 16; grid-row: 2;" onclick="showDetails('O', 'Oxygen', 8, 'Essential for respiration.', 'cat-diatomic-nonmetal', 15.999)">
+                <span class="element-number">8</span>
+                <span class="element-symbol">O</span>
+                <span class="element-name">Oxygen</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 17; grid-row: 2;" onclick="showDetails('F', 'Fluorine', 9, 'Used in toothpaste.', 'cat-diatomic-nonmetal', 18.998)">
+                <span class="element-number">9</span>
+                <span class="element-symbol">F</span>
+                <span class="element-name">Fluorine</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 2;" onclick="showDetails('Ne', 'Neon', 10, 'Used in lighting signs.', 'cat-noble-gas', 20.180)">
+                <span class="element-number">10</span>
+                <span class="element-symbol">Ne</span>
+                <span class="element-name">Neon</span>
+            </button>
+
+            <!-- Row 3 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 3;" onclick="showDetails('Na', 'Sodium', 11, 'Component of table salt.', 'cat-alkali-metal', 22.990)">
+                <span class="element-number">11</span>
+                <span class="element-symbol">Na</span>
+                <span class="element-name">Sodium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 3;" onclick="showDetails('Mg', 'Magnesium', 12, 'Light structural metal.', 'cat-alkaline-earth-metal', 24.305)">
+                <span class="element-number">12</span>
+                <span class="element-symbol">Mg</span>
+                <span class="element-name">Magnesium</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 13; grid-row: 3;" onclick="showDetails('Al', 'Aluminum', 13, 'Common lightweight metal.', 'cat-post-transition-metal', 26.982)">
+                <span class="element-number">13</span>
+                <span class="element-symbol">Al</span>
+                <span class="element-name">Aluminum</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 14; grid-row: 3;" onclick="showDetails('Si', 'Silicon', 14, 'Used in semiconductors.', 'cat-metalloid', 28.085)">
+                <span class="element-number">14</span>
+                <span class="element-symbol">Si</span>
+                <span class="element-name">Silicon</span>
+            </button>
+            <button class="element-cell relative cat-polyatomic-nonmetal" style="grid-column: 15; grid-row: 3;" onclick="showDetails('P', 'Phosphorus', 15, 'Found in bones and DNA.', 'cat-polyatomic-nonmetal', 30.974)">
+                <span class="element-number">15</span>
+                <span class="element-symbol">P</span>
+                <span class="element-name">Phosphorus</span>
+            </button>
+            <button class="element-cell relative cat-polyatomic-nonmetal" style="grid-column: 16; grid-row: 3;" onclick="showDetails('S', 'Sulfur', 16, 'Yellow nonmetal.', 'cat-polyatomic-nonmetal', 32.06)">
+                <span class="element-number">16</span>
+                <span class="element-symbol">S</span>
+                <span class="element-name">Sulfur</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 17; grid-row: 3;" onclick="showDetails('Cl', 'Chlorine', 17, 'Used in disinfectants.', 'cat-diatomic-nonmetal', 35.45)">
+                <span class="element-number">17</span>
+                <span class="element-symbol">Cl</span>
+                <span class="element-name">Chlorine</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 3;" onclick="showDetails('Ar', 'Argon', 18, 'Inert gas used in welding.', 'cat-noble-gas', 39.948)">
+                <span class="element-number">18</span>
+                <span class="element-symbol">Ar</span>
+                <span class="element-name">Argon</span>
+            </button>
+
+            <!-- Row 4 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 4;" onclick="showDetails('K', 'Potassium', 19, 'Essential mineral nutrient.', 'cat-alkali-metal', 39.098)">
+                <span class="element-number">19</span>
+                <span class="element-symbol">K</span>
+                <span class="element-name">Potassium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 4;" onclick="showDetails('Ca', 'Calcium', 20, 'Important for bones.', 'cat-alkaline-earth-metal', 40.078)">
+                <span class="element-number">20</span>
+                <span class="element-symbol">Ca</span>
+                <span class="element-name">Calcium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 3; grid-row: 4;" onclick="showDetails('Sc', 'Scandium', 21, 'Used in aerospace alloys.', 'cat-transition-metal', 44.956)">
+                <span class="element-number">21</span>
+                <span class="element-symbol">Sc</span>
+                <span class="element-name">Scandium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 4; grid-row: 4;" onclick="showDetails('Ti', 'Titanium', 22, 'Strong, light, corrosion-resistant.', 'cat-transition-metal', 47.867)">
+                <span class="element-number">22</span>
+                <span class="element-symbol">Ti</span>
+                <span class="element-name">Titanium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 5; grid-row: 4;" onclick="showDetails('V', 'Vanadium', 23, 'Used to strengthen steel.', 'cat-transition-metal', 50.942)">
+                <span class="element-number">23</span>
+                <span class="element-symbol">V</span>
+                <span class="element-name">Vanadium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 6; grid-row: 4;" onclick="showDetails('Cr', 'Chromium', 24, 'Used in stainless steel.', 'cat-transition-metal', 51.996)">
+                <span class="element-number">24</span>
+                <span class="element-symbol">Cr</span>
+                <span class="element-name">Chromium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 7; grid-row: 4;" onclick="showDetails('Mn', 'Manganese', 25, 'Important industrial alloy.', 'cat-transition-metal', 54.938)">
+                <span class="element-number">25</span>
+                <span class="element-symbol">Mn</span>
+                <span class="element-name">Manganese</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 8; grid-row: 4;" onclick="showDetails('Fe', 'Iron', 26, 'Primary component of steel.', 'cat-transition-metal', 55.845)">
+                <span class="element-number">26</span>
+                <span class="element-symbol">Fe</span>
+                <span class="element-name">Iron</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 9; grid-row: 4;" onclick="showDetails('Co', 'Cobalt', 27, 'Used in magnets and alloys.', 'cat-transition-metal', 58.933)">
+                <span class="element-number">27</span>
+                <span class="element-symbol">Co</span>
+                <span class="element-name">Cobalt</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 10; grid-row: 4;" onclick="showDetails('Ni', 'Nickel', 28, 'Used in plating and alloys.', 'cat-transition-metal', 58.693)">
+                <span class="element-number">28</span>
+                <span class="element-symbol">Ni</span>
+                <span class="element-name">Nickel</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 11; grid-row: 4;" onclick="showDetails('Cu', 'Copper', 29, 'Excellent electrical conductor.', 'cat-transition-metal', 63.546)">
+                <span class="element-number">29</span>
+                <span class="element-symbol">Cu</span>
+                <span class="element-name">Copper</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 12; grid-row: 4;" onclick="showDetails('Zn', 'Zinc', 30, 'Used for galvanizing steel.', 'cat-transition-metal', 65.38)">
+                <span class="element-number">30</span>
+                <span class="element-symbol">Zn</span>
+                <span class="element-name">Zinc</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 13; grid-row: 4;" onclick="showDetails('Ga', 'Gallium', 31, 'Low melting point metal.', 'cat-post-transition-metal', 69.723)">
+                <span class="element-number">31</span>
+                <span class="element-symbol">Ga</span>
+                <span class="element-name">Gallium</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 14; grid-row: 4;" onclick="showDetails('Ge', 'Germanium', 32, 'Semiconductor material.', 'cat-metalloid', 72.63)">
+                <span class="element-number">32</span>
+                <span class="element-symbol">Ge</span>
+                <span class="element-name">Germanium</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 15; grid-row: 4;" onclick="showDetails('As', 'Arsenic', 33, 'Toxic metalloid.', 'cat-metalloid', 74.922)">
+                <span class="element-number">33</span>
+                <span class="element-symbol">As</span>
+                <span class="element-name">Arsenic</span>
+            </button>
+            <button class="element-cell relative cat-polyatomic-nonmetal" style="grid-column: 16; grid-row: 4;" onclick="showDetails('Se', 'Selenium', 34, 'Used in photocells.', 'cat-polyatomic-nonmetal', 78.971)">
+                <span class="element-number">34</span>
+                <span class="element-symbol">Se</span>
+                <span class="element-name">Selenium</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 17; grid-row: 4;" onclick="showDetails('Br', 'Bromine', 35, 'Liquid halogen.', 'cat-diatomic-nonmetal', 79.904)">
+                <span class="element-number">35</span>
+                <span class="element-symbol">Br</span>
+                <span class="element-name">Bromine</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 4;" onclick="showDetails('Kr', 'Krypton', 36, 'Noble gas used in lasers.', 'cat-noble-gas', 83.798)">
+                <span class="element-number">36</span>
+                <span class="element-symbol">Kr</span>
+                <span class="element-name">Krypton</span>
+            </button>
+
+            <!-- Row 5 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 5;" onclick="showDetails('Rb', 'Rubidium', 37, 'Used in atomic clocks.', 'cat-alkali-metal', 85.468)">
+                <span class="element-number">37</span>
+                <span class="element-symbol">Rb</span>
+                <span class="element-name">Rubidium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 5;" onclick="showDetails('Sr', 'Strontium', 38, 'Used in fireworks (red).', 'cat-alkaline-earth-metal', 87.62)">
+                <span class="element-number">38</span>
+                <span class="element-symbol">Sr</span>
+                <span class="element-name">Strontium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 3; grid-row: 5;" onclick="showDetails('Y', 'Yttrium', 39, 'Used in lasers and alloys.', 'cat-transition-metal', 88.906)">
+                <span class="element-number">39</span>
+                <span class="element-symbol">Y</span>
+                <span class="element-name">Yttrium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 4; grid-row: 5;" onclick="showDetails('Zr', 'Zirconium', 40, 'Corrosion resistant metal.', 'cat-transition-metal', 91.224)">
+                <span class="element-number">40</span>
+                <span class="element-symbol">Zr</span>
+                <span class="element-name">Zirconium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 5; grid-row: 5;" onclick="showDetails('Nb', 'Niobium', 41, 'Used in superconducting alloys.', 'cat-transition-metal', 92.906)">
+                <span class="element-number">41</span>
+                <span class="element-symbol">Nb</span>
+                <span class="element-name">Niobium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 6; grid-row: 5;" onclick="showDetails('Mo', 'Molybdenum', 42, 'High melting point metal.', 'cat-transition-metal', 95.96)">
+                <span class="element-number">42</span>
+                <span class="element-symbol">Mo</span>
+                <span class="element-name">Molybdenum</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 7; grid-row: 5;" onclick="showDetails('Tc', 'Technetium', 43, 'Radioactive element.', 'cat-transition-metal', 98)">
+                <span class="element-number">43</span>
+                <span class="element-symbol">Tc</span>
+                <span class="element-name">Technetium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 8; grid-row: 5;" onclick="showDetails('Ru', 'Ruthenium', 44, 'Rare transition metal.', 'cat-transition-metal', 101.07)">
+                <span class="element-number">44</span>
+                <span class="element-symbol">Ru</span>
+                <span class="element-name">Ruthenium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 9; grid-row: 5;" onclick="showDetails('Rh', 'Rhodium', 45, 'Precious metal, catalyst.', 'cat-transition-metal', 102.91)">
+                <span class="element-number">45</span>
+                <span class="element-symbol">Rh</span>
+                <span class="element-name">Rhodium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 10; grid-row: 5;" onclick="showDetails('Pd', 'Palladium', 46, 'Used in catalytic converters.', 'cat-transition-metal', 106.42)">
+                <span class="element-number">46</span>
+                <span class="element-symbol">Pd</span>
+                <span class="element-name">Palladium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 11; grid-row: 5;" onclick="showDetails('Ag', 'Silver', 47, 'Precious metal, conductor.', 'cat-transition-metal', 107.87)">
+                <span class="element-number">47</span>
+                <span class="element-symbol">Ag</span>
+                <span class="element-name">Silver</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 12; grid-row: 5;" onclick="showDetails('Cd', 'Cadmium', 48, 'Used in batteries.', 'cat-transition-metal', 112.41)">
+                <span class="element-number">48</span>
+                <span class="element-symbol">Cd</span>
+                <span class="element-name">Cadmium</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 13; grid-row: 5;" onclick="showDetails('In', 'Indium', 49, 'Used in LCD screens.', 'cat-post-transition-metal', 114.82)">
+                <span class="element-number">49</span>
+                <span class="element-symbol">In</span>
+                <span class="element-name">Indium</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 14; grid-row: 5;" onclick="showDetails('Sn', 'Tin', 50, 'Used in solder and plating.', 'cat-post-transition-metal', 118.71)">
+                <span class="element-number">50</span>
+                <span class="element-symbol">Sn</span>
+                <span class="element-name">Tin</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 15; grid-row: 5;" onclick="showDetails('Sb', 'Antimony', 51, 'Used in flame retardants.', 'cat-metalloid', 121.76)">
+                <span class="element-number">51</span>
+                <span class="element-symbol">Sb</span>
+                <span class="element-name">Antimony</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 16; grid-row: 5;" onclick="showDetails('Te', 'Tellurium', 52, 'Used in alloys and solar cells.', 'cat-metalloid', 127.60)">
+                <span class="element-number">52</span>
+                <span class="element-symbol">Te</span>
+                <span class="element-name">Tellurium</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 17; grid-row: 5;" onclick="showDetails('I', 'Iodine', 53, 'Essential nutrient, antiseptic.', 'cat-diatomic-nonmetal', 126.90)">
+                <span class="element-number">53</span>
+                <span class="element-symbol">I</span>
+                <span class="element-name">Iodine</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 5;" onclick="showDetails('Xe', 'Xenon', 54, 'Heavy noble gas, lighting.', 'cat-noble-gas', 131.29)">
+                <span class="element-number">54</span>
+                <span class="element-symbol">Xe</span>
+                <span class="element-name">Xenon</span>
+            </button>
+
+             <!-- Row 6 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 6;" onclick="showDetails('Cs', 'Caesium', 55, 'Used in atomic clocks.', 'cat-alkali-metal', 132.91)">
+                <span class="element-number">55</span>
+                <span class="element-symbol">Cs</span>
+                <span class="element-name">Caesium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 6;" onclick="showDetails('Ba', 'Barium', 56, 'Used in medical imaging.', 'cat-alkaline-earth-metal', 137.33)">
+                <span class="element-number">56</span>
+                <span class="element-symbol">Ba</span>
+                <span class="element-name">Barium</span>
+            </button>
+            <div class="text-xs text-center flex items-center justify-center text-gray-400" style="grid-column: 3; grid-row: 6;">57-71</div> <!-- Lanthanide placeholder -->
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 4; grid-row: 6;" onclick="showDetails('Hf', 'Hafnium', 72, 'Used in nuclear reactors.', 'cat-transition-metal', 178.49)">
+                <span class="element-number">72</span>
+                <span class="element-symbol">Hf</span>
+                <span class="element-name">Hafnium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 5; grid-row: 6;" onclick="showDetails('Ta', 'Tantalum', 73, 'Used in electronics.', 'cat-transition-metal', 180.95)">
+                <span class="element-number">73</span>
+                <span class="element-symbol">Ta</span>
+                <span class="element-name">Tantalum</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 6; grid-row: 6;" onclick="showDetails('W', 'Tungsten', 74, 'Highest melting point metal.', 'cat-transition-metal', 183.84)">
+                <span class="element-number">74</span>
+                <span class="element-symbol">W</span>
+                <span class="element-name">Tungsten</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 7; grid-row: 6;" onclick="showDetails('Re', 'Rhenium', 75, 'Used in high-temp alloys.', 'cat-transition-metal', 186.21)">
+                <span class="element-number">75</span>
+                <span class="element-symbol">Re</span>
+                <span class="element-name">Rhenium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 8; grid-row: 6;" onclick="showDetails('Os', 'Osmium', 76, 'Densest natural element.', 'cat-transition-metal', 190.23)">
+                <span class="element-number">76</span>
+                <span class="element-symbol">Os</span>
+                <span class="element-name">Osmium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 9; grid-row: 6;" onclick="showDetails('Ir', 'Iridium', 77, 'Corrosion-resistant metal.', 'cat-transition-metal', 192.22)">
+                <span class="element-number">77</span>
+                <span class="element-symbol">Ir</span>
+                <span class="element-name">Iridium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 10; grid-row: 6;" onclick="showDetails('Pt', 'Platinum', 78, 'Precious metal, catalyst.', 'cat-transition-metal', 195.08)">
+                <span class="element-number">78</span>
+                <span class="element-symbol">Pt</span>
+                <span class="element-name">Platinum</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 11; grid-row: 6;" onclick="showDetails('Au', 'Gold', 79, 'Precious metal, jewelry.', 'cat-transition-metal', 196.97)">
+                <span class="element-number">79</span>
+                <span class="element-symbol">Au</span>
+                <span class="element-name">Gold</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 12; grid-row: 6;" onclick="showDetails('Hg', 'Mercury', 80, 'Liquid metal at room temp.', 'cat-transition-metal', 200.59)">
+                <span class="element-number">80</span>
+                <span class="element-symbol">Hg</span>
+                <span class="element-name">Mercury</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 13; grid-row: 6;" onclick="showDetails('Tl', 'Thallium', 81, 'Toxic heavy metal.', 'cat-post-transition-metal', 204.38)">
+                <span class="element-number">81</span>
+                <span class="element-symbol">Tl</span>
+                <span class="element-name">Thallium</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 14; grid-row: 6;" onclick="showDetails('Pb', 'Lead', 82, 'Heavy, dense metal.', 'cat-post-transition-metal', 207.2)">
+                <span class="element-number">82</span>
+                <span class="element-symbol">Pb</span>
+                <span class="element-name">Lead</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 15; grid-row: 6;" onclick="showDetails('Bi', 'Bismuth', 83, 'Low toxicity heavy metal.', 'cat-post-transition-metal', 208.98)">
+                <span class="element-number">83</span>
+                <span class="element-symbol">Bi</span>
+                <span class="element-name">Bismuth</span>
+            </button>
+            <button class="element-cell relative cat-metalloid" style="grid-column: 16; grid-row: 6;" onclick="showDetails('Po', 'Polonium', 84, 'Radioactive metalloid.', 'cat-metalloid', 209)">
+                <span class="element-number">84</span>
+                <span class="element-symbol">Po</span>
+                <span class="element-name">Polonium</span>
+            </button>
+            <button class="element-cell relative cat-diatomic-nonmetal" style="grid-column: 17; grid-row: 6;" onclick="showDetails('At', 'Astatine', 85, 'Rarest natural element.', 'cat-diatomic-nonmetal', 210)">
+                <span class="element-number">85</span>
+                <span class="element-symbol">At</span>
+                <span class="element-name">Astatine</span>
+            </button>
+            <button class="element-cell relative cat-noble-gas" style="grid-column: 18; grid-row: 6;" onclick="showDetails('Rn', 'Radon', 86, 'Radioactive noble gas.', 'cat-noble-gas', 222)">
+                <span class="element-number">86</span>
+                <span class="element-symbol">Rn</span>
+                <span class="element-name">Radon</span>
+            </button>
+
+            <!-- Row 7 -->
+            <button class="element-cell relative cat-alkali-metal" style="grid-column: 1; grid-row: 7;" onclick="showDetails('Fr', 'Francium', 87, 'Highly radioactive alkali metal.', 'cat-alkali-metal', 223)">
+                <span class="element-number">87</span>
+                <span class="element-symbol">Fr</span>
+                <span class="element-name">Francium</span>
+            </button>
+            <button class="element-cell relative cat-alkaline-earth-metal" style="grid-column: 2; grid-row: 7;" onclick="showDetails('Ra', 'Radium', 88, 'Radioactive alkaline earth metal.', 'cat-alkaline-earth-metal', 226)">
+                <span class="element-number">88</span>
+                <span class="element-symbol">Ra</span>
+                <span class="element-name">Radium</span>
+            </button>
+            <div class="text-xs text-center flex items-center justify-center text-gray-400" style="grid-column: 3; grid-row: 7;">89-103</div> <!-- Actinide placeholder -->
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 4; grid-row: 7;" onclick="showDetails('Rf', 'Rutherfordium', 104, 'Synthetic radioactive element.', 'cat-transition-metal', 267)">
+                <span class="element-number">104</span>
+                <span class="element-symbol">Rf</span>
+                <span class="element-name">Rutherfordium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 5; grid-row: 7;" onclick="showDetails('Db', 'Dubnium', 105, 'Synthetic radioactive element.', 'cat-transition-metal', 268)">
+                <span class="element-number">105</span>
+                <span class="element-symbol">Db</span>
+                <span class="element-name">Dubnium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 6; grid-row: 7;" onclick="showDetails('Sg', 'Seaborgium', 106, 'Synthetic radioactive element.', 'cat-transition-metal', 271)">
+                <span class="element-number">106</span>
+                <span class="element-symbol">Sg</span>
+                <span class="element-name">Seaborgium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 7; grid-row: 7;" onclick="showDetails('Bh', 'Bohrium', 107, 'Synthetic radioactive element.', 'cat-transition-metal', 272)">
+                <span class="element-number">107</span>
+                <span class="element-symbol">Bh</span>
+                <span class="element-name">Bohrium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 8; grid-row: 7;" onclick="showDetails('Hs', 'Hassium', 108, 'Synthetic radioactive element.', 'cat-transition-metal', 270)">
+                <span class="element-number">108</span>
+                <span class="element-symbol">Hs</span>
+                <span class="element-name">Hassium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 9; grid-row: 7;" onclick="showDetails('Mt', 'Meitnerium', 109, 'Synthetic radioactive element.', 'cat-unknown', 276)">
+                <span class="element-number">109</span>
+                <span class="element-symbol">Mt</span>
+                <span class="element-name">Meitnerium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 10; grid-row: 7;" onclick="showDetails('Ds', 'Darmstadtium', 110, 'Synthetic radioactive element.', 'cat-unknown', 281)">
+                <span class="element-number">110</span>
+                <span class="element-symbol">Ds</span>
+                <span class="element-name">Darmstadtium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 11; grid-row: 7;" onclick="showDetails('Rg', 'Roentgenium', 111, 'Synthetic radioactive element.', 'cat-unknown', 280)">
+                <span class="element-number">111</span>
+                <span class="element-symbol">Rg</span>
+                <span class="element-name">Roentgenium</span>
+            </button>
+            <button class="element-cell relative cat-transition-metal" style="grid-column: 12; grid-row: 7;" onclick="showDetails('Cn', 'Copernicium', 112, 'Synthetic radioactive element.', 'cat-transition-metal', 285)">
+                <span class="element-number">112</span>
+                <span class="element-symbol">Cn</span>
+                <span class="element-name">Copernicium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 13; grid-row: 7;" onclick="showDetails('Nh', 'Nihonium', 113, 'Synthetic radioactive element.', 'cat-unknown', 286)">
+                <span class="element-number">113</span>
+                <span class="element-symbol">Nh</span>
+                <span class="element-name">Nihonium</span>
+            </button>
+            <button class="element-cell relative cat-post-transition-metal" style="grid-column: 14; grid-row: 7;" onclick="showDetails('Fl', 'Flerovium', 114, 'Synthetic radioactive element.', 'cat-post-transition-metal', 289)">
+                <span class="element-number">114</span>
+                <span class="element-symbol">Fl</span>
+                <span class="element-name">Flerovium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 15; grid-row: 7;" onclick="showDetails('Mc', 'Moscovium', 115, 'Synthetic radioactive element.', 'cat-unknown', 290)">
+                <span class="element-number">115</span>
+                <span class="element-symbol">Mc</span>
+                <span class="element-name">Moscovium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 16; grid-row: 7;" onclick="showDetails('Lv', 'Livermorium', 116, 'Synthetic radioactive element.', 'cat-unknown', 293)">
+                <span class="element-number">116</span>
+                <span class="element-symbol">Lv</span>
+                <span class="element-name">Livermorium</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 17; grid-row: 7;" onclick="showDetails('Ts', 'Tennessine', 117, 'Synthetic radioactive element.', 'cat-unknown', 294)">
+                <span class="element-number">117</span>
+                <span class="element-symbol">Ts</span>
+                <span class="element-name">Tennessine</span>
+            </button>
+            <button class="element-cell relative cat-unknown" style="grid-column: 18; grid-row: 7;" onclick="showDetails('Og', 'Oganesson', 118, 'Synthetic radioactive element.', 'cat-unknown', 294)">
+                <span class="element-number">118</span>
+                <span class="element-symbol">Og</span>
+                <span class="element-name">Oganesson</span>
+            </button>
+
+            <!-- Lanthanides Row -->
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 4; grid-row: 9;" onclick="showDetails('La', 'Lanthanum', 57, 'Used in camera lenses.', 'cat-lanthanide', 138.91)">
+                <span class="element-number">57</span>
+                <span class="element-symbol">La</span>
+                <span class="element-name">Lanthanum</span>
+            </button>
+             <button class="element-cell relative cat-lanthanide" style="grid-column: 5; grid-row: 9;" onclick="showDetails('Ce', 'Cerium', 58, 'Used in lighter flints.', 'cat-lanthanide', 140.12)">
+                <span class="element-number">58</span>
+                <span class="element-symbol">Ce</span>
+                <span class="element-name">Cerium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 6; grid-row: 9;" onclick="showDetails('Pr', 'Praseodymium', 59, 'Used in magnets.', 'cat-lanthanide', 140.91)">
+                <span class="element-number">59</span>
+                <span class="element-symbol">Pr</span>
+                <span class="element-name">Praseodymium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 7; grid-row: 9;" onclick="showDetails('Nd', 'Neodymium', 60, 'Used in strong magnets.', 'cat-lanthanide', 144.24)">
+                <span class="element-number">60</span>
+                <span class="element-symbol">Nd</span>
+                <span class="element-name">Neodymium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 8; grid-row: 9;" onclick="showDetails('Pm', 'Promethium', 61, 'Radioactive lanthanide.', 'cat-lanthanide', 145)">
+                <span class="element-number">61</span>
+                <span class="element-symbol">Pm</span>
+                <span class="element-name">Promethium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 9; grid-row: 9;" onclick="showDetails('Sm', 'Samarium', 62, 'Used in magnets and lasers.', 'cat-lanthanide', 150.36)">
+                <span class="element-number">62</span>
+                <span class="element-symbol">Sm</span>
+                <span class="element-name">Samarium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 10; grid-row: 9;" onclick="showDetails('Eu', 'Europium', 63, 'Used in phosphors (red).', 'cat-lanthanide', 151.96)">
+                <span class="element-number">63</span>
+                <span class="element-symbol">Eu</span>
+                <span class="element-name">Europium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 11; grid-row: 9;" onclick="showDetails('Gd', 'Gadolinium', 64, 'Used in MRI contrast agents.', 'cat-lanthanide', 157.25)">
+                <span class="element-number">64</span>
+                <span class="element-symbol">Gd</span>
+                <span class="element-name">Gadolinium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 12; grid-row: 9;" onclick="showDetails('Tb', 'Terbium', 65, 'Used in phosphors (green).', 'cat-lanthanide', 158.93)">
+                <span class="element-number">65</span>
+                <span class="element-symbol">Tb</span>
+                <span class="element-name">Terbium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 13; grid-row: 9;" onclick="showDetails('Dy', 'Dysprosium', 66, 'Used in magnets.', 'cat-lanthanide', 162.50)">
+                <span class="element-number">66</span>
+                <span class="element-symbol">Dy</span>
+                <span class="element-name">Dysprosium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 14; grid-row: 9;" onclick="showDetails('Ho', 'Holmium', 67, 'Used in magnets and lasers.', 'cat-lanthanide', 164.93)">
+                <span class="element-number">67</span>
+                <span class="element-symbol">Ho</span>
+                <span class="element-name">Holmium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 15; grid-row: 9;" onclick="showDetails('Er', 'Erbium', 68, 'Used in fiber optics.', 'cat-lanthanide', 167.26)">
+                <span class="element-number">68</span>
+                <span class="element-symbol">Er</span>
+                <span class="element-name">Erbium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 16; grid-row: 9;" onclick="showDetails('Tm', 'Thulium', 69, 'Used in portable X-rays.', 'cat-lanthanide', 168.93)">
+                <span class="element-number">69</span>
+                <span class="element-symbol">Tm</span>
+                <span class="element-name">Thulium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 17; grid-row: 9;" onclick="showDetails('Yb', 'Ytterbium', 70, 'Used in lasers.', 'cat-lanthanide', 173.05)">
+                <span class="element-number">70</span>
+                <span class="element-symbol">Yb</span>
+                <span class="element-name">Ytterbium</span>
+            </button>
+            <button class="element-cell relative cat-lanthanide" style="grid-column: 18; grid-row: 9;" onclick="showDetails('Lu', 'Lutetium', 71, 'Used in catalysts.', 'cat-lanthanide', 174.97)">
+                <span class="element-number">71</span>
+                <span class="element-symbol">Lu</span>
+                <span class="element-name">Lutetium</span>
+            </button>
+
+            <!-- Actinides Row -->
+            <button class="element-cell relative cat-actinide" style="grid-column: 4; grid-row: 10;" onclick="showDetails('Ac', 'Actinium', 89, 'Radioactive element.', 'cat-actinide', 227)">
+                <span class="element-number">89</span>
+                <span class="element-symbol">Ac</span>
+                <span class="element-name">Actinium</span>
+            </button>
+             <button class="element-cell relative cat-actinide" style="grid-column: 5; grid-row: 10;" onclick="showDetails('Th', 'Thorium', 90, 'Potential nuclear fuel.', 'cat-actinide', 232.04)">
+                <span class="element-number">90</span>
+                <span class="element-symbol">Th</span>
+                <span class="element-name">Thorium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 6; grid-row: 10;" onclick="showDetails('Pa', 'Protactinium', 91, 'Radioactive element.', 'cat-actinide', 231.04)">
+                <span class="element-number">91</span>
+                <span class="element-symbol">Pa</span>
+                <span class="element-name">Protactinium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 7; grid-row: 10;" onclick="showDetails('U', 'Uranium', 92, 'Used in nuclear reactors.', 'cat-actinide', 238.03)">
+                <span class="element-number">92</span>
+                <span class="element-symbol">U</span>
+                <span class="element-name">Uranium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 8; grid-row: 10;" onclick="showDetails('Np', 'Neptunium', 93, 'Radioactive element.', 'cat-actinide', 237)">
+                <span class="element-number">93</span>
+                <span class="element-symbol">Np</span>
+                <span class="element-name">Neptunium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 9; grid-row: 10;" onclick="showDetails('Pu', 'Plutonium', 94, 'Used in nuclear weapons.', 'cat-actinide', 244)">
+                <span class="element-number">94</span>
+                <span class="element-symbol">Pu</span>
+                <span class="element-name">Plutonium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 10; grid-row: 10;" onclick="showDetails('Am', 'Americium', 95, 'Used in smoke detectors.', 'cat-actinide', 243)">
+                <span class="element-number">95</span>
+                <span class="element-symbol">Am</span>
+                <span class="element-name">Americium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 11; grid-row: 10;" onclick="showDetails('Cm', 'Curium', 96, 'Radioactive element.', 'cat-actinide', 247)">
+                <span class="element-number">96</span>
+                <span class="element-symbol">Cm</span>
+                <span class="element-name">Curium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 12; grid-row: 10;" onclick="showDetails('Bk', 'Berkelium', 97, 'Radioactive element.', 'cat-actinide', 247)">
+                <span class="element-number">97</span>
+                <span class="element-symbol">Bk</span>
+                <span class="element-name">Berkelium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 13; grid-row: 10;" onclick="showDetails('Cf', 'Californium', 98, 'Radioactive element.', 'cat-actinide', 251)">
+                <span class="element-number">98</span>
+                <span class="element-symbol">Cf</span>
+                <span class="element-name">Californium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 14; grid-row: 10;" onclick="showDetails('Es', 'Einsteinium', 99, 'Radioactive element.', 'cat-actinide', 252)">
+                <span class="element-number">99</span>
+                <span class="element-symbol">Es</span>
+                <span class="element-name">Einsteinium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 15; grid-row: 10;" onclick="showDetails('Fm', 'Fermium', 100, 'Radioactive element.', 'cat-actinide', 257)">
+                <span class="element-number">100</span>
+                <span class="element-symbol">Fm</span>
+                <span class="element-name">Fermium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 16; grid-row: 10;" onclick="showDetails('Md', 'Mendelevium', 101, 'Radioactive element.', 'cat-actinide', 258)">
+                <span class="element-number">101</span>
+                <span class="element-symbol">Md</span>
+                <span class="element-name">Mendelevium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 17; grid-row: 10;" onclick="showDetails('No', 'Nobelium', 102, 'Radioactive element.', 'cat-actinide', 259)">
+                <span class="element-number">102</span>
+                <span class="element-symbol">No</span>
+                <span class="element-name">Nobelium</span>
+            </button>
+            <button class="element-cell relative cat-actinide" style="grid-column: 18; grid-row: 10;" onclick="showDetails('Lr', 'Lawrencium', 103, 'Radioactive element.', 'cat-actinide', 262)">
+                <span class="element-number">103</span>
+                <span class="element-symbol">Lr</span>
+                <span class="element-name">Lawrencium</span>
+            </button>
+
+        </div> <!-- /.periodic-table -->
+
+        <!-- Element Detail View (Modal/Overlay) -->
+        <div id="element-detail-overlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-40 hidden" onclick="hideDetails()">
+            <div id="element-detail-view" class="relative bg-gray-800 rounded-lg shadow-xl w-full max-w-md border-4 border-gray-500" onclick="event.stopPropagation()">
+                <button onclick="hideDetails()" class="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+                <div class="p-6 sm:p-8">
+                    <div class="flex items-center mb-4">
+                        <div id="detail-symbol-box" class="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-md mr-4 sm:mr-6 flex-shrink-0">
+                            <span id="detail-symbol" class="text-4xl sm:text-5xl font-bold"></span>
+                        </div>
+                        <div>
+                            <h2 id="detail-name" class="text-2xl sm:text-3xl font-bold mb-1">Element Name</h2>
+                            <p class="text-sm text-gray-400">Atomic Number: <span id="detail-atomic-number" class="font-medium text-gray-200"></span></p>
+                             <p class="text-sm text-gray-400">Atomic Mass: <span id="detail-atomic-mass" class="font-medium text-gray-200"></span> u</p>
+                             <p class="text-sm text-gray-400">Category: <span id="detail-category" class="font-medium text-gray-200"></span></p>
+                        </div>
+                    </div>
+                    <p id="detail-description" class="text-base text-gray-300 mb-4">Placeholder description about the element goes here. Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                    <div class="aspect-w-16 aspect-h-9 mb-4 bg-gray-700 rounded overflow-hidden">
+                        <!-- Placeholder for an image or diagram -->
+                        <img id="detail-image" src="https://via.placeholder.com/400x225/374151/cccccc?text=Element+Diagram" alt="Element Diagram Placeholder" class="object-cover w-full h-full">
+                    </div>
+                    <a id="detail-wiki-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200 text-sm">
+                        Learn more on Wikipedia
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="p-4 mt-8 text-center text-gray-500 text-xs border-t border-gray-700">
+        Interactive Periodic Table &copy; 2023. Built with HTML & Tailwind CSS.
+    </footer>
+
+    <script>
+        const detailOverlay = document.getElementById('element-detail-overlay');
+        const detailView = document.getElementById('element-detail-view');
+        const detailSymbolBox = document.getElementById('detail-symbol-box');
+        const detailSymbol = document.getElementById('detail-symbol');
+        const detailName = document.getElementById('detail-name');
+        const detailAtomicNumber = document.getElementById('detail-atomic-number');
+        const detailAtomicMass = document.getElementById('detail-atomic-mass');
+        const detailCategory = document.getElementById('detail-category');
+        const detailDescription = document.getElementById('detail-description');
+        const detailImage = document.getElementById('detail-image');
+        const detailWikiLink = document.getElementById('detail-wiki-link');
+
+        const categoryMap = {
+            'cat-alkali-metal': 'Alkali Metal',
+            'cat-alkaline-earth-metal': 'Alkaline Earth Metal',
+            'cat-lanthanide': 'Lanthanide',
+            'cat-actinide': 'Actinide',
+            'cat-transition-metal': 'Transition Metal',
+            'cat-post-transition-metal': 'Post-Transition Metal',
+            'cat-metalloid': 'Metalloid',
+            'cat-diatomic-nonmetal': 'Diatomic Nonmetal',
+            'cat-polyatomic-nonmetal': 'Polyatomic Nonmetal',
+            'cat-noble-gas': 'Noble Gas',
+            'cat-unknown': 'Unknown Properties'
+        };
+
+        function showDetails(symbol, name, atomicNumber, description, categoryClass, atomicMass) {
+            detailSymbol.innerText = symbol;
+            detailName.innerText = name;
+            detailAtomicNumber.innerText = atomicNumber;
+            detailAtomicMass.innerText = atomicMass;
+            detailDescription.innerText = description + ` (Atomic Mass: ${atomicMass} u)`;
+            detailWikiLink.href = `https://en.wikipedia.org/wiki/${name}`;
+            detailImage.src = `https://via.placeholder.com/400x225/4b5563/cccccc?text=${symbol}`; // Update placeholder text
+            detailImage.alt = `Diagram of ${name}`;
+
+            // Update category text
+            detailCategory.innerText = categoryMap[categoryClass] || 'Unknown';
+
+            // Remove previous category classes from detail view border and symbol box background
+            detailView.className = detailView.className.replace(/\bdetail-border-cat-\S+/g, '');
+            detailSymbolBox.className = detailSymbolBox.className.replace(/\bcat-\S+/g, '');
+            detailSymbolBox.className = detailSymbolBox.className.replace(/\bbg-\S+-\d{2,3}/g, ''); // Remove specific bg colors if needed
+            detailSymbolBox.className = detailSymbolBox.className.replace(/\btext-\S+-\d{2,3}/g, ''); // Remove specific text colors if needed
+
+
+            // Add new category classes
+            detailView.classList.add(`detail-border-${categoryClass}`);
+            detailSymbolBox.classList.add(categoryClass); // Apply background and text color from category class
+            detailSymbolBox.classList.add('w-20', 'h-20', 'sm:w-24', 'sm:h-24', 'flex', 'items-center', 'justify-center', 'rounded-md', 'mr-4', 'sm:mr-6', 'flex-shrink-0'); // Re-add structural classes
+
+
+            detailOverlay.classList.remove('hidden');
+            // Use timeout to allow display property change before triggering transition
+            setTimeout(() => {
+                detailView.classList.add('visible');
+            }, 10);
+        }
+
+        function hideDetails() {
+            detailView.classList.remove('visible');
+            // Wait for transition to finish before hiding overlay
+             setTimeout(() => {
+                detailOverlay.classList.add('hidden');
+            }, 300); // Match transition duration
+        }
+
+        // Optional: Close modal with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !detailOverlay.classList.contains('hidden')) {
+                hideDetails();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
