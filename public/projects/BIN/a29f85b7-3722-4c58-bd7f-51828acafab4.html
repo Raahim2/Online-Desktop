@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive UI Element Encyclopedia - Tailwind CSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minor style for scrollbar visibility in code blocks if needed */
+        /* pre code { scrollbar-width: thin; scrollbar-color: #9ca3af #e5e7eb; } */
+        /* pre code::-webkit-scrollbar { width: 8px; } */
+        /* pre code::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 4px; } */
+        /* pre code::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; border: 2px solid #e5e7eb; } */
+        /* Hide scrollbar until hover can be tricky without more JS/CSS, rely on overflow-x-auto for now */
+        .code-block { max-height: 300px; } /* Limit height of code blocks */
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md">
+        <div class="container mx-auto px-6 py-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">UI Element Encyclopedia</h1>
+            <p class="text-lg md:text-xl text-indigo-100">Interactive examples styled purely with Tailwind CSS</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Element Category: Buttons -->
+            <section class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 border-gray-200">Buttons</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Button: Primary -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Primary Button</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Standard action button.</p>
+                        <div class="flex justify-center items-center bg-gray-50 p-4 rounded border border-dashed border-gray-300 min-h-[80px]">
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                                Primary Action
+                            </button>
+                        </div>
+                        <button onclick="toggleCode('btn-primary-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="btn-primary-code" class="hidden code-block">
+                            <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"&gt;
+  Primary Action
+&lt;/button&gt;</code></pre>
+                        </div>
+                    </article>
+
+                    <!-- Button: Secondary -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Secondary Button</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Alternative action, less emphasis.</p>
+                        <div class="flex justify-center items-center bg-gray-50 p-4 rounded border border-dashed border-gray-300 min-h-[80px]">
+                            <button class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+                                Secondary Action
+                            </button>
+                        </div>
+                         <button onclick="toggleCode('btn-secondary-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="btn-secondary-code" class="hidden code-block">
+                            <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;button class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75"&gt;
+  Secondary Action
+&lt;/button&gt;</code></pre>
+                        </div>
+                    </article>
+
+                    <!-- Button: Outline -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Outline Button</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Subtle action, often used with primary.</p>
+                         <div class="flex justify-center items-center bg-gray-50 p-4 rounded border border-dashed border-gray-300 min-h-[80px]">
+                            <button class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                                Outline Action
+                            </button>
+                        </div>
+                         <button onclick="toggleCode('btn-outline-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="btn-outline-code" class="hidden code-block">
+                            <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;button class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"&gt;
+  Outline Action
+&lt;/button&gt;</code></pre>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- Element Category: Forms -->
+            <section class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 border-gray-200">Form Elements</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Form: Input Field -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Input Field</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Standard text input with label.</p>
+                        <div class="bg-gray-50 p-4 rounded border border-dashed border-gray-300">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="you@example.com" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <button onclick="toggleCode('form-input-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="form-input-code" class="hidden code-block">
+                             <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;div&gt;
+  &lt;label for="email" class="block text-sm font-medium text-gray-700 mb-1"&gt;Email Address&lt;/label&gt;
+  &lt;input type="email" id="email" name="email" placeholder="you@example.com" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </article>
+
+                    <!-- Form: Checkbox -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Checkbox</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Standard checkbox input.</p>
+                        <div class="bg-gray-50 p-4 rounded border border-dashed border-gray-300">
+                            <div class="flex items-center">
+                                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                            </div>
+                        </div>
+                        <button onclick="toggleCode('form-checkbox-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="form-checkbox-code" class="hidden code-block">
+                             <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;div class="flex items-center"&gt;
+  &lt;input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"&gt;
+  &lt;label for="remember-me" class="ml-2 block text-sm text-gray-900"&gt;Remember me&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- Element Category: Cards -->
+            <section class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 border-gray-200">Cards</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Card: Simple -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Simple Card</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Basic card layout with image, text, and action.</p>
+                        <div class="bg-gray-50 p-4 rounded border border-dashed border-gray-300 flex justify-center">
+                           <div class="max-w-sm rounded overflow-hidden shadow-md bg-white">
+                              <img class="w-full h-48 object-cover" src="https://via.placeholder.com/400x300/cccccc/969696?text=Placeholder+Image" alt="Placeholder Image">
+                              <div class="px-6 py-4">
+                                <div class="font-bold text-xl mb-2">Card Title</div>
+                                <p class="text-gray-700 text-base">
+                                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia.
+                                </p>
+                              </div>
+                              <div class="px-6 pt-4 pb-2 mb-2">
+                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                  Read More
+                                </button>
+                              </div>
+                            </div>
+                        </div>
+                        <button onclick="toggleCode('card-simple-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="card-simple-code" class="hidden code-block">
+                             <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;div class="max-w-sm rounded overflow-hidden shadow-md bg-white"&gt;
+  &lt;img class="w-full h-48 object-cover" src="placeholder.jpg" alt="Placeholder"&gt;
+  &lt;div class="px-6 py-4"&gt;
+    &lt;div class="font-bold text-xl mb-2"&gt;Card Title&lt;/div&gt;
+    &lt;p class="text-gray-700 text-base"&gt;
+      Card description goes here.
+    &lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="px-6 pt-4 pb-2 mb-2"&gt;
+    &lt;button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"&gt;
+      Read More
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+             <!-- Element Category: Alerts -->
+            <section class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 border-gray-200">Alerts</h2>
+                <div class="grid grid-cols-1 gap-6">
+
+                    <!-- Alert: Success -->
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Success Alert</h3>
+                        <p class="text-sm text-gray-600 flex-grow">For positive feedback or successful operations.</p>
+                        <div class="bg-gray-50 p-4 rounded border border-dashed border-gray-300 space-y-4">
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                              <strong class="font-bold">Success!</strong>
+                              <span class="block sm:inline"> Your action was completed successfully.</span>
+                            </div>
+                            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+                              <strong class="font-bold">Warning!</strong>
+                              <span class="block sm:inline"> Something needs your attention.</span>
+                            </div>
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                              <strong class="font-bold">Error!</strong>
+                              <span class="block sm:inline"> Something went wrong. Please try again.</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleCode('alert-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="alert-code" class="hidden code-block">
+                             <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;!-- Success --&gt;
+&lt;div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert"&gt;
+  &lt;strong class="font-bold"&gt;Success!&lt;/strong&gt;
+  &lt;span class="block sm:inline"&gt; Your action was completed successfully.&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Warning --&gt;
+&lt;div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert"&gt;
+  &lt;strong class="font-bold"&gt;Warning!&lt;/strong&gt;
+  &lt;span class="block sm:inline"&gt; Something needs your attention.&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Error --&gt;
+&lt;div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert"&gt;
+  &lt;strong class="font-bold"&gt;Error!&lt;/strong&gt;
+  &lt;span class="block sm:inline"&gt; Something went wrong. Please try again.&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- Element Category: Modal -->
+            <section class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 border-gray-200">Modal</h2>
+                <div class="grid grid-cols-1 gap-6">
+
+                    <article class="border border-gray-200 rounded-md p-4 flex flex-col space-y-4">
+                        <h3 class="text-lg font-medium text-gray-700">Simple Modal</h3>
+                        <p class="text-sm text-gray-600 flex-grow">Basic modal dialog example triggered by a button.</p>
+                        <div class="flex justify-center items-center bg-gray-50 p-4 rounded border border-dashed border-gray-300 min-h-[80px]">
+                            <button onclick="toggleModal('simple-modal')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
+                                Open Modal
+                            </button>
+                        </div>
+                        <button onclick="toggleCode('modal-code')" class="text-sm text-blue-600 hover:underline self-start">Show Code</button>
+                        <div id="modal-code" class="hidden code-block">
+                             <pre class="bg-gray-800 text-white p-3 rounded-md text-xs overflow-x-auto"><code class="language-html">&lt;!-- Trigger Button --&gt;
+&lt;button onclick="toggleModal('simple-modal')" class="bg-purple-500 ..."&gt;
+  Open Modal
+&lt;/button&gt;
+
+&lt;!-- Modal Structure (hidden by default) --&gt;
+&lt;div id="simple-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50"&gt;
+  &lt;!-- Modal Content --&gt;
+  &lt;div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white"&gt;
+    &lt;div class="mt-3 text-center"&gt;
+      &lt;h3 class="text-lg leading-6 font-medium text-gray-900"&gt;Modal Title&lt;/h3&gt;
+      &lt;div class="mt-2 px-7 py-3"&gt;
+        &lt;p class="text-sm text-gray-500"&gt;
+          This is the modal content area. You can put any text or elements here.
+        &lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class="items-center px-4 py-3"&gt;
+        &lt;button onclick="toggleModal('simple-modal')"
+                class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"&gt;
+          Close Modal
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- JavaScript (place before &lt;/body&gt;) --&gt;
+&lt;script&gt;
+  function toggleModal(modalID) {
+    const modal = document.getElementById(modalID);
+    modal.classList.toggle('hidden');
+  }
+&lt;/script&gt;</code></pre>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 text-center p-6 mt-12">
+        <p>&copy; <span id="current-year"></span> UI Element Encyclopedia. Built with Tailwind CSS.</p>
+    </footer>
+
+    <!-- Modal Structure (hidden by default) -->
+    <div id="simple-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50 p-4">
+      <!-- Modal Content -->
+      <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+            <!-- Heroicon: information-circle -->
+            <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Modal Title</h3>
+          <div class="mt-2 px-7 py-3">
+            <p class="text-sm text-gray-500">
+              This is the modal content area. You can put any text or elements here. Tailwind makes styling modals straightforward.
+            </p>
+          </div>
+          <div class="items-center px-4 py-3">
+            <button onclick="toggleModal('simple-modal')"
+                    class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition duration-150 ease-in-out">
+              Close Modal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Simple JavaScript for Interactivity -->
+    <script>
+        // Function to toggle visibility of code blocks
+        function toggleCode(elementId) {
+            const codeBlock = document.getElementById(elementId);
+            const button = codeBlock.previousElementSibling; // Assumes button is right before the code block div
+            if (codeBlock) {
+                const isHidden = codeBlock.classList.toggle('hidden');
+                button.textContent = isHidden ? 'Show Code' : 'Hide Code';
+            }
+        }
+
+        // Function to toggle modal visibility
+        function toggleModal(modalID) {
+            const modal = document.getElementById(modalID);
+            if (modal) {
+                // Toggle the 'hidden' class
+                const isHidden = modal.classList.toggle('hidden');
+
+                // Optional: Prevent body scroll when modal is open
+                // document.body.style.overflow = isHidden ? '' : 'hidden';
+            }
+        }
+
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Optional: Close modal if clicking outside the content area
+        // window.addEventListener('click', function(event) {
+        //     const modal = document.getElementById('simple-modal');
+        //     // Check if the modal is visible and the click is on the backdrop (the modal container itself)
+        //     if (modal && !modal.classList.contains('hidden') && event.target === modal) {
+        //         toggleModal('simple-modal');
+        //     }
+        // });
+
+    </script>
+
+</body>
+</html>
