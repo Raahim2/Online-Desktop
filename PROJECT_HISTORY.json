@@ -70,5 +70,17 @@
       "Downloadable animated text as a GIF (using a library like gif.js, which doesn't require an API key)."
     ],
     "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Create and animate text with dynamic effects using simple controls, bringing words to life on the screen.\nFeatures:\n- Adjustable font styles, sizes, and colors.\n- Animation presets (wave, bounce, rotate, etc.).\n- Customizable animation speed and easing.\n- Interactive controls to trigger animations on mouse hover or click.\n- Downloadable animated text as a GIF (using a library like gif.js, which doesn't require an API key).\n"
+  },
+  {
+    "name": "Interactive Gradient Puzzle",
+    "description": "Solve a visually engaging puzzle by rearranging gradient tiles to recreate a target image.",
+    "features": [
+      "Drag-and-drop tile interaction.",
+      "Multiple difficulty levels based on grid size.",
+      "Timer and move counter to track progress.",
+      "Shuffle button to randomize tile positions.",
+      "Visual feedback on correct tile placement."
+    ],
+    "raw_output": "Project Name: Interactive Gradient Puzzle\nDescription: Solve a visually engaging puzzle by rearranging gradient tiles to recreate a target image.\nFeatures:\n- Drag-and-drop tile interaction.\n- Multiple difficulty levels based on grid size.\n- Timer and move counter to track progress.\n- Shuffle button to randomize tile positions.\n- Visual feedback on correct tile placement.\n"
   }
 ]
