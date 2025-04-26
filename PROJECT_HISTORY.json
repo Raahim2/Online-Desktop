@@ -34,5 +34,17 @@
       "Download the animated text as a GIF (using a simple JS library \u2013 this is an exception but keeps the project self-contained and doesn't require external services)."
     ],
     "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Experiment with animating text using simple physics and customizable parameters.\nFeatures:\n- Adjust gravity, bounciness, and friction to influence text motion.\n- Input custom text strings to animate.\n- Choose from a variety of Tailwind-styled fonts and colors.\n- Toggle different animation styles (e.g., bouncing, falling, orbiting).\n- Download the animated text as a GIF (using a simple JS library \u2013 this is an exception but keeps the project self-contained and doesn't require external services). \n"
+  },
+  {
+    "name": "Virtual Desk Toy",
+    "description": "A customizable digital desk toy for playful distraction and focus enhancement, featuring interactive elements and soothing animations.",
+    "features": [
+      "Draggable and rotatable 3D shapes using CSS transforms.",
+      "Customizable shape colors and background gradients with Tailwind.",
+      "Toggleable physics engine for realistic collisions and interactions.",
+      "Adjustable \"gravity\" and bounciness parameters.",
+      "Option to add calming background music (using a pre-included audio file)."
+    ],
+    "raw_output": "Project Name: Virtual Desk Toy\nDescription: A customizable digital desk toy for playful distraction and focus enhancement, featuring interactive elements and soothing animations.\nFeatures:\n- Draggable and rotatable 3D shapes using CSS transforms.\n- Customizable shape colors and background gradients with Tailwind.\n- Toggleable physics engine for realistic collisions and interactions.\n- Adjustable \"gravity\" and bounciness parameters.\n- Option to add calming background music (using a pre-included audio file). \n"
   }
 ]
