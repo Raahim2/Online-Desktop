@@ -82,5 +82,17 @@
       "Visual feedback on correct tile placement."
     ],
     "raw_output": "Project Name: Interactive Gradient Puzzle\nDescription: Solve a visually engaging puzzle by rearranging gradient tiles to recreate a target image.\nFeatures:\n- Drag-and-drop tile interaction.\n- Multiple difficulty levels based on grid size.\n- Timer and move counter to track progress.\n- Shuffle button to randomize tile positions.\n- Visual feedback on correct tile placement.\n"
+  },
+  {
+    "name": "Abstract Art Generator",
+    "description": "Create unique, generative abstract art pieces with customizable color palettes and geometric shapes.",
+    "features": [
+      "Adjustable color palettes using HSL sliders.",
+      "Randomly generated geometric shapes (circles, squares, triangles).",
+      "Customizable canvas size and shape density.",
+      "Downloadable SVG of the generated artwork.",
+      "Option to animate shape transitions."
+    ],
+    "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique, generative abstract art pieces with customizable color palettes and geometric shapes.\nFeatures:\n- Adjustable color palettes using HSL sliders.\n- Randomly generated geometric shapes (circles, squares, triangles).\n- Customizable canvas size and shape density.\n- Downloadable SVG of the generated artwork.\n- Option to animate shape transitions.\n"
   }
 ]
