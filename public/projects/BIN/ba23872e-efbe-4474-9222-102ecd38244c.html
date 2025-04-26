@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Zoetrope Illusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for potential non-Tailwind needs - kept empty as per instructions */
+        /* Example: If specific keyframes were absolutely needed and not possible via Tailwind config */
+        /* @keyframes frame-by-frame { ... } */
+        /* Try to achieve everything with Tailwind classes and inline JS first */
+        .zoetrope-frame {
+            display: none; /* Initially hide all frames */
+            backface-visibility: hidden; /* Helps with rendering performance */
+        }
+        .zoetrope-frame.active {
+            display: block; /* Show the active frame */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-gray-200 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="bg-gray-800 bg-opacity-50 backdrop-blur-sm shadow-lg py-4 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                Interactive Zoetrope Illusion
+            </h1>
+            <p class="text-center text-sm text-gray-400 mt-1">Using Tailwind CSS & SVG Animation</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-16 flex-grow flex flex-col items-center justify-center">
+
+        <section class="w-full max-w-2xl text-center mb-12">
+            <h2 class="text-xl md:text-2xl font-semibold mb-4 text-cyan-300">Experience the Illusion of Motion</h2>
+            <p class="text-gray-400 leading-relaxed">
+                Inspired by the classic zoetrope, this interactive display uses sequential SVG images and a touch of JavaScript to create a simple animation. Click 'Start' to see the illusion unfold. Adjust the speed for different effects.
+            </p>
+        </section>
+
+        <section class="w-full max-w-md mb-12 flex flex-col items-center">
+            <div id="zoetrope-viewer" class="relative w-64 h-64 md:w-80 md:h-80 bg-gray-700 rounded-full shadow-xl overflow-hidden border-4 border-gray-600 flex items-center justify-center mb-8">
+                <!-- SVG Frames will be injected here by potential future enhancements or manually placed -->
+                <!-- Example with simple embedded SVGs -->
+                <div class="zoetrope-frame active">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                         <circle cx="50" cy="50" r="10" fill="#34d399"/> <!-- Frame 1: Green circle center -->
+                    </svg>
+                </div>
+                <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                        <circle cx="60" cy="45" r="10" fill="#60a5fa"/> <!-- Frame 2: Blue circle up-right -->
+                    </svg>
+                </div>
+                <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                        <circle cx="70" cy="50" r="10" fill="#f472b6"/> <!-- Frame 3: Pink circle right -->
+                    </svg>
+                </div>
+                <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                        <circle cx="60" cy="55" r="10" fill="#fbbf24"/> <!-- Frame 4: Amber circle down-right -->
+                    </svg>
+                </div>
+                 <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                         <circle cx="50" cy="60" r="10" fill="#a78bfa"/> <!-- Frame 5: Violet circle down -->
+                    </svg>
+                </div>
+                 <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                         <circle cx="40" cy="55" r="10" fill="#f87171"/> <!-- Frame 6: Red circle down-left -->
+                    </svg>
+                </div>
+                 <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                         <circle cx="30" cy="50" r="10" fill="#38bdf8"/> <!-- Frame 7: Sky circle left -->
+                    </svg>
+                </div>
+                 <div class="zoetrope-frame">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-4">
+                         <circle cx="40" cy="45" r="10" fill="#4ade80"/> <!-- Frame 8: Green circle up-left -->
+                    </svg>
+                </div>
+
+                <!-- Add more frames as needed for smoother animation -->
+
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <button id="startButton" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-opacity-75">
+                    Start
+                </button>
+                <button id="stopButton" class="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-opacity-75 opacity-50 cursor-not-allowed" disabled>
+                    Stop
+                </button>
+                 <div class="flex items-center gap-2 mt-4 sm:mt-0 sm:ml-4">
+                     <label for="speedControl" class="text-sm text-gray-400">Speed:</label>
+                     <select id="speedControl" class="bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
+                         <option value="200">Slow</option>
+                         <option value="100" selected>Medium</option>
+                         <option value="50">Fast</option>
+                         <option value="25">Very Fast</option>
+                     </select>
+                 </div>
+            </div>
+             <p id="status" class="mt-4 text-sm text-gray-500">Status: Stopped</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 bg-opacity-30 py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-xs">
+            &copy; 2023 Zoetrope Illusion Demo. Built with HTML & Tailwind CSS.
+        </div>
+    </footer>
+
+    <script>
+        const viewer = document.getElementById('zoetrope-viewer');
+        const frames = viewer.querySelectorAll('.zoetrope-frame');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const speedControl = document.getElementById('speedControl');
+        const statusDisplay = document.getElementById('status');
+
+        let currentFrame = 0;
+        let animationInterval = null;
+        let intervalSpeed = parseInt(speedControl.value, 10); // Milliseconds per frame
+
+        function showFrame(index) {
+            frames.forEach((frame, i) => {
+                if (i === index) {
+                    frame.classList.add('active');
+                } else {
+                    frame.classList.remove('active');
+                }
+            });
+        }
+
+        function nextFrame() {
+            currentFrame = (currentFrame + 1) % frames.length;
+            showFrame(currentFrame);
+        }
+
+        function startAnimation() {
+            if (animationInterval) return; // Already running
+
+            intervalSpeed = parseInt(speedControl.value, 10);
+            animationInterval = setInterval(nextFrame, intervalSpeed);
+
+            startButton.disabled = true;
+            startButton.classList.add('opacity-50', 'cursor-not-allowed');
+            stopButton.disabled = false;
+            stopButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            speedControl.disabled = true; // Disable speed change while running
+             statusDisplay.textContent = `Status: Running (${(1000 / intervalSpeed).toFixed(1)} fps)`;
+             statusDisplay.classList.remove('text-gray-500');
+             statusDisplay.classList.add('text-green-400');
+        }
+
+        function stopAnimation() {
+            if (!animationInterval) return; // Already stopped
+
+            clearInterval(animationInterval);
+            animationInterval = null;
+
+            startButton.disabled = false;
+            startButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            stopButton.disabled = true;
+            stopButton.classList.add('opacity-50', 'cursor-not-allowed');
+            speedControl.disabled = false; // Re-enable speed change
+            statusDisplay.textContent = 'Status: Stopped';
+            statusDisplay.classList.add('text-gray-500');
+            statusDisplay.classList.remove('text-green-400');
+        }
+
+        // Initial setup
+        showFrame(currentFrame); // Show the first frame initially
+        stopButton.disabled = true; // Stop button disabled initially
+
+        // Event Listeners
+        startButton.addEventListener('click', startAnimation);
+        stopButton.addEventListener('click', stopAnimation);
+        speedControl.addEventListener('change', (event) => {
+            // Update speed only if stopped, or update immediately if running (optional)
+            // For simplicity, we only allow speed change when stopped.
+            // If you want to change speed while running:
+            // intervalSpeed = parseInt(event.target.value, 10);
+            // if (animationInterval) {
+            //     stopAnimation();
+            //     startAnimation(); // Restart with new speed
+            // }
+             if (!animationInterval) {
+                 intervalSpeed = parseInt(event.target.value, 10);
+             }
+        });
+
+    </script>
+
+</body>
+</html>
