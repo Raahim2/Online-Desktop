@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CRT Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal necessary styles for CRT effects not directly achievable with Tailwind */
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            20% { opacity: 0.95; }
+            40% { opacity: 0.99; }
+            60% { opacity: 0.94; }
+            80% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        .crt-effect::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.04));
+            background-size: 100% 3px, 4px 100%;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.1s infinite alternate; /* Subtle flicker */
+        }
+
+        /* Optional subtle screen curvature effect */
+        .crt-screen::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0) 60%, rgba(0,0,0,0.15) 110%);
+            border-radius: inherit; /* Match parent's border-radius */
+            pointer-events: none;
+            z-index: 3; /* Above scanlines */
+        }
+
+        .phosphor-glow {
+            /* Green Phosphor Glow */
+            text-shadow: 0 0 2px rgba(52, 211, 153, 0.6), /* Inner sharp glow */
+                         0 0 6px rgba(52, 211, 153, 0.5), /* Medium glow */
+                         0 0 12px rgba(52, 211, 153, 0.3); /* Outer soft glow */
+            /* Amber Phosphor Glow (Alternative - uncomment and comment green) */
+            /* text-shadow: 0 0 2px rgba(251, 191, 36, 0.6),
+                         0 0 6px rgba(251, 191, 36, 0.5),
+                         0 0 12px rgba(251, 191, 36, 0.3); */
+        }
+
+        /* Blinking cursor style */
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .blinking-cursor {
+          animation: blink 1s step-end infinite;
+          background-color: currentColor; /* Use text color for cursor block */
+          display: inline-block;
+          width: 0.6em; /* Adjust cursor width */
+          height: 1.2em; /* Adjust cursor height */
+          margin-left: 2px;
+          vertical-align: middle; /* Align cursor nicely with text */
+        }
+
+        /* Hide default input appearance and caret */
+        #terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            caret-color: transparent; /* Hide the actual text input caret */
+            flex-grow: 1;
+            color: inherit;
+            padding: 0;
+            margin: 0;
+            line-height: inherit; /* Ensure input line height matches output */
+        }
+
+        /* Custom scrollbar for terminal output */
+        #terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        #terminal-output::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        #terminal-output::-webkit-scrollbar-thumb {
+            background-color: rgba(52, 211, 153, 0.4); /* Greenish scrollbar */
+            /* background-color: rgba(251, 191, 36, 0.4); */ /* Amber scrollbar */
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        #terminal-output::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(52, 211, 153, 0.6); /* Greenish scrollbar hover */
+            /* background-color: rgba(251, 191, 36, 0.6); */ /* Amber scrollbar hover */
+        }
+        /* Firefox scrollbar */
+        #terminal-output {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(52, 211, 153, 0.4) rgba(0, 0, 0, 0.3); /* Greenish */
+            /* scrollbar-color: rgba(251, 191, 36, 0.4) rgba(0, 0, 0, 0.3); */ /* Amber */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4 font-mono text-green-400">
+    <!-- Use text-amber-400 above and in styles for Amber theme -->
+
+    <main class="w-full max-w-4xl mx-auto">
+        <!-- CRT Monitor Bezel -->
+        <div class="bg-gray-800 p-4 sm:p-6 md:p-8 rounded-xl shadow-2xl border-4 border-gray-700">
+            <!-- CRT Screen Area -->
+            <div id="crt-screen-container" class="crt-screen relative bg-black rounded-lg overflow-hidden aspect-video shadow-inner border-2 border-black">
+                <!-- Scanline and Flicker Effect Overlay -->
+                <div class="crt-effect absolute inset-0 z-10"></div>
+
+                <!-- Terminal Content -->
+                <div class="relative z-0 p-4 sm:p-6 h-full flex flex-col phosphor-glow text-sm sm:text-base leading-relaxed">
+                    <!-- Output Area -->
+                    <div id="terminal-output" class="flex-grow overflow-y-auto mb-2 pr-2 space-y-1">
+                        <!-- Placeholder Boot Sequence -->
+                        <div>RetroTerm BIOS v1.0 Initializing...</div>
+                        <div>Memory Check: 640KB OK</div>
+                        <div>Detecting Drives... [A:] [C:]</div>
+                        <div>CMOS Checksum OK</div>
+                        <div>Booting from C:</div>
+                        <div>Starting FakeDOS...</div>
+                        <div>HACKER_PROMPT v3.1 loaded.</div>
+                        <div>(c) 1984 Cyberdyne Systems</div>
+                        <br>
+                        <div>Welcome to the Interactive CRT Terminal.</div>
+                        <div>Type 'help' for a list of commands.</div>
+                        <div>----------------------------------------</div>
+                        <!-- Dynamic content will be added here -->
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="flex items-center mt-auto" onclick="document.getElementById('terminal-input').focus();">
+                        <span id="prompt" class="shrink-0 mr-2">C:\></span>
+                        <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
+                        <span id="cursor" class="blinking-cursor"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <footer class="text-center text-gray-500 text-xs mt-4">
+            CRT Simulation by AI | Tailwind CSS & Minimal JS
+        </footer>
+    </main>
+
+    <script>
+        const terminalOutput = document.getElementById('terminal-output');
+        const terminalInput = document.getElementById('terminal-input');
+        const promptElement = document.getElementById('prompt');
+        const cursorElement = document.getElementById('cursor');
+        const crtContainer = document.getElementById('crt-screen-container');
+
+        const commandHistory = [];
+        let historyIndex = -1;
+
+        // Initial focus
+        terminalInput.focus();
+
+        // Refocus on input when clicking anywhere in the terminal screen
+        crtContainer.addEventListener('click', () => {
+            terminalInput.focus();
+        });
+
+        // Handle input
+        terminalInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const command = terminalInput.value.trim();
+                const currentPrompt = promptElement.textContent;
+
+                // Display command entered
+                const commandLine = document.createElement('div');
+                commandLine.textContent = `${currentPrompt}${command}`;
+                terminalOutput.appendChild(commandLine);
+
+                if (command) {
+                    commandHistory.push(command);
+                    historyIndex = commandHistory.length; // Reset history index
+                    processCommand(command);
+                } else {
+                     // If only enter is pressed, just add a new line with prompt
+                     const newLine = document.createElement('div');
+                     newLine.textContent = currentPrompt;
+                     // We don't add this empty line to output, just prepare for next input
+                }
+
+                // Clear input
+                terminalInput.value = '';
+
+                // Scroll to bottom
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (commandHistory.length > 0 && historyIndex > 0) {
+                    historyIndex--;
+                    terminalInput.value = commandHistory[historyIndex];
+                    // Move cursor to end of input
+                    terminalInput.setSelectionRange(terminalInput.value.length, terminalInput.value.length);
+                }
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                if (commandHistory.length > 0 && historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    terminalInput.value = commandHistory[historyIndex];
+                     // Move cursor to end of input
+                    terminalInput.setSelectionRange(terminalInput.value.length, terminalInput.value.length);
+                } else if (historyIndex === commandHistory.length - 1) {
+                    historyIndex++;
+                    terminalInput.value = ''; // Clear if at the end of history
+                }
+            }
+        });
+
+        // Simulate command processing
+        function processCommand(command) {
+            const outputLine = document.createElement('div');
+            outputLine.classList.add('mt-1'); // Add some space before response
+            let response = '';
+
+            switch (command.toLowerCase()) {
+                case 'help':
+                    response = `Available commands:
+                    'help'   - Display this help message
+                    'clear'  - Clear the terminal screen
+                    'date'   - Display the current date and time
+                    'echo [text]' - Print text to the terminal
+                    'ls'     - List dummy files
+                    'pwd'    - Print working directory (dummy)
+                    'reboot' - Simulate system reboot`;
+                    break;
+                case 'clear':
+                    // Clear only the dynamic content, keep initial boot lines if desired
+                    // Or clear everything:
+                    terminalOutput.innerHTML = '<div>Terminal cleared.</div><div>----------------------------------------</div>';
+                    // Scroll to top after clear might feel more natural
+                    terminalOutput.scrollTop = 0;
+                    return; // Skip adding response line for clear
+                case 'date':
+                    response = `Current system date/time: ${new Date().toLocaleString()}`;
+                    break;
+                case 'ls':
+                    response = ` Volume in drive C has no label.
+ Directory of C:\\
+
+CONFIG.SYS        189 04-09-91  5:00a
+COMMAND.COM     47,845 04-09-91  5:00a
+AUTOEXEC.BAT       121 04-09-91  5:00a
+GAMES           <DIR>     01-15-24 10:30p
+PROJECTS        <DIR>     01-18-24  8:15a
+README.TXT        4,096 01-20-24  2:00p
+        4 File(s)      52,251 bytes
+        2 Dir(s)   12,345,678 bytes free`;
+                    outputLine.classList.add('whitespace-pre'); // Preserve formatting
+                    break;
+                case 'pwd':
+                    response = 'C:\\';
+                    break;
+                case 'reboot':
+                    response = 'System rebooting... Please wait.';
+                    terminalOutput.appendChild(outputLine); // Show reboot message first
+                    outputLine.textContent = response;
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    // Simulate reboot after a short delay
+                    setTimeout(() => {
+                        terminalOutput.innerHTML = `<div>RetroTerm BIOS v1.0 Initializing...</div>
+                        <div>Memory Check: 640KB OK</div>
+                        <div>Detecting Drives... [A:] [C:]</div>
+                        <div>CMOS Checksum OK</div>
+                        <div>Booting from C:</div>
+                        <div>Starting FakeDOS...</div>
+                        <div>HACKER_PROMPT v3.1 loaded.</div>
+                        <div>(c) 1984 Cyberdyne Systems</div>
+                        <br>
+                        <div>Welcome back.</div>
+                        <div>----------------------------------------</div>`;
+                        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    }, 1500);
+                    return; // Don't add another response line
+                default:
+                    if (command.toLowerCase().startsWith('echo ')) {
+                        response = command.substring(5); // Get text after 'echo '
+                    } else {
+                        response = `Bad command or file name: "${command}"`;
+                    }
+                    break;
+            }
+
+            outputLine.textContent = response;
+            terminalOutput.appendChild(outputLine);
+        }
+
+        // Initial welcome message or boot sequence could be added here dynamically too
+        // Example: Add initial prompt line after boot sequence
+        // const initialPromptLine = document.createElement('div');
+        // initialPromptLine.textContent = promptElement.textContent;
+        // terminalOutput.appendChild(initialPromptLine);
+
+        // Ensure cursor visibility matches input focus
+        terminalInput.addEventListener('focus', () => {
+            cursorElement.style.display = 'inline-block';
+        });
+        terminalInput.addEventListener('blur', () => {
+            // Keep cursor blinking even when blurred for visual effect,
+            // but maybe hide it if interaction elsewhere is desired.
+            // For this demo, let's keep it blinking.
+            // cursorElement.style.display = 'none';
+        });
+
+        // Scroll to bottom initially
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+    </script>
+
+</body>
+</html>
