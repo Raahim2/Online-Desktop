@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medieval Plague Doctor Routes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for map point indicators */
+        .map-point {
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            transform-origin: center center;
+        }
+        .map-point:hover {
+            transform: scale(1.3);
+            z-index: 10; /* Ensure hover effect is visible */
+        }
+        /* Style for the currently active map point */
+        .map-point.active {
+             transform: scale(1.4);
+             background-color: #fbbf24; /* Tailwind amber-400 */
+             border-color: #f59e0b; /* Tailwind amber-500 */
+             z-index: 20; /* Ensure active point is most visible */
+        }
+        /* Style for active route list item */
+        .route-list-item.active {
+            background-color: #4b5563; /* Tailwind gray-600 */
+            color: #fde68a; /* Tailwind amber-200 */
+        }
+        /* Simple scrollbar styling for the details panel */
+        #route-details-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #route-details-container::-webkit-scrollbar-track {
+            background: #374151; /* Tailwind gray-700 */
+            border-radius: 10px;
+        }
+        #route-details-container::-webkit-scrollbar-thumb {
+            background: #6b7280; /* Tailwind gray-500 */
+            border-radius: 10px;
+        }
+        #route-details-container::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; /* Tailwind gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-300 tracking-tight">Plague Doctor Routes</h1>
+                <span class="text-xs sm:text-sm text-gray-400 hidden sm:block">Navigating Medieval Epidemics</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Map Area -->
+            <section class="lg:w-3/5 bg-gray-800 p-4 sm:p-6 rounded-lg shadow-xl relative overflow-hidden border border-gray-700">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 text-amber-200 border-b border-gray-600 pb-2">Interactive Map (Conceptual)</h2>
+                <div class="relative aspect-video bg-gray-700 rounded overflow-hidden shadow-inner">
+                    <!-- Placeholder Map Image -->
+                    <img src="https://via.placeholder.com/1000x563/4a5568/9ca3af?text=Stylized+Medieval+Europe+Map" alt="Placeholder map of Medieval Europe" class="w-full h-full object-cover opacity-80">
+
+                    <!-- Interactive Points (Example) - Adjust top/left percentages for positioning -->
+                    <!-- Point 1: Paris -->
+                    <div id="point-paris"
+                         class="map-point absolute w-3 h-3 sm:w-4 sm:h-4 bg-red-600 border-2 border-red-800 rounded-full cursor-pointer shadow-md hover:bg-red-500"
+                         style="top: 38%; left: 42%;"
+                         onclick="selectLocation('paris')"
+                         title="Paris Region (Dr. Dubois)">
+                    </div>
+                    <!-- Point 2: Florence -->
+                    <div id="point-florence"
+                         class="map-point absolute w-3 h-3 sm:w-4 sm:h-4 bg-red-600 border-2 border-red-800 rounded-full cursor-pointer shadow-md hover:bg-red-500"
+                         style="top: 62%; left: 58%;"
+                         onclick="selectLocation('florence')"
+                         title="Florence Outskirts (Dr. Rossi)">
+                    </div>
+                    <!-- Point 3: London -->
+                    <div id="point-london"
+                         class="map-point absolute w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 border-2 border-blue-800 rounded-full cursor-pointer shadow-md hover:bg-blue-500"
+                         style="top: 28%; left: 35%;"
+                         onclick="selectLocation('london')"
+                         title="London Docklands (Dr. Ainsworth - Later Period)">
+                    </div>
+                     <!-- Point 4: Marseille -->
+                     <div id="point-marseille"
+                         class="map-point absolute w-3 h-3 sm:w-4 sm:h-4 bg-green-600 border-2 border-green-800 rounded-full cursor-pointer shadow-md hover:bg-green-500"
+                         style="top: 72%; left: 48%;"
+                         onclick="selectLocation('marseille')"
+                         title="Port of Marseille (Dr. Moreau - Later Period)">
+                     </div>
+                     <!-- Point 5: Generic Central Europe -->
+                     <div id="point-central"
+                         class="map-point absolute w-3 h-3 sm:w-4 sm:h-4 bg-purple-600 border-2 border-purple-800 rounded-full cursor-pointer shadow-md hover:bg-purple-500"
+                         style="top: 45%; left: 65%;"
+                         onclick="selectLocation('central')"
+                         title="Central Europe (Generic Route)">
+                     </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 italic text-center sm:text-left">Note: Map is representational. Click coloured points for details on specific locations/periods.</p>
+            </section>
+
+            <!-- Sidebar/Details Panel -->
+            <aside class="lg:w-2/5 bg-gray-800 p-4 sm:p-6 rounded-lg shadow-xl flex flex-col border border-gray-700 max-h-[80vh] lg:max-h-[calc(100vh-12rem)]">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 text-amber-200 border-b border-gray-600 pb-2">Location Information</h2>
+
+                <!-- Route List for Navigation -->
+                <div class="mb-4 border-b border-gray-600 pb-4">
+                    <h3 class="text-base sm:text-lg font-medium mb-3 text-gray-300">Select a Location:</h3>
+                    <ul class="space-y-1.5 sm:space-y-2 text-sm sm:text-base">
+                        <li id="list-paris" class="route-list-item cursor-pointer p-2 rounded hover:bg-gray-700 hover:text-amber-300 transition duration-150 ease-in-out flex items-center gap-2" onclick="selectLocation('paris')">
+                            <span class="w-3 h-3 rounded-full bg-red-600 border border-red-800 flex-shrink-0"></span> <span class="font-semibold text-red-400">Paris</span> - Dr. Dubois (c. 1348)
+                        </li>
+                        <li id="list-florence" class="route-list-item cursor-pointer p-2 rounded hover:bg-gray-700 hover:text-amber-300 transition duration-150 ease-in-out flex items-center gap-2" onclick="selectLocation('florence')">
+                            <span class="w-3 h-3 rounded-full bg-red-600 border border-red-800 flex-shrink-0"></span> <span class="font-semibold text-red-400">Florence</span> - Dr. Rossi (c. 1349)
+                        </li>
+                        <li id="list-london" class="route-list-item cursor-pointer p-2 rounded hover:bg-gray-700 hover:text-amber-300 transition duration-150 ease-in-out flex items-center gap-2" onclick="selectLocation('london')">
+                            <span class="w-3 h-3 rounded-full bg-blue-600 border border-blue-800 flex-shrink-0"></span> <span class="font-semibold text-blue-400">London</span> - Dr. Ainsworth (c. 1665)
+                        </li>
+                         <li id="list-marseille" class="route-list-item cursor-pointer p-2 rounded hover:bg-gray-700 hover:text-amber-300 transition duration-150 ease-in-out flex items-center gap-2" onclick="selectLocation('marseille')">
+                            <span class="w-3 h-3 rounded-full bg-green-600 border border-green-800 flex-shrink-0"></span> <span class="font-semibold text-green-400">Marseille</span> - Dr. Moreau (c. 1720)
+                        </li>
+                         <li id="list-central" class="route-list-item cursor-pointer p-2 rounded hover:bg-gray-700 hover:text-amber-300 transition duration-150 ease-in-out flex items-center gap-2" onclick="selectLocation('central')">
+                            <span class="w-3 h-3 rounded-full bg-purple-600 border border-purple-800 flex-shrink-0"></span> <span class="font-semibold text-purple-400">Central Europe</span> - Generic Route
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Details Area -->
+                <div id="route-details-container" class="flex-grow overflow-y-auto pr-2 space-y-6">
+                    <!-- Default Message -->
+                    <article id="route-default" class="route-details p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-semibold text-amber-300 mb-2">Welcome</h3>
+                        <p class="text-gray-400 italic text-sm">Select a location on the map or from the list above to view details about plague doctor activities and observations during different outbreaks.</p>
+                         <img src="https://via.placeholder.com/300x180/374151/9ca3af?text=Plague+Doctor+Silhouette" alt="Silhouette of a plague doctor" class="w-full h-auto rounded mt-4 opacity-70">
+                    </article>
+
+                    <!-- Route Details (Hidden by default) -->
+                    <article id="route-paris" class="route-details hidden p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-bold text-red-400 mb-3">Paris Region - Dr. Antoine Dubois (c. 1348)</h3>
+                        <img src="https://via.placeholder.com/350x210/4A5568/cccccc?text=Paris+Plague+Scene" alt="Illustration related to Paris plague" class="w-full h-auto rounded mb-4 shadow-md border border-gray-600">
+                        <div class="space-y-2 text-sm">
+                            <p>Dr. Dubois was documented visiting afflicted households in the crowded Île de la Cité and surrounding areas during the initial devastating wave of the Black Death.</p>
+                            <p><strong class="text-gray-300">Methods Employed:</strong> Focused on traditional Galenic methods like bloodletting and purging. Used aromatic herb poultices (theriac) stuffed in the beak mask, primarily believed to ward off 'miasma' or bad air.</p>
+                            <p><strong class="text-gray-300">Observations:</strong> Noted the swift progression from fever to the appearance of painful buboes in the groin and armpits, often followed by death within days.</p>
+                            <p class="text-gray-400 italic mt-3">Survival rate among his documented patients was tragically low, reflecting the era's limited understanding of contagion.</p>
+                        </div>
+                    </article>
+
+                    <article id="route-florence" class="route-details hidden p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-bold text-red-400 mb-3">Florence Outskirts - Dr. Giovanni Rossi (c. 1349)</h3>
+                         <img src="https://via.placeholder.com/350x210/4A5568/cccccc?text=Florence+Countryside+Plague" alt="Illustration related to Florence plague" class="w-full h-auto rounded mb-4 shadow-md border border-gray-600">
+                        <div class="space-y-2 text-sm">
+                            <p>Records suggest Dr. Rossi primarily served communities outside Florence, possibly contracted by wealthy families who had fled the densely populated city, or tending to rural populations.</p>
+                            <p><strong class="text-gray-300">Treatment Approach:</strong> Besides standard practices, Rossi experimented with lancing buboes (a dangerous practice) and applying various plasters. Advised burning belongings of the deceased.</p>
+                            <p><strong class="text-gray-300">Key Insights:</strong> His fragmented notes mention the apparent connection between rats and the sickness, though the mechanism (fleas) was unknown. He observed higher mortality in poorer, denser settlements.</p>
+                            <p class="text-gray-400 italic mt-3">His writings, though brief, provide valuable epidemiological insights from the Italian peninsula during the Black Death's peak.</p>
+                        </div>
+                    </article>
+
+                    <article id="route-london" class="route-details hidden p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-bold text-blue-400 mb-3">London Docklands - Dr. Thomas Ainsworth (c. 1665)</h3>
+                         <img src="https://via.placeholder.com/350x210/4A5568/cccccc?text=Great+Plague+of+London" alt="Illustration related to London plague" class="w-full h-auto rounded mb-4 shadow-md border border-gray-600">
+                        <div class="space-y-2 text-sm">
+                            <p>Operating during the Great Plague of London, centuries after the Black Death, Dr. Ainsworth navigated the heavily affected docklands and poorer parishes like Stepney and Whitechapel.</p>
+                            <p><strong class="text-gray-300">Iconic Attire:</strong> By this era, the plague doctor costume was more standardized. Ainsworth likely wore the full waxed canvas coat, gloves, boots, wide-brimmed hat, and the famous beak mask filled with vinegar-soaked sponges and herbs.</p>
+                            <p><strong class="text-gray-300">Public Health Role:</strong> City records mention payments to Ainsworth for his services, indicating a more formalized, municipally-funded role compared to earlier periods. He likely recorded deaths and advised on rudimentary quarantine measures ('shutting up' houses).</p>
+                            <p class="text-gray-400 italic mt-3">Despite the distinctive outfit, treatments remained largely ineffective against the bacterial infection (Yersinia pestis).</p>
+                        </div>
+                    </article>
+
+                     <article id="route-marseille" class="route-details hidden p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-bold text-green-400 mb-3">Port of Marseille - Dr. Jean Moreau (c. 1720)</h3>
+                         <img src="https://via.placeholder.com/350x210/4A5568/cccccc?text=Plague+of+Marseille+1720" alt="Illustration related to Marseille plague" class="w-full h-auto rounded mb-4 shadow-md border border-gray-600">
+                        <div class="space-y-2 text-sm">
+                            <p>Dr. Moreau served during the last major bubonic plague outbreak in Western Europe, which devastated Marseille after arriving via a merchant ship from the Levant.</p>
+                            <p><strong class="text-gray-300">Quarantine & Disinfection:</strong> Faced immense public panic and a breakdown of civic order. Moreau strongly advocated for strict maritime quarantine (lazarettos) and attempted disinfection methods using vinegar fumes, sulfur smoke, and lime washing of walls.</p>
+                            <p><strong class="text-gray-300">Challenges:</strong> Dealt with overwhelming numbers of sick and dead, often supervising mass burials. His detailed clinical accounts emphasized the importance of isolating the sick, though enforcement proved extremely difficult amidst the chaos.</p>
+                            <p class="text-gray-400 italic mt-3">Moreau's work highlighted the growing understanding of contagion and the critical role of public health measures, even if the specific vector was still debated.</p>
+                        </div>
+                    </article>
+
+                    <article id="route-central" class="route-details hidden p-4 bg-gray-700 rounded-md shadow">
+                        <h3 class="text-lg font-bold text-purple-400 mb-3">Central Europe - Generic Route (Various Periods)</h3>
+                         <img src="https://via.placeholder.com/350x210/4A5568/cccccc?text=Medieval+Town+Central+Europe" alt="Illustration related to Central Europe plague" class="w-full h-auto rounded mb-4 shadow-md border border-gray-600">
+                        <div class="space-y-2 text-sm">
+                            <p>Plague doctors, often second-rate physicians or young doctors seeking experience, traveled through various towns and cities in Central Europe (Holy Roman Empire, Poland, etc.) during recurrent outbreaks from the 14th to 18th centuries.</p>
+                            <p><strong class="text-gray-300">Contracts & Compensation:</strong> They often negotiated contracts with town councils, receiving stipends, housing, and sometimes special privileges. Their duties included treating the afflicted (rich and poor), tallying deaths, and occasionally performing autopsies (often against church doctrine).</p>
+                            <p><strong class="text-gray-300">Varied Practices:</strong> Methods varied widely, influenced by local medical traditions and the specific doctor's training. Superstition and religious beliefs often intertwined with medical advice.</p>
+                            <p class="text-gray-400 italic mt-3">These itinerant doctors were often regarded with a mixture of fear and hope by the communities they served.</p>
+                        </div>
+                    </article>
+
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-12 py-6 shadow-inner border-t border-gray-700">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-xs sm:text-sm">
+            <p>&copy; 2023 Plague Route Visualizer Project. Historical data is representational and simplified for illustrative purposes.</p>
+            <p>Built entirely with HTML & Tailwind CSS. Map is conceptual.</p>
+        </div>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        const routeDetailsContainer = document.getElementById('route-details-container');
+        const allRouteDetails = routeDetailsContainer.querySelectorAll('.route-details');
+        const allMapPoints = document.querySelectorAll('.map-point');
+        const allListItems = document.querySelectorAll('.route-list-item');
+
+        function selectLocation(locationId) {
+            // Hide all detail sections first
+            allRouteDetails.forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Show the target detail section
+            const targetDetailElement = document.getElementById(`route-${locationId}`);
+            if (targetDetailElement) {
+                targetDetailElement.classList.remove('hidden');
+                 // Scroll the details container to the top when a new item is selected
+                routeDetailsContainer.scrollTop = 0;
+            } else {
+                // Fallback to default if target not found
+                document.getElementById('route-default').classList.remove('hidden');
+            }
+
+            // Update active state for map points
+            allMapPoints.forEach(point => {
+                point.classList.remove('active');
+            });
+            const targetPointElement = document.getElementById(`point-${locationId}`);
+            if (targetPointElement) {
+                targetPointElement.classList.add('active');
+            }
+
+            // Update active state for list items
+            allListItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            const targetListItemElement = document.getElementById(`list-${locationId}`);
+            if (targetListItemElement) {
+                targetListItemElement.classList.add('active');
+            }
+        }
+
+        // Initialize: Show the default message and clear any active states
+        function initializeView() {
+             selectLocation('default'); // Show default message
+             // Ensure no points or list items start as active visually
+             allMapPoints.forEach(point => point.classList.remove('active'));
+             allListItems.forEach(item => item.classList.remove('active'));
+        }
+
+        // Run initialization when the page loads
+        document.addEventListener('DOMContentLoaded', initializeView);
+
+    </script>
+
+</body>
+</html>
