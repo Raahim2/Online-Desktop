@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Tailwind CSS Wind Chime Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for custom swing animation */
+        @keyframes gentle-swing {
+          0%, 100% { transform: rotate(0deg); transform-origin: top center; }
+          50% { transform: rotate(2.5deg); transform-origin: top center; }
+        }
+        @keyframes gentle-swing-reverse {
+          0%, 100% { transform: rotate(0deg); transform-origin: top center; }
+          50% { transform: rotate(-2.5deg); transform-origin: top center; }
+        }
+        /* Continuous animation for background elements */
+        .animate-gentle-swing-slow {
+          animation: gentle-swing 6s ease-in-out infinite;
+        }
+        .animate-gentle-swing-reverse-slow {
+          animation: gentle-swing-reverse 6.5s ease-in-out infinite;
+        }
+        /* Class added on interaction for a quick swing */
+        .swing-once {
+          animation: gentle-swing 0.6s ease-in-out 1;
+        }
+        .swing-once-reverse {
+          animation: gentle-swing-reverse 0.6s ease-in-out 1;
+        }
+        /* Ensure chime elements have top origin for rotation */
+        .chime-item {
+            transform-origin: top center;
+            /* Add transition for smoother hover effects if any */
+            transition: transform 0.3s ease;
+        }
+        /* Add a subtle hover effect */
+        .chime-item:hover .tube {
+            filter: brightness(1.1);
+        }
+        .chime-item:active .tube {
+            filter: brightness(0.9);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-sky-100 via-sky-200 to-sky-300 min-h-screen flex flex-col font-sans antialiased">
+
+    <header class="text-center py-6 md:py-8 bg-white/50 backdrop-blur-md shadow-sm sticky top-0 z-20">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-sky-800 tracking-tight">Interactive Wind Chime</h1>
+        <p class="text-sky-600 mt-1 text-sm md:text-base">Click or tap the chimes!</p>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 relative overflow-hidden">
+        <!-- Background subtle elements -->
+         <div class="absolute top-1/4 left-1/4 w-16 h-16 bg-white/30 rounded-full opacity-50 filter blur-lg animate-pulse"></div>
+         <div class="absolute bottom-1/3 right-1/4 w-20 h-20 bg-white/20 rounded-full opacity-40 filter blur-xl animate-pulse animation-delay-2000"></div>
+
+        <!-- Wind Chime Structure -->
+        <div class="relative w-full max-w-sm md:max-w-md h-[550px] md:h-[650px] flex flex-col items-center pt-10">
+
+            <!-- Top Support Bar -->
+            <div class="w-4/5 md:w-3/4 h-5 bg-gradient-to-b from-yellow-700 to-yellow-900 rounded-t-lg shadow-lg mb-1 relative z-10 border-b-2 border-yellow-950/50">
+                <div class="absolute top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-500 rounded-full ring-1 ring-gray-600"></div>
+            </div>
+
+            <!-- Chimes Area -->
+            <div class="relative flex justify-center items-start gap-2 md:gap-4 h-full w-full px-2">
+
+                <!-- Chime 1 -->
+                <div class="chime-item flex flex-col items-center cursor-pointer group pt-2" onclick="animateChime(this, false)">
+                    <div class="string h-10 w-px bg-slate-600/80"></div>
+                    <div class="tube w-4 md:w-5 h-40 bg-gradient-to-b from-slate-300 to-slate-500 rounded-b shadow-md group-hover:shadow-lg transition-all duration-300 border border-slate-400/50"></div>
+                </div>
+
+                <!-- Chime 2 -->
+                <div class="chime-item flex flex-col items-center cursor-pointer group pt-5" onclick="animateChime(this, true)">
+                     <div class="string h-16 w-px bg-slate-600/80"></div>
+                    <div class="tube w-4 md:w-5 h-48 bg-gradient-to-b from-cyan-300 to-cyan-500 rounded-b shadow-md group-hover:shadow-lg transition-all duration-300 border border-cyan-400/50"></div>
+                </div>
+
+                <!-- Chime 3 (Center) -->
+                <div class="chime-item flex flex-col items-center cursor-pointer group pt-8" onclick="animateChime(this, false)">
+                     <div class="string h-20 w-px bg-slate-600/80"></div>
+                    <div class="tube w-5 md:w-6 h-56 bg-gradient-to-b from-amber-300 to-amber-500 rounded-b shadow-lg group-hover:shadow-xl transition-all duration-300 border border-amber-400/50"></div>
+                </div>
+
+                 <!-- Striker (Visual Only) -->
+                 <div class="absolute top-1/3 left-1/2 transform -translate-x-1/2 mt-16 md:mt-20 z-0 flex flex-col items-center animate-gentle-swing-slow" style="animation-duration: 7s;">
+                     <div class="string h-10 w-px bg-slate-600/80"></div>
+                     <div class="w-5 h-5 md:w-6 md:h-6 bg-gradient-radial from-gray-500 to-gray-700 rounded-full shadow-md"></div>
+                 </div>
+
+                <!-- Chime 4 -->
+                <div class="chime-item flex flex-col items-center cursor-pointer group pt-5" onclick="animateChime(this, true)">
+                     <div class="string h-16 w-px bg-slate-600/80"></div>
+                    <div class="tube w-4 md:w-5 h-48 bg-gradient-to-b from-cyan-300 to-cyan-500 rounded-b shadow-md group-hover:shadow-lg transition-all duration-300 border border-cyan-400/50"></div>
+                </div>
+
+                <!-- Chime 5 -->
+                <div class="chime-item flex flex-col items-center cursor-pointer group pt-2" onclick="animateChime(this, false)">
+                    <div class="string h-10 w-px bg-slate-600/80"></div>
+                    <div class="tube w-4 md:w-5 h-40 bg-gradient-to-b from-slate-300 to-slate-500 rounded-b shadow-md group-hover:shadow-lg transition-all duration-300 border border-slate-400/50"></div>
+                </div>
+
+                <!-- Wind Catcher / Sail -->
+                <div class="absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-gentle-swing-reverse-slow" style="animation-duration: 5s;">
+                    <div class="string h-16 md:h-20 w-px bg-slate-600/80"></div>
+                    <div class="w-16 h-20 md:w-20 md:h-24 bg-gradient-to-br from-emerald-300 via-teal-400 to-emerald-500 rounded-lg shadow-xl transform rotate-[15deg] origin-center">
+                         <div class="w-full h-full bg-white/10 rounded-lg flex items-center justify-center">
+                             </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="text-center py-4 mt-auto bg-white/50 backdrop-blur-md">
+        <p class="text-xs md:text-sm text-sky-700">&copy; 2023 Tailwind Wind Chime. Made for demonstration.</p>
+    </footer>
+
+    <script>
+        function animateChime(element, reverse) {
+            // Determine animation class based on 'reverse' flag
+            const animationClass = reverse ? 'swing-once-reverse' : 'swing-once';
+
+            // Prevent re-triggering animation if already running
+            if (element.classList.contains('swing-once') || element.classList.contains('swing-once-reverse')) {
+                return;
+            }
+
+            // Add the appropriate animation class
+            element.classList.add(animationClass);
+
+            // Set a timeout to remove the class after the animation completes (600ms)
+            // This allows the animation to be re-triggered later
+            setTimeout(() => {
+                element.classList.remove(animationClass);
+            }, 600);
+        }
+
+        // Optional: Add subtle random movement simulation to chimes on load or interval
+        // This part can be expanded but kept minimal for now
+        document.addEventListener('DOMContentLoaded', () => {
+            const chimes = document.querySelectorAll('.chime-item');
+            // Example: Give one chime a slight initial swing
+            // if (chimes.length > 2) {
+            //     setTimeout(() => animateChime(chimes[2], false), 500);
+            // }
+        });
+    </script>
+
+</body>
+</html>
