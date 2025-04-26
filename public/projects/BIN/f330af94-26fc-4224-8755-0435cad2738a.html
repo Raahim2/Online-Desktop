@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Radial Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Minimal necessary CSS for custom float animation and base bubble styles */
+      @keyframes float-y {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+
+      /* Base Bubble Styles (using standard CSS as @apply not available via CDN) */
+      .bubble {
+        position: absolute;
+        border-radius: 9999px; /* Tailwind: rounded-full */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind: shadow-lg */
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; /* Tailwind: transition-all */
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* Tailwind: ease-in-out */
+        transition-duration: 300ms; /* Tailwind: duration-300 */
+        cursor: pointer;
+        padding: 0.25rem; /* Tailwind: p-1 */
+        animation: float-y 3s ease-in-out infinite;
+        animation-delay: var(--delay, 0s); /* Staggered delay */
+        /* Base Size (Mobile First) */
+        width: 4rem; /* 64px - Tailwind w-16 */
+        height: 4rem; /* 64px - Tailwind h-16 */
+      }
+      .bubble:hover {
+        /* Tailwind hover:scale-110 handles transform */
+        animation-play-state: paused; /* Pause float animation on hover */
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Tailwind: hover:shadow-xl */
+      }
+      /* Responsive Sizes */
+      @media (min-width: 640px) { /* Tailwind: sm */
+        .bubble {
+          width: 5rem; /* 80px - Tailwind sm:w-20 */
+          height: 5rem; /* 80px - Tailwind sm:h-20 */
+        }
+      }
+      @media (min-width: 768px) { /* Tailwind: md */
+        .bubble {
+          width: 6rem; /* 96px - Tailwind md:w-24 */
+          height: 6rem; /* 96px - Tailwind md:h-24 */
+        }
+      }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans antialiased">
+
+    <main class="min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+
+        <header class="text-center mb-8 sm:mb-12">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-300">
+                Interactive Radial Dashboard
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 mt-1">Click bubbles to view details</p>
+        </header>
+
+        <!-- Dashboard Wrapper -->
+        <section aria-label="Dashboard" class="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[450px] lg:h-[450px]">
+
+            <!-- Center Circle -->
+            <div class="absolute inset-0 m-auto w-36 h-36 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-br from-blue-600 to-indigo-800 flex flex-col items-center justify-center shadow-2xl z-10 p-4 text-center border-4 border-gray-700/50">
+                <span id="central-title" class="text-xs sm:text-sm font-semibold text-indigo-100 mb-1 uppercase tracking-wider transition-opacity duration-150 ease-in-out">Overall Status</span>
+                <span id="central-value" class="text-2xl sm:text-3xl md:text-4xl font-bold text-white transition-opacity duration-150 ease-in-out">Good</span>
+            </div>
+
+            <!-- Data Bubbles -->
+            <!-- Bubble 1 (Top) -->
+            <div onclick="updateCentralDisplay('Users Online', '1,482')" style="--delay: 0.1s;"
+                 class="bubble top-[5%] left-1/2 transform -translate-x-1/2 bg-cyan-500 hover:bg-cyan-400 hover:scale-110"
+                 aria-label="Users Online: 1,482">
+                <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Users</span>
+                <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">1.4k</span>
+            </div>
+
+            <!-- Bubble 2 (Top-Right) -->
+            <div onclick="updateCentralDisplay('Server Load', '65%')" style="--delay: 0.2s;"
+                 class="bubble top-[25%] right-[5%] transform translate-x-1/2 -translate-y-1/2 bg-teal-500 hover:bg-teal-400 hover:scale-110"
+                 aria-label="Server Load: 65%">
+                 <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Load</span>
+                 <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">65%</span>
+            </div>
+
+             <!-- Bubble 3 (Bottom-Right) -->
+            <div onclick="updateCentralDisplay('Revenue', '$12.5k')" style="--delay: 0.3s;"
+                 class="bubble bottom-[25%] right-[5%] transform translate-x-1/2 translate-y-1/2 bg-emerald-500 hover:bg-emerald-400 hover:scale-110"
+                 aria-label="Revenue: $12.5k">
+                 <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Revenue</span>
+                 <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">$12k</span>
+            </div>
+
+            <!-- Bubble 4 (Bottom) -->
+            <div onclick="updateCentralDisplay('New Orders', '88')" style="--delay: 0.4s;"
+                 class="bubble bottom-[5%] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-amber-500 hover:bg-amber-400 hover:scale-110"
+                 aria-label="New Orders: 88">
+                 <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Orders</span>
+                 <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">88</span>
+            </div>
+
+             <!-- Bubble 5 (Bottom-Left) -->
+            <div onclick="updateCentralDisplay('Support Tickets', '12')" style="--delay: 0.5s;"
+                 class="bubble bottom-[25%] left-[5%] transform -translate-x-1/2 translate-y-1/2 bg-orange-500 hover:bg-orange-400 hover:scale-110"
+                 aria-label="Support Tickets: 12">
+                 <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Tickets</span>
+                 <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">12</span>
+            </div>
+
+            <!-- Bubble 6 (Top-Left) -->
+            <div onclick="updateCentralDisplay('System Health', '99%')" style="--delay: 0.6s;"
+                 class="bubble top-[25%] left-[5%] transform -translate-x-1/2 -translate-y-1/2 bg-rose-500 hover:bg-rose-400 hover:scale-110"
+                 aria-label="System Health: 99%">
+                 <span class="text-[10px] sm:text-xs md:text-sm leading-tight font-medium">Health</span>
+                 <span class="font-bold text-sm sm:text-base md:text-lg leading-tight">99%</span>
+            </div>
+
+        </section>
+
+        <footer class="mt-8 sm:mt-12 text-center text-gray-500 text-xs sm:text-sm">
+            Dashboard Concept &copy; 2023. All Rights Reserved.
+        </footer>
+
+    </main>
+
+    <script>
+        function updateCentralDisplay(title, value) {
+            const titleElement = document.getElementById('central-title');
+            const valueElement = document.getElementById('central-value');
+
+            if (titleElement && valueElement) {
+                // Add a subtle fade effect for change
+                titleElement.style.opacity = 0;
+                valueElement.style.opacity = 0;
+
+                setTimeout(() => {
+                    titleElement.innerText = title;
+                    // Make title uppercase and add spacing if needed via JS, or use Tailwind classes
+                    titleElement.classList.add('uppercase', 'tracking-wider');
+
+                    valueElement.innerText = value;
+                    titleElement.style.opacity = 1;
+                    valueElement.style.opacity = 1;
+                }, 150); // Corresponds to transition duration
+            }
+        }
+
+        // Optional: Add transitions via JS if not handled by Tailwind classes already
+        // document.addEventListener('DOMContentLoaded', () => {
+        //      const titleElement = document.getElementById('central-title');
+        //      const valueElement = document.getElementById('central-value');
+        //      if (titleElement) titleElement.style.transition = 'opacity 0.15s ease-in-out';
+        //      if (valueElement) valueElement.style.transition = 'opacity 0.15s ease-in-out';
+        // });
+        // Note: Added transition classes directly to the elements using Tailwind for simplicity.
+    </script>
+
+</body>
+</html>
