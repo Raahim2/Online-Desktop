@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Orrery & Gravity Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style block for potential custom effects if needed, otherwise keep empty */
+        /* Example: Add a subtle background animation */
+        /* @keyframes subtle-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-gradient-bg {
+            background: linear-gradient(-45deg, #1a202c, #2d3748, #1a202c, #4a5568);
+            background-size: 400% 400%;
+            animation: subtle-gradient 15s ease infinite;
+        } */
+        /* Using Tailwind's dark mode strategy */
+        :root {
+            color-scheme: dark;
+        }
+        /* Style range input tracks for better visuals */
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #4a5568; /* gray-700 */
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-moz-range-track {
+            background: #4a5568; /* gray-700 */
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #2dd4bf; /* teal-400 */
+            cursor: pointer;
+            border-radius: 50%;
+            margin-top: -6px; /* Center thumb */
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #2dd4bf; /* teal-400 */
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans leading-normal tracking-normal flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <!-- Placeholder Icon -->
+                <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h1 class="text-xl md:text-2xl font-bold text-white">Interactive Orrery</h1>
+            </div>
+            <!-- Mobile Menu Button Placeholder (Optional) -->
+            <!-- <button class="text-gray-400 hover:text-white focus:outline-none md:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button> -->
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Orrery Display Area -->
+            <section id="orrery-display" class="flex-grow lg:w-2/3 bg-black rounded-lg shadow-2xl flex items-center justify-center relative aspect-video lg:aspect-auto min-h-[300px] md:min-h-[400px] lg:min-h-[600px] overflow-hidden border border-gray-700">
+                <!-- Placeholder for the actual simulation canvas -->
+                <div class="text-center p-8">
+                    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4 animate-spin" style="animation-duration: 5s;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <h2 class="text-2xl font-semibold text-gray-500 mb-2">Simulation Area</h2>
+                    <p class="text-gray-600">The interactive orrery will be displayed here.</p>
+                    <p id="simulation-status" class="mt-4 text-sm text-cyan-400 font-mono">Status: Idle</p>
+                </div>
+                 <!-- Simulation Controls Overlay (Optional - could be here or in the sidebar) -->
+                <div class="absolute bottom-4 left-4 flex space-x-2">
+                    <button onclick="startSim()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full transition duration-150 ease-in-out shadow-md text-sm">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                        Start
+                    </button>
+                    <button onclick="pauseSim()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-full transition duration-150 ease-in-out shadow-md text-sm">
+                         <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                        Pause
+                    </button>
+                    <button onclick="resetSim()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition duration-150 ease-in-out shadow-md text-sm">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                        Reset
+                    </button>
+                </div>
+            </section>
+
+            <!-- Controls Sidebar -->
+            <aside id="controls" class="lg:w-1/3 bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col gap-6 h-fit sticky top-[80px]">
+                <h2 class="text-xl font-semibold mb-2 border-b border-gray-700 pb-3 text-cyan-300">Simulation Controls</h2>
+
+                <!-- Gravity Constant -->
+                <div class="space-y-2">
+                    <label for="gravity-strength" class="block text-sm font-medium text-gray-300">Gravitational Constant (G)</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="gravity-strength" name="gravity-strength" min="0.1" max="10" step="0.1" value="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                        <span id="gravity-value" class="text-sm font-mono text-cyan-400 w-10 text-right">1.0</span>
+                    </div>
+                </div>
+
+                <!-- Number of Bodies -->
+                <div class="space-y-2">
+                    <label for="num-bodies" class="block text-sm font-medium text-gray-300">Number of Planets</label>
+                    <input type="number" id="num-bodies" name="num-bodies" min="1" max="20" value="3" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-cyan-500 focus:border-cyan-500 text-sm">
+                </div>
+
+                <!-- Time Scale -->
+                <div class="space-y-2">
+                    <label for="time-scale" class="block text-sm font-medium text-gray-300">Time Scale</label>
+                     <div class="flex items-center gap-3">
+                        <input type="range" id="time-scale" name="time-scale" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                        <span id="time-scale-value" class="text-sm font-mono text-cyan-400 w-10 text-right">1.0x</span>
+                    </div>
+                </div>
+
+                 <!-- Simulation Preset -->
+                <div class="space-y-2">
+                    <label for="preset-select" class="block text-sm font-medium text-gray-300">Load Preset System</label>
+                    <select id="preset-select" name="preset-select" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-cyan-500 focus:border-cyan-500 text-sm">
+                        <option value="solar">Solar System (Simplified)</option>
+                        <option value="binary">Binary Star</option>
+                        <option value="random">Random Stable</option>
+                        <option value="custom">Custom (Use Controls)</option>
+                    </select>
+                </div>
+
+                <!-- Trail Length -->
+                <div class="space-y-2">
+                    <label for="trail-length" class="block text-sm font-medium text-gray-300">Orbit Trail Length</label>
+                     <div class="flex items-center gap-3">
+                        <input type="range" id="trail-length" name="trail-length" min="0" max="500" step="10" value="100" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                        <span id="trail-length-value" class="text-sm font-mono text-cyan-400 w-12 text-right">100</span>
+                    </div>
+                </div>
+
+                 <!-- Add Body Button (Placeholder) -->
+                 <button onclick="addBody()" class="w-full mt-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-md text-sm">
+                    Add Custom Planet (Placeholder)
+                </button>
+
+            </aside>
+        </div>
+
+        <!-- Information Section -->
+        <section id="info" class="mt-12 bg-gray-800/50 p-6 rounded-lg shadow-lg border border-gray-700/50">
+            <h2 class="text-xl font-semibold mb-4 text-cyan-300">About This Simulator</h2>
+            <div class="space-y-4 text-gray-300 text-sm md:text-base">
+                <p>
+                    This interactive orrery provides a simplified visual representation of celestial bodies moving under the influence of mutual gravitational attraction. An orrery is a mechanical model of the solar system that illustrates the relative positions and motions of the planets and moons.
+                </p>
+                <p>
+                    Use the controls to customize the simulation parameters. Adjust the <strong class="font-semibold text-cyan-400">Gravitational Constant (G)</strong> to see how it affects orbital speeds and stability. Change the <strong class="font-semibold text-cyan-400">Number of Planets</strong> or load different <strong class="font-semibold text-cyan-400">Preset Systems</strong>. The <strong class="font-semibold text-cyan-400">Time Scale</strong> allows you to speed up or slow down the simulation.
+                </p>
+                <p class="text-xs text-gray-400">
+                    Note: This is a visual demonstration and may not represent perfectly accurate physics. The simulation logic itself is not implemented in this HTML/CSS-only prototype. The buttons provide basic interaction feedback via console logs and status updates.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 w-full bg-gray-800 text-center py-4 border-t border-gray-700">
+        <p class="text-gray-500 text-sm">&copy; 2023 Interactive Orrery Project. All Rights Reserved (Placeholder).</p>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        const statusElement = document.getElementById('simulation-status');
+
+        function updateStatus(message) {
+            if (statusElement) {
+                statusElement.innerText = `Status: ${message}`;
+            }
+            console.log(`Simulation Status: ${message}`);
+        }
+
+        function startSim() {
+            updateStatus('Running');
+            // Placeholder: Add logic to start the actual simulation visualization
+        }
+
+        function pauseSim() {
+            updateStatus('Paused');
+            // Placeholder: Add logic to pause the simulation visualization
+        }
+
+        function resetSim() {
+            updateStatus('Resetting...');
+            // Placeholder: Add logic to reset the simulation visualization
+            // Reset control values to default (optional)
+            document.getElementById('gravity-strength').value = 1;
+            document.getElementById('gravity-value').textContent = '1.0';
+            document.getElementById('num-bodies').value = 3;
+            document.getElementById('time-scale').value = 1;
+            document.getElementById('time-scale-value').textContent = '1.0x';
+            document.getElementById('preset-select').value = 'solar';
+            document.getElementById('trail-length').value = 100;
+            document.getElementById('trail-length-value').textContent = '100';
+            setTimeout(() => updateStatus('Idle'), 200); // Simulate reset delay
+        }
+
+        function addBody() {
+            console.log('Add Custom Planet button clicked (Placeholder)');
+            alert('Functionality to add a custom planet is not implemented in this prototype.');
+            updateStatus('Idle (Add Body Attempted)');
+        }
+
+        // Update displayed values for range inputs
+        const gravityInput = document.getElementById('gravity-strength');
+        const gravityValue = document.getElementById('gravity-value');
+        gravityInput.addEventListener('input', (event) => {
+            gravityValue.textContent = parseFloat(event.target.value).toFixed(1);
+        });
+
+        const timeScaleInput = document.getElementById('time-scale');
+        const timeScaleValue = document.getElementById('time-scale-value');
+        timeScaleInput.addEventListener('input', (event) => {
+            timeScaleValue.textContent = parseFloat(event.target.value).toFixed(1) + 'x';
+        });
+
+        const trailLengthInput = document.getElementById('trail-length');
+        const trailLengthValue = document.getElementById('trail-length-value');
+        trailLengthInput.addEventListener('input', (event) => {
+            trailLengthValue.textContent = event.target.value;
+        });
+
+        // Initial status update
+        document.addEventListener('DOMContentLoaded', () => {
+             updateStatus('Idle');
+             // Set initial values on load just in case
+             gravityValue.textContent = parseFloat(gravityInput.value).toFixed(1);
+             timeScaleValue.textContent = parseFloat(timeScaleInput.value).toFixed(1) + 'x';
+             trailLengthValue.textContent = trailLengthInput.value;
+        });
+
+    </script>
+
+</body>
+</html>
