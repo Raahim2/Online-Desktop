@@ -94,5 +94,17 @@
       "Option to animate shape transitions."
     ],
     "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique, generative abstract art pieces with customizable color palettes and geometric shapes.\nFeatures:\n- Adjustable color palettes using HSL sliders.\n- Randomly generated geometric shapes (circles, squares, triangles).\n- Customizable canvas size and shape density.\n- Downloadable SVG of the generated artwork.\n- Option to animate shape transitions.\n"
+  },
+  {
+    "name": "Minimalist Idea Board",
+    "description": "A clean and simple digital idea board for brainstorming and organizing thoughts visually.",
+    "features": [
+      "Draggable and resizable sticky notes with customizable colors.",
+      "Text input within sticky notes for adding content.",
+      "Option to save the board state to local storage.",
+      "Double-click to create new sticky notes anywhere on the board.",
+      "Simple delete button on each note."
+    ],
+    "raw_output": "Project Name: Minimalist Idea Board\nDescription: A clean and simple digital idea board for brainstorming and organizing thoughts visually.\nFeatures:\n- Draggable and resizable sticky notes with customizable colors.\n- Text input within sticky notes for adding content.\n- Option to save the board state to local storage.\n- Double-click to create new sticky notes anywhere on the board.\n- Simple delete button on each note.\n"
   }
 ]
