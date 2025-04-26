@@ -106,5 +106,17 @@
       "Simple delete button on each note."
     ],
     "raw_output": "Project Name: Minimalist Idea Board\nDescription: A clean and simple digital idea board for brainstorming and organizing thoughts visually.\nFeatures:\n- Draggable and resizable sticky notes with customizable colors.\n- Text input within sticky notes for adding content.\n- Option to save the board state to local storage.\n- Double-click to create new sticky notes anywhere on the board.\n- Simple delete button on each note.\n"
+  },
+  {
+    "name": "Browser-Based Code Breaker Game",
+    "description": "Crack the secret code by strategically guessing the correct color combination within a limited number of attempts.",
+    "features": [
+      "Customizable code length and color palette.",
+      "Real-time feedback on guess accuracy (correct color and position).",
+      "Game statistics tracking (number of guesses, win/loss).",
+      "Option to reveal the secret code after a loss.",
+      "Simple, clean UI built with Tailwind CSS."
+    ],
+    "raw_output": "Project Name: Browser-Based Code Breaker Game\nDescription: Crack the secret code by strategically guessing the correct color combination within a limited number of attempts.\nFeatures:\n- Customizable code length and color palette.\n- Real-time feedback on guess accuracy (correct color and position).\n- Game statistics tracking (number of guesses, win/loss).\n- Option to reveal the secret code after a loss.\n- Simple, clean UI built with Tailwind CSS.\n"
   }
 ]
