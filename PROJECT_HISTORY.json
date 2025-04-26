@@ -58,5 +58,17 @@
       "Option to save the generated color palette to local storage."
     ],
     "raw_output": "Project Name: Mood Ring Color Mixer\nDescription: An interactive color palette generator that blends colors based on selected emotional keywords, creating a personalized \"mood ring\" visual.\nFeatures:\n- Selectable emotion keywords (e.g., happy, calm, energetic).\n- Dynamic color blending based on chosen emotions.\n- Display of the resulting blended color as a large circle.\n- Hex code output of the generated color.\n- Option to save the generated color palette to local storage.\n"
+  },
+  {
+    "name": "Kinetic Typography Playground",
+    "description": "Create and animate text with dynamic effects using simple controls, bringing words to life on the screen.",
+    "features": [
+      "Adjustable font styles, sizes, and colors.",
+      "Animation presets (wave, bounce, rotate, etc.).",
+      "Customizable animation speed and easing.",
+      "Interactive controls to trigger animations on mouse hover or click.",
+      "Downloadable animated text as a GIF (using a library like gif.js, which doesn't require an API key)."
+    ],
+    "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Create and animate text with dynamic effects using simple controls, bringing words to life on the screen.\nFeatures:\n- Adjustable font styles, sizes, and colors.\n- Animation presets (wave, bounce, rotate, etc.).\n- Customizable animation speed and easing.\n- Interactive controls to trigger animations on mouse hover or click.\n- Downloadable animated text as a GIF (using a library like gif.js, which doesn't require an API key).\n"
   }
 ]
