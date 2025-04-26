@@ -22,5 +22,17 @@
       "Shareable link to the generated mood ring."
     ],
     "raw_output": "Project Name: Mood Ring Generator\nDescription: Create and customize digital mood rings, visualizing emotions through dynamic color gradients.\nFeatures:\n- Interactive slider to select a mood value.\n- Real-time gradient generation based on mood input.\n- Customizable ring shape and size using Tailwind CSS.\n- Option to save the generated mood ring as an image.\n- Shareable link to the generated mood ring.\n"
+  },
+  {
+    "name": "Kinetic Typography Playground",
+    "description": "Experiment with animating text using simple physics and customizable parameters.",
+    "features": [
+      "Adjust gravity, bounciness, and friction to influence text motion.",
+      "Input custom text strings to animate.",
+      "Choose from a variety of Tailwind-styled fonts and colors.",
+      "Toggle different animation styles (e.g., bouncing, falling, orbiting).",
+      "Download the animated text as a GIF (using a simple JS library \u2013 this is an exception but keeps the project self-contained and doesn't require external services)."
+    ],
+    "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Experiment with animating text using simple physics and customizable parameters.\nFeatures:\n- Adjust gravity, bounciness, and friction to influence text motion.\n- Input custom text strings to animate.\n- Choose from a variety of Tailwind-styled fonts and colors.\n- Toggle different animation styles (e.g., bouncing, falling, orbiting).\n- Download the animated text as a GIF (using a simple JS library \u2013 this is an exception but keeps the project self-contained and doesn't require external services). \n"
   }
 ]
