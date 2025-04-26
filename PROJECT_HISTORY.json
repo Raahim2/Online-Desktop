@@ -70,5 +70,17 @@
       "Randomization feature for unexpected designs."
     ],
     "raw_output": "Project Name: Geometric Pattern Weaver\nDescription: Design and generate intricate geometric patterns using a simple, interactive interface.\nFeatures:\n- Adjustable grid size and shape.\n- Customizable tile colors and rotations.\n- Preset pattern templates for inspiration.\n- Downloadable SVG of the generated pattern.\n- Randomization feature for unexpected designs.\n"
+  },
+  {
+    "name": "CSS Shadow Puppet Theater",
+    "description": "Create and animate interactive shadow puppets using CSS filters and transforms, putting on a mini-play right in the browser.",
+    "features": [
+      "Pre-designed puppet characters with adjustable limbs.",
+      "Draggable puppets across the \"stage\" area.",
+      "Adjustable light source to change shadow angles and size.",
+      "Simple animation controls to create puppet movements.",
+      "Customizable background scenes."
+    ],
+    "raw_output": "Project Name: CSS Shadow Puppet Theater\nDescription: Create and animate interactive shadow puppets using CSS filters and transforms, putting on a mini-play right in the browser.\nFeatures:\n- Pre-designed puppet characters with adjustable limbs.\n- Draggable puppets across the \"stage\" area.\n- Adjustable light source to change shadow angles and size.\n- Simple animation controls to create puppet movements.\n- Customizable background scenes.\n"
   }
 ]
