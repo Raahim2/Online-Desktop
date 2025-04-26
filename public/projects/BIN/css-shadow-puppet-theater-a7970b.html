@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Shadow Puppet Theater</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles */
+        .puppet {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            /* Base size - can be adjusted */
+            width: 100px;
+            height: 150px;
+            /* Default shadow - will be updated by JS */
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.7));
+            transform-origin: bottom center; /* For potential scaling/base rotation */
+        }
+        .puppet.dragging {
+            cursor: grabbing;
+            z-index: 1000; /* Bring dragged puppet to front */
+        }
+        .puppet-part {
+            position: absolute;
+            background-color: #333; /* Dark silhouette color */
+            /* border: 1px solid #444; */ /* Optional outline for clarity during dev */
+            transform-origin: center center; /* Default, override for limbs */
+        }
+        .head {
+            width: 30%; height: 20%;
+            top: 0; left: 35%;
+            border-radius: 50%;
+        }
+        .torso {
+            width: 40%; height: 40%;
+            top: 20%; left: 30%;
+            border-radius: 10px 10px 0 0;
+        }
+        .arm {
+            width: 15%; height: 45%;
+            top: 25%;
+            border-radius: 10px;
+            transform-origin: top center; /* Rotate from shoulder */
+        }
+        .arm.left { left: 18%; }
+        .arm.right { left: 67%; }
+        .leg {
+            width: 18%; height: 50%;
+            top: 60%;
+            border-radius: 10px;
+            transform-origin: top center; /* Rotate from hip */
+        }
+        .leg.left { left: 25%; }
+        .leg.right { left: 57%; }
+
+        /* Stage background */
+        #stage {
+            background-color: #f0e6d2; /* Default parchment */
+            background-size: cover;
+            background-position: center;
+            position: relative; /* Needed for absolute positioning of puppets */
+            overflow: hidden; /* Keep puppets inside */
+            min-height: 400px; /* Minimum height */
+        }
+
+        /* Simple animation */
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-30deg); }
+        }
+        .animate-wave .arm.right {
+            animation: wave 1.5s ease-in-out infinite;
+        }
+
+        @keyframes walk {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+        }
+         .animate-walk .leg.left {
+            animation: walk 1s linear infinite;
+         }
+         .animate-walk .leg.right {
+            animation: walk 1s linear infinite reverse;
+         }
+
+        /* Light source representation */
+        #light-source-control {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: yellow;
+            border-radius: 50%;
+            border: 2px solid orange;
+            cursor: move;
+            z-index: 10; /* Above stage background but below puppets */
+            box-shadow: 0 0 15px 5px rgba(255, 255, 0, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex flex-col min-h-screen">
+
+        <header class="bg-gray-800 text-white p-4 shadow-md">
+            <h1 class="text-2xl font-bold text-center">CSS Shadow Puppet Theater</h1>
+        </header>
+
+        <main class="flex-grow container mx-auto p-4 flex flex-col lg:flex-row gap-4">
+
+            <!-- Control Panel -->
+            <aside class="w-full lg:w-1/4 bg-white p-4 rounded-lg shadow-lg order-2 lg:order-1">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">Controls</h2>
+
+                <div class="space-y-4">
+                    <!-- Puppet Selection (for future expansion) -->
+                    <!-- <div>
+                        <label for="puppet-select" class="block text-sm font-medium text-gray-700 mb-1">Active Puppet:</label>
+                        <select id="puppet-select" class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="puppet1">Puppet 1</option>
+                             Add more puppets as needed
+                        </select>
+                    </div> -->
+
+                    <!-- Limb Controls -->
+                    <div id="limb-controls" class="space-y-2">
+                        <h3 class="font-semibold text-gray-800">Limb Adjustments (Puppet 1)</h3>
+                        <div>
+                            <label for="limb-head" class="block text-sm font-medium text-gray-700">Head Tilt:</label>
+                            <input type="range" id="limb-head" min="-45" max="45" value="0" data-puppet="puppet1" data-part="head" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer limb-slider">
+                        </div>
+                        <div>
+                            <label for="limb-arm-left" class="block text-sm font-medium text-gray-700">Left Arm:</label>
+                            <input type="range" id="limb-arm-left" min="-160" max="60" value="0" data-puppet="puppet1" data-part="arm.left" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer limb-slider">
+                        </div>
+                        <div>
+                            <label for="limb-arm-right" class="block text-sm font-medium text-gray-700">Right Arm:</label>
+                            <input type="range" id="limb-arm-right" min="-160" max="60" value="0" data-puppet="puppet1" data-part="arm.right" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer limb-slider">
+                        </div>
+                        <div>
+                            <label for="limb-leg-left" class="block text-sm font-medium text-gray-700">Left Leg:</label>
+                            <input type="range" id="limb-leg-left" min="-45" max="45" value="0" data-puppet="puppet1" data-part="leg.left" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer limb-slider">
+                        </div>
+                         <div>
+                            <label for="limb-leg-right" class="block text-sm font-medium text-gray-700">Right Leg:</label>
+                            <input type="range" id="limb-leg-right" min="-45" max="45" value="0" data-puppet="puppet1" data-part="leg.right" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer limb-slider">
+                        </div>
+                    </div>
+
+                    <!-- Light Source Controls -->
+                    <div class="space-y-2 border-t pt-4">
+                        <h3 class="font-semibold text-gray-800">Light Source</h3>
+                         <p class="text-xs text-gray-500 mb-2">Drag the yellow circle on the stage or use sliders.</p>
+                        <div>
+                            <label for="light-x" class="block text-sm font-medium text-gray-700">Horizontal Position (X):</label>
+                            <input type="range" id="light-x" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer light-slider">
+                        </div>
+                        <div>
+                            <label for="light-y" class="block text-sm font-medium text-gray-700">Vertical Position (Y):</label>
+                            <input type="range" id="light-y" min="0" max="100" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer light-slider">
+                        </div>
+                        <div>
+                            <label for="light-blur" class="block text-sm font-medium text-gray-700">Shadow Blur:</label>
+                            <input type="range" id="light-blur" min="1" max="20" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer light-slider">
+                        </div>
+                         <div>
+                            <label for="light-intensity" class="block text-sm font-medium text-gray-700">Shadow Intensity:</label>
+                            <input type="range" id="light-intensity" min="0.1" max="1" step="0.1" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer light-slider">
+                        </div>
+                    </div>
+
+                    <!-- Animation Controls -->
+                    <div class="space-y-2 border-t pt-4">
+                        <h3 class="font-semibold text-gray-800">Animation</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="anim-wave" data-anim-class="animate-wave" class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition duration-150 anim-button">Wave</button>
+                            <button id="anim-walk" data-anim-class="animate-walk" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition duration-150 anim-button">Walk</button>
+                            <button id="anim-stop" class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition duration-150">Stop All</button>
+                        </div>
+                    </div>
+
+                    <!-- Background Controls -->
+                    <div class="space-y-2 border-t pt-4">
+                        <h3 class="font-semibold text-gray-800">Background Scene</h3>
+                        <select id="background-select" class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="#f0e6d2">Parchment</option>
+                            <option value="#a0d2eb">Day Sky</option>
+                            <option value="#1e3a8a">Night Sky</option>
+                            <option value="url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80')">Misty Forest</option>
+                             <option value="url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80')">Grassy Field</option>
+                        </select>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Stage Area -->
+            <section id="stage-container" class="w-full lg:w-3/4 bg-white rounded-lg shadow-lg order-1 lg:order-2 flex items-center justify-center p-2">
+                 <div id="stage" class="w-full h-full border-4 border-gray-700 rounded relative">
+                    <!-- Light Source Visual Representation -->
+                    <div id="light-source-control" style="top: 10px; left: calc(50% - 10px);"></div>
+
+                    <!-- Puppets -->
+                    <div id="puppet1" class="puppet" style="left: 30%; top: 40%;">
+                        <div class="puppet-part head"></div>
+                        <div class="puppet-part torso"></div>
+                        <div class="puppet-part arm left"></div>
+                        <div class="puppet-part arm right"></div>
+                        <div class="puppet-part leg left"></div>
+                        <div class="puppet-part leg right"></div>
+                    </div>
+                     <!-- Add more puppets here if needed -->
+                     <!-- <div id="puppet2" class="puppet" style="left: 60%; top: 45%;"> ... </div> -->
+
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="bg-gray-800 text-white text-center p-3 mt-4 text-sm">
+            Created with HTML, Tailwind CSS, and JavaScript.
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stage = document.getElementById('stage');
+            const puppets = document.querySelectorAll('.puppet');
+            const limbSliders = document.querySelectorAll('.limb-slider');
+            const lightSliders = document.querySelectorAll('.light-slider');
+            const backgroundSelect = document.getElementById('background-select');
+            const animButtons = document.querySelectorAll('.anim-button');
+            const stopAnimButton = document.getElementById('anim-stop');
+            const lightSourceControl = document.getElementById('light-source-control');
+
+            let activePuppet = null; // The puppet currently being dragged
+            let offsetX, offsetY; // Offset for dragging calculation
+
+            let lightState = {
+                x: 50, // percentage
+                y: 0,  // percentage
+                blur: 5, // px
+                intensity: 0.7 // alpha
+            };
+
+            // --- Dragging Puppets ---
+            function onMouseDown(e) {
+                // Prevent dragging images/text, especially on mobile
+                e.preventDefault();
+
+                // Use currentTarget to ensure we get the .puppet element
+                activePuppet = e.currentTarget;
+                activePuppet.classList.add('dragging');
+
+                const rect = activePuppet.getBoundingClientRect();
+                const stageRect = stage.getBoundingClientRect();
+
+                // Calculate offset from mouse click to puppet's top-left corner
+                // Use e.clientX/Y for mouse position relative to viewport
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+
+            function onMouseMove(e) {
+                if (!activePuppet) return;
+
+                const stageRect = stage.getBoundingClientRect();
+
+                // Calculate new top and left relative to the stage
+                let newX = e.clientX - stageRect.left - offsetX;
+                let newY = e.clientY - stageRect.top - offsetY;
+
+                // Constrain puppet within stage boundaries
+                const puppetRect = activePuppet.getBoundingClientRect();
+                newX = Math.max(0, Math.min(newX, stageRect.width - puppetRect.width));
+                newY = Math.max(0, Math.min(newY, stageRect.height - puppetRect.height));
+
+                activePuppet.style.left = `${newX}px`;
+                activePuppet.style.top = `${newY}px`;
+
+                updateAllShadows(); // Update shadows while dragging
+            }
+
+            function onMouseUp() {
+                if (activePuppet) {
+                    activePuppet.classList.remove('dragging');
+                }
+                activePuppet = null;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+
+            puppets.forEach(puppet => {
+                puppet.addEventListener('mousedown', onMouseDown);
+                // Prevent browser's default drag behavior
+                puppet.addEventListener('dragstart', (e) => e.preventDefault());
+            });
+
+
+            // --- Limb Adjustment ---
+            limbSliders.forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    const puppetId = e.target.dataset.puppet;
+                    const partSelector = e.target.dataset.part; // e.g., "arm.left"
+                    const value = e.target.value;
+                    const puppet = document.getElementById(puppetId);
+                    if (puppet) {
+                        // Handle multi-class selectors like "arm.left"
+                        const targetPart = puppet.querySelector(`.${partSelector.replace('.', '.')}`);
+                        if (targetPart) {
+                            targetPart.style.transform = `rotate(${value}deg)`;
+                        }
+                    }
+                });
+            });
+
+            // --- Light Source & Shadows ---
+            function updateShadows(puppet) {
+                const stageRect = stage.getBoundingClientRect();
+                if (!stageRect.width || !stageRect.height) return; // Avoid division by zero if stage not rendered
+
+                // Calculate light source position in pixels relative to stage top-left
+                const lightPixelX = (lightState.x / 100) * stageRect.width;
+                const lightPixelY = (lightState.y / 100) * stageRect.height;
+
+                const puppetRect = puppet.getBoundingClientRect();
+                // Calculate puppet center relative to stage top-left
+                const puppetCenterX = (puppetRect.left - stageRect.left) + (puppetRect.width / 2);
+                const puppetCenterY = (puppetRect.top - stageRect.top) + (puppetRect.height / 2);
+
+                // Vector from light to puppet center
+                const deltaX = puppetCenterX - lightPixelX;
+                const deltaY = puppetCenterY - lightPixelY;
+
+                // Basic shadow offset calculation (opposite direction)
+                // Scale offset based on distance? Let's keep it simpler for now.
+                const shadowOffsetX = -deltaX * 0.1; // Adjust multiplier for desired effect
+                const shadowOffsetY = -deltaY * 0.1; // Adjust multiplier for desired effect
+
+                const shadowColor = `rgba(0, 0, 0, ${lightState.intensity})`;
+                const shadowBlur = `${lightState.blur}px`;
+
+                puppet.style.filter = `drop-shadow(${shadowOffsetX.toFixed(1)}px ${shadowOffsetY.toFixed(1)}px ${shadowBlur} ${shadowColor})`;
+            }
+
+            function updateAllShadows() {
+                puppets.forEach(updateShadows);
+            }
+
+            function updateLightFromSliders() {
+                lightState.x = parseFloat(document.getElementById('light-x').value);
+                lightState.y = parseFloat(document.getElementById('light-y').value);
+                lightState.blur = parseFloat(document.getElementById('light-blur').value);
+                lightState.intensity = parseFloat(document.getElementById('light-intensity').value);
+
+                 // Update visual light source position based on sliders
+                const stageRect = stage.getBoundingClientRect();
+                if (stageRect.width && stageRect.height) {
+                    lightSourceControl.style.left = `calc(${lightState.x}% - ${lightSourceControl.offsetWidth / 2}px)`;
+                    lightSourceControl.style.top = `calc(${lightState.y}% - ${lightSourceControl.offsetHeight / 2}px)`;
+                }
+
+                updateAllShadows();
+            }
+
+            lightSliders.forEach(slider => {
+                slider.addEventListener('input', updateLightFromSliders);
+            });
+
+            // --- Draggable Light Source Control ---
+            let isDraggingLight = false;
+            let lightOffsetX, lightOffsetY;
+
+            function onLightMouseDown(e) {
+                e.preventDefault();
+                isDraggingLight = true;
+                lightSourceControl.style.cursor = 'grabbing';
+                const rect = lightSourceControl.getBoundingClientRect();
+                lightOffsetX = e.clientX - rect.left;
+                lightOffsetY = e.clientY - rect.top;
+                document.addEventListener('mousemove', onLightMouseMove);
+                document.addEventListener('mouseup', onLightMouseUp);
+            }
+
+            function onLightMouseMove(e) {
+                if (!isDraggingLight) return;
+                const stageRect = stage.getBoundingClientRect();
+
+                let newX = e.clientX - stageRect.left - lightOffsetX;
+                let newY = e.clientY - stageRect.top - lightOffsetY;
+
+                // Constrain within stage
+                newX = Math.max(0, Math.min(newX, stageRect.width - lightSourceControl.offsetWidth));
+                newY = Math.max(0, Math.min(newY, stageRect.height - lightSourceControl.offsetHeight));
+
+                lightSourceControl.style.left = `${newX}px`;
+                lightSourceControl.style.top = `${newY}px`;
+
+                // Update light state percentage based on pixel position
+                lightState.x = ((newX + lightSourceControl.offsetWidth / 2) / stageRect.width) * 100;
+                lightState.y = ((newY + lightSourceControl.offsetHeight / 2) / stageRect.height) * 100;
+
+                // Update sliders to reflect dragged position
+                document.getElementById('light-x').value = lightState.x;
+                document.getElementById('light-y').value = lightState.y;
+
+                updateAllShadows();
+            }
+
+            function onLightMouseUp() {
+                isDraggingLight = false;
+                lightSourceControl.style.cursor = 'move';
+                document.removeEventListener('mousemove', onLightMouseMove);
+                document.removeEventListener('mouseup', onLightMouseUp);
+            }
+
+            lightSourceControl.addEventListener('mousedown', onLightMouseDown);
+
+
+            // --- Background Selection ---
+            backgroundSelect.addEventListener('change', (e) => {
+                const value = e.target.value;
+                if (value.startsWith('url')) {
+                    stage.style.backgroundImage = value;
+                    stage.style.backgroundColor = ''; // Clear background color if image is set
+                } else {
+                    stage.style.backgroundColor = value;
+                    stage.style.backgroundImage = ''; // Clear background image if color is set
+                }
+            });
+
+            // --- Animation Controls ---
+            function stopAllAnimations() {
+                 // Currently only puppet1 is animated
+                const puppet1 = document.getElementById('puppet1');
+                if(puppet1) {
+                    puppet1.classList.remove('animate-wave', 'animate-walk');
+                    // Reset limb transforms potentially affected by animation? Or let sliders control?
+                    // For simplicity, let sliders be the source of truth after stopping.
+                }
+            }
+
+            animButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    stopAllAnimations(); // Stop others before starting a new one
+                    const animClass = e.target.dataset.animClass;
+                    const puppet1 = document.getElementById('puppet1'); // Target specific puppet
+                     if(puppet1) {
+                        puppet1.classList.add(animClass);
+                    }
+                });
+            });
+
+            stopAnimButton.addEventListener('click', stopAllAnimations);
+
+            // --- Initial Setup ---
+            function initialize() {
+                // Set initial puppet positions if needed (already done via style attr)
+                // Set initial limb positions based on sliders (already default to 0)
+                updateLightFromSliders(); // Set initial light/shadow based on default slider values
+                // Set initial background
+                const initialBg = backgroundSelect.value;
+                 if (initialBg.startsWith('url')) {
+                    stage.style.backgroundImage = initialBg;
+                } else {
+                    stage.style.backgroundColor = initialBg;
+                }
+            }
+
+            // Call initialization function
+            initialize();
+
+             // Update shadows on window resize as percentages change pixel values
+            window.addEventListener('resize', () => {
+                updateLightFromSliders(); // Recalculates light pos and shadows
+            });
+
+        });
+    </script>
+
+</body>
+</html>
