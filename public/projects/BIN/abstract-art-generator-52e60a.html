@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Art Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better range input appearance */
+        input[type=range] {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 100%; /* Full width */
+            height: 8px; /* Specified height */
+            background: #e5e7eb; /* Grey background */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Cursor on hover */
+            outline: none; /* Remove outline */
+            transition: background 0.15s ease-in-out;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 16px; /* Thumb width */
+            height: 16px; /* Thumb height */
+            background: #4f46e5; /* Indigo thumb */
+            border-radius: 50%; /* Circular thumb */
+            cursor: pointer; /* Cursor on hover */
+            border: none; /* No border */
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 16px; /* Thumb width */
+            height: 16px; /* Thumb height */
+            background: #4f46e5; /* Indigo thumb */
+            border-radius: 50%; /* Circular thumb */
+            cursor: pointer; /* Cursor on hover */
+            border: none; /* No border */
+        }
+
+         input[type=range]:hover {
+             background: #d1d5db; /* Lighter grey on hover */
+         }
+
+         input[type=range]:active::-webkit-slider-thumb {
+             background: #4338ca; /* Darker indigo when active */
+         }
+
+         input[type=range]:active::-moz-range-thumb {
+             background: #4338ca; /* Darker indigo when active */
+         }
+
+         /* Style for color input */
+        input[type=color] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 40px;
+            background-color: transparent; /* Make background transparent */
+            border: 1px solid #d1d5db; /* Add border */
+            border-radius: 0.375rem; /* Match other inputs */
+            cursor: pointer;
+            padding: 0; /* Remove padding */
+        }
+        input[type=color]::-webkit-color-swatch-wrapper {
+            padding: 4px; /* Inner padding for the swatch */
+             border-radius: 0.375rem;
+        }
+        input[type=color]::-webkit-color-swatch {
+            border: none;
+            border-radius: 0.25rem; /* Slightly smaller radius for swatch */
+        }
+         input[type=color]::-moz-color-swatch {
+             border: none;
+             border-radius: 0.25rem;
+             padding: 4px;
+         }
+
+        /* Transition for shapes */
+        .shape-transition {
+            transition: transform 0.5s ease-in-out, fill 0.5s ease-in-out, fill-opacity 0.5s ease-in-out, points 0.5s ease-in-out, r 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out, cx 0.5s ease-in-out, cy 0.5s ease-in-out, x 0.5s ease-in-out, y 0.5s ease-in-out;
+        }
+
+        /* Ensure SVG scales nicely within its container */
+        #canvas-container svg {
+            display: block; /* Remove extra space below SVG */
+            max-width: 100%;
+            max-height: 100%;
+             /* height: auto; /* Maintain aspect ratio - Removed to allow fixed size */
+        }
+        /* Add a subtle background pattern to the body */
+         body {
+            /* background-image: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f3f4f6 75%), linear-gradient(-45deg, transparent 75%, #f3f4f6 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px; */
+         }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+
+    <header class="bg-white shadow-md py-4 sticky top-0 z-10">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-600">Abstract Art Generator</h1>
+            <p class="text-gray-600 mt-1 text-sm sm:text-base">Create unique generative abstract art</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 sm:gap-8">
+
+        <!-- Controls Section -->
+        <aside class="w-full lg:w-1/3 xl:w-1/4 bg-white p-5 sm:p-6 rounded-lg shadow-lg self-start">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Controls</h2>
+
+            <!-- Color Palette Section -->
+            <div class="mb-6">
+                <h3 class="font-medium mb-3 text-gray-600">Color Palette (HSL)</h3>
+                <div id="color-palette-controls" class="space-y-4">
+                    <!-- Color 1 -->
+                    <div class="border p-3 rounded bg-gray-50 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Color 1</span>
+                            <div id="color-preview-1" class="w-6 h-6 rounded border border-gray-300 shadow-inner"></div>
+                        </div>
+                        <label class="block text-xs text-gray-500">H: <span id="hue-value-1">180</span></label>
+                        <input type="range" id="hue-slider-1" min="0" max="360" value="180" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">S: <span id="saturation-value-1">50</span>%</label>
+                        <input type="range" id="saturation-slider-1" min="0" max="100" value="50" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">L: <span id="lightness-value-1">50</span>%</label>
+                        <input type="range" id="lightness-slider-1" min="0" max="100" value="50" class="w-full">
+                    </div>
+                     <!-- Color 2 -->
+                     <div class="border p-3 rounded bg-gray-50 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Color 2</span>
+                            <div id="color-preview-2" class="w-6 h-6 rounded border border-gray-300 shadow-inner"></div>
+                        </div>
+                        <label class="block text-xs text-gray-500">H: <span id="hue-value-2">240</span></label>
+                        <input type="range" id="hue-slider-2" min="0" max="360" value="240" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">S: <span id="saturation-value-2">60</span>%</label>
+                        <input type="range" id="saturation-slider-2" min="0" max="100" value="60" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">L: <span id="lightness-value-2">60</span>%</label>
+                        <input type="range" id="lightness-slider-2" min="0" max="100" value="60" class="w-full">
+                    </div>
+                     <!-- Color 3 -->
+                     <div class="border p-3 rounded bg-gray-50 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Color 3</span>
+                            <div id="color-preview-3" class="w-6 h-6 rounded border border-gray-300 shadow-inner"></div>
+                        </div>
+                        <label class="block text-xs text-gray-500">H: <span id="hue-value-3">30</span></label>
+                        <input type="range" id="hue-slider-3" min="0" max="360" value="30" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">S: <span id="saturation-value-3">70</span>%</label>
+                        <input type="range" id="saturation-slider-3" min="0" max="100" value="70" class="w-full">
+                        <label class="block text-xs text-gray-500 mt-1">L: <span id="lightness-value-3">70</span>%</label>
+                        <input type="range" id="lightness-slider-3" min="0" max="100" value="70" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Settings -->
+            <div class="mb-6">
+                <h3 class="font-medium mb-3 text-gray-600">Canvas Settings</h3>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="canvas-width" class="block text-sm font-medium text-gray-700 mb-1">Width (px)</label>
+                            <input type="number" id="canvas-width" value="800" min="100" max="2000" step="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm p-2">
+                        </div>
+                        <div>
+                            <label for="canvas-height" class="block text-sm font-medium text-gray-700 mb-1">Height (px)</label>
+                            <input type="number" id="canvas-height" value="600" min="100" max="2000" step="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm p-2">
+                        </div>
+                    </div>
+                     <div>
+                        <label for="background-color" class="block text-sm font-medium text-gray-700 mb-1">Background</label>
+                        <input type="color" id="background-color" value="#FFFFFF" class="mt-1 block w-full h-10 rounded-md border-gray-300 shadow-sm cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shape Settings -->
+            <div class="mb-6">
+                <h3 class="font-medium mb-3 text-gray-600">Shape Settings</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label for="shape-density" class="block text-sm font-medium text-gray-700">Density: <span id="shape-density-value" class="font-semibold">50</span></label>
+                        <input type="range" id="shape-density" min="5" max="300" value="50" class="w-full mt-1">
+                    </div>
+                     <div>
+                        <label for="shape-size-min" class="block text-sm font-medium text-gray-700">Min Size (px): <span id="shape-size-min-value" class="font-semibold">10</span></label>
+                        <input type="range" id="shape-size-min" min="2" max="100" value="10" class="w-full mt-1">
+                    </div>
+                     <div>
+                        <label for="shape-size-max" class="block text-sm font-medium text-gray-700">Max Size (px): <span id="shape-size-max-value" class="font-semibold">80</span></label>
+                        <input type="range" id="shape-size-max" min="10" max="400" value="80" class="w-full mt-1">
+                    </div>
+                    <div class="flex items-center pt-2">
+                        <input id="animate-shapes" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="animate-shapes" class="ml-2 block text-sm text-gray-700 select-none">Animate Transitions</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 pt-4 border-t border-gray-200">
+                <button id="generate-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded transition duration-150 ease-in-out mb-3 shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Generate Art
+                </button>
+                <button id="download-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded transition duration-150 ease-in-out shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Download SVG
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- Canvas Display Section -->
+        <section class="w-full lg:w-2/3 xl:w-3/4 flex-grow flex items-center justify-center bg-white p-4 rounded-lg shadow-lg overflow-hidden min-h-[400px] lg:min-h-[600px]">
+             <div id="canvas-container" class="w-full h-full flex items-center justify-center overflow-auto border border-gray-200 rounded bg-gray-50">
+                 <svg id="art-canvas" xmlns="http://www.w3.org/2000/svg" width="800" height="600" class="shadow-inner bg-white">
+                     <!-- Generated shapes will go here -->
+                 </svg>
+             </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-6 mt-8 text-gray-500 text-sm">
+        <p>&copy; 2023 Abstract Art Generator. Built with HTML, Tailwind CSS, and JavaScript.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('art-canvas');
+        const canvasContainer = document.getElementById('canvas-container');
+        const generateButton = document.getElementById('generate-button');
+        const downloadButton = document.getElementById('download-button');
+        const canvasWidthInput = document.getElementById('canvas-width');
+        const canvasHeightInput = document.getElementById('canvas-height');
+        const backgroundColorInput = document.getElementById('background-color');
+        const shapeDensitySlider = document.getElementById('shape-density');
+        const shapeDensityValue = document.getElementById('shape-density-value');
+        const shapeSizeMinSlider = document.getElementById('shape-size-min');
+        const shapeSizeMinValue = document.getElementById('shape-size-min-value');
+        const shapeSizeMaxSlider = document.getElementById('shape-size-max');
+        const shapeSizeMaxValue = document.getElementById('shape-size-max-value');
+        const animateCheckbox = document.getElementById('animate-shapes');
+
+        const colorControls = [
+            { hue: document.getElementById('hue-slider-1'), sat: document.getElementById('saturation-slider-1'), light: document.getElementById('lightness-slider-1'), preview: document.getElementById('color-preview-1'), hueVal: document.getElementById('hue-value-1'), satVal: document.getElementById('saturation-value-1'), lightVal: document.getElementById('lightness-value-1') },
+            { hue: document.getElementById('hue-slider-2'), sat: document.getElementById('saturation-slider-2'), light: document.getElementById('lightness-slider-2'), preview: document.getElementById('color-preview-2'), hueVal: document.getElementById('hue-value-2'), satVal: document.getElementById('saturation-value-2'), lightVal: document.getElementById('lightness-value-2') },
+            { hue: document.getElementById('hue-slider-3'), sat: document.getElementById('saturation-slider-3'), light: document.getElementById('lightness-slider-3'), preview: document.getElementById('color-preview-3'), hueVal: document.getElementById('hue-value-3'), satVal: document.getElementById('saturation-value-3'), lightVal: document.getElementById('lightness-value-3') }
+        ];
+
+        const SVG_NS = "http://www.w3.org/2000/svg";
+
+        // Utility Functions
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
+        const getHSLColor = (h, s, l) => `hsl(${h}, ${s}%, ${l}%)`;
+
+        // Update Functions
+        function updateColorPreviews() {
+            colorControls.forEach(control => {
+                const h = control.hue.value;
+                const s = control.sat.value;
+                const l = control.light.value;
+                const color = getHSLColor(h, s, l);
+                control.preview.style.backgroundColor = color;
+                control.hueVal.textContent = h;
+                control.satVal.textContent = s;
+                control.lightVal.textContent = l;
+            });
+        }
+
+        function updateSliderValueDisplay(slider, displayElement) {
+             displayElement.textContent = slider.value;
+        }
+
+        function updateCanvasSize() {
+            let width = parseInt(canvasWidthInput.value) || 800;
+            let height = parseInt(canvasHeightInput.value) || 600;
+
+            // Basic validation
+            width = Math.max(100, Math.min(2000, width));
+            height = Math.max(100, Math.min(2000, height));
+            canvasWidthInput.value = width; // Update input if value changed
+            canvasHeightInput.value = height; // Update input if value changed
+
+            canvas.setAttribute('width', width);
+            canvas.setAttribute('height', height);
+            canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        }
+
+        function updateBackgroundColor() {
+            canvas.style.backgroundColor = backgroundColorInput.value;
+        }
+
+        // Art Generation Logic
+        function generateArt() {
+            // Clear previous art
+            while (canvas.firstChild) {
+                canvas.removeChild(canvas.firstChild);
+            }
+
+            updateCanvasSize(); // Ensure canvas size is current
+            updateBackgroundColor(); // Ensure background color is current
+
+            const width = parseInt(canvas.getAttribute('width'));
+            const height = parseInt(canvas.getAttribute('height'));
+            const density = parseInt(shapeDensitySlider.value);
+            let minSize = parseInt(shapeSizeMinSlider.value);
+            let maxSize = parseInt(shapeSizeMaxSlider.value);
+            const animate = animateCheckbox.checked;
+
+            // Ensure minSize is not greater than maxSize
+            if (minSize > maxSize) {
+                [minSize, maxSize] = [maxSize, minSize]; // Swap them
+                shapeSizeMinSlider.value = minSize;
+                shapeSizeMaxSlider.value = maxSize;
+                updateSliderValueDisplay(shapeSizeMinSlider, shapeSizeMinValue);
+                updateSliderValueDisplay(shapeSizeMaxSlider, shapeSizeMaxValue);
+            }
+
+
+            const palette = colorControls.map(control =>
+                getHSLColor(control.hue.value, control.sat.value, control.light.value)
+            );
+
+            for (let i = 0; i < density; i++) {
+                const shapeType = ['circle', 'rect', 'polygon'][getRandomInt(0, 2)];
+                const color = palette[getRandomInt(0, palette.length - 1)];
+                const size = getRandomInt(minSize, maxSize);
+                const x = getRandomFloat(0, width - size); // Ensure shape stays within bounds
+                const y = getRandomFloat(0, height - size); // Ensure shape stays within bounds
+                const rotation = getRandomInt(0, 360);
+                const opacity = getRandomFloat(0.4, 1.0); // Add some transparency variation
+
+                let shape;
+
+                switch (shapeType) {
+                    case 'circle':
+                        shape = document.createElementNS(SVG_NS, 'circle');
+                        shape.setAttribute('cx', x + size / 2);
+                        shape.setAttribute('cy', y + size / 2);
+                        shape.setAttribute('r', size / 2);
+                        break;
+                    case 'rect':
+                        shape = document.createElementNS(SVG_NS, 'rect');
+                        shape.setAttribute('x', x);
+                        shape.setAttribute('y', y);
+                        shape.setAttribute('width', size);
+                        shape.setAttribute('height', size);
+                        shape.setAttribute('transform', `rotate(${rotation} ${x + size / 2} ${y + size / 2})`);
+                        break;
+                    case 'polygon': // Equilateral Triangle approximation
+                        shape = document.createElementNS(SVG_NS, 'polygon');
+                        const h = size * (Math.sqrt(3)/2); // Height of equilateral triangle
+                        const points = [
+                            [x + size / 2, y],      // Top vertex
+                            [x + size, y + h],      // Bottom right vertex
+                            [x, y + h]              // Bottom left vertex
+                        ].map(p => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' '); // Use toFixed for cleaner SVG output
+                        shape.setAttribute('points', points);
+                        shape.setAttribute('transform', `rotate(${rotation} ${x + size / 2} ${y + h / 2})`); // Rotate around center
+                        break;
+                }
+
+                shape.setAttribute('fill', color);
+                shape.setAttribute('fill-opacity', opacity.toFixed(2));
+                 if (animate) {
+                    shape.classList.add('shape-transition'); // Add class for CSS transitions
+                 } else {
+                    shape.classList.remove('shape-transition');
+                 }
+
+                canvas.appendChild(shape);
+            }
+        }
+
+        // Download SVG Logic
+        function downloadSVG() {
+            // Ensure current styles (like background) are embedded for download
+            const currentBgColor = canvas.style.backgroundColor || '#ffffff'; // Default to white if not set
+            const styleEl = document.createElement('style');
+            styleEl.textContent = `svg { background-color: ${currentBgColor}; }`; // Add background color style
+            canvas.insertBefore(styleEl, canvas.firstChild); // Prepend style to SVG
+
+            const svgData = new XMLSerializer().serializeToString(canvas);
+            canvas.removeChild(styleEl); // Remove the temporary style element
+
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            // Generate a more unique filename
+            const timestamp = new Date().toISOString().replace(/[:.-]/g, '').slice(0, 15);
+            link.download = `abstract-art-${timestamp}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event Listeners
+        generateButton.addEventListener('click', generateArt);
+        downloadButton.addEventListener('click', downloadSVG);
+        canvasWidthInput.addEventListener('change', () => { updateCanvasSize(); generateArt(); }); // Regenerate on size change
+        canvasHeightInput.addEventListener('change', () => { updateCanvasSize(); generateArt(); }); // Regenerate on size change
+        backgroundColorInput.addEventListener('input', updateBackgroundColor); // Use input for live preview
+
+        shapeDensitySlider.addEventListener('input', () => updateSliderValueDisplay(shapeDensitySlider, shapeDensityValue));
+        shapeSizeMinSlider.addEventListener('input', () => {
+            // Ensure min <= max
+            if (parseInt(shapeSizeMinSlider.value) > parseInt(shapeSizeMaxSlider.value)) {
+                shapeSizeMaxSlider.value = shapeSizeMinSlider.value;
+                updateSliderValueDisplay(shapeSizeMaxSlider, shapeSizeMaxValue);
+            }
+            updateSliderValueDisplay(shapeSizeMinSlider, shapeSizeMinValue);
+        });
+        shapeSizeMaxSlider.addEventListener('input', () => {
+             // Ensure max >= min
+            if (parseInt(shapeSizeMaxSlider.value) < parseInt(shapeSizeMinSlider.value)) {
+                shapeSizeMinSlider.value = shapeSizeMaxSlider.value;
+                 updateSliderValueDisplay(shapeSizeMinSlider, shapeSizeMinValue);
+            }
+            updateSliderValueDisplay(shapeSizeMaxSlider, shapeSizeMaxValue);
+        });
+
+        // Regenerate art when sliders stop being dragged (change event) or animation toggled
+        shapeDensitySlider.addEventListener('change', generateArt);
+        shapeSizeMinSlider.addEventListener('change', generateArt);
+        shapeSizeMaxSlider.addEventListener('change', generateArt);
+        animateCheckbox.addEventListener('change', generateArt); // Re-render to apply/remove class immediately
+        backgroundColorInput.addEventListener('change', generateArt); // Optional: regenerate when bg color finalized
+
+        colorControls.forEach(control => {
+            control.hue.addEventListener('input', updateColorPreviews);
+            control.sat.addEventListener('input', updateColorPreviews);
+            control.light.addEventListener('input', updateColorPreviews);
+            // Regenerate art when color sliders stop changing
+            control.hue.addEventListener('change', generateArt);
+            control.sat.addEventListener('change', generateArt);
+            control.light.addEventListener('change', generateArt);
+        });
+
+        // Initial Setup on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateColorPreviews();
+            updateCanvasSize();
+            updateBackgroundColor();
+            updateSliderValueDisplay(shapeDensitySlider, shapeDensityValue);
+            updateSliderValueDisplay(shapeSizeMinSlider, shapeSizeMinValue);
+            updateSliderValueDisplay(shapeSizeMaxSlider, shapeSizeMaxValue);
+            generateArt(); // Generate initial artwork
+        });
+
+    </script>
+</body>
+</html>
