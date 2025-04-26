@@ -46,5 +46,17 @@
       "Option to add calming background music (using a pre-included audio file)."
     ],
     "raw_output": "Project Name: Virtual Desk Toy\nDescription: A customizable digital desk toy for playful distraction and focus enhancement, featuring interactive elements and soothing animations.\nFeatures:\n- Draggable and rotatable 3D shapes using CSS transforms.\n- Customizable shape colors and background gradients with Tailwind.\n- Toggleable physics engine for realistic collisions and interactions.\n- Adjustable \"gravity\" and bounciness parameters.\n- Option to add calming background music (using a pre-included audio file). \n"
+  },
+  {
+    "name": "Procedural Constellation Generator",
+    "description": "Create unique, randomized star patterns and constellations with customizable density, brightness, and connection styles.",
+    "features": [
+      "Adjustable star count and distribution area.",
+      "Customizable star size and brightness.",
+      "Option to connect stars to form constellations.",
+      "Different connection styles (lines, curves, etc.).",
+      "Download the generated constellation as an SVG image."
+    ],
+    "raw_output": "Project Name: Procedural Constellation Generator\nDescription: Create unique, randomized star patterns and constellations with customizable density, brightness, and connection styles.\nFeatures:\n- Adjustable star count and distribution area.\n- Customizable star size and brightness.\n- Option to connect stars to form constellations.\n- Different connection styles (lines, curves, etc.).\n- Download the generated constellation as an SVG image.\n"
   }
 ]
