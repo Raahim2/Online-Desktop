@@ -10,5 +10,17 @@
       "Reset button to start a new puzzle."
     ],
     "raw_output": "Project Name: Gradient Puzzle\nDescription: Slide colored tiles to recreate a target gradient, challenging your color perception and puzzle-solving skills.\nFeatures:\n- Randomly generated target gradient and shuffled tiles.\n- Drag-and-drop tile movement using JavaScript.\n- Visual feedback on tile placement accuracy.\n- Timer to track completion time.\n- Reset button to start a new puzzle.\n"
+  },
+  {
+    "name": "Mood Ring Generator",
+    "description": "Create and customize digital mood rings, visualizing emotions through dynamic color gradients.",
+    "features": [
+      "Interactive slider to select a mood value.",
+      "Real-time gradient generation based on mood input.",
+      "Customizable ring shape and size using Tailwind CSS.",
+      "Option to save the generated mood ring as an image.",
+      "Shareable link to the generated mood ring."
+    ],
+    "raw_output": "Project Name: Mood Ring Generator\nDescription: Create and customize digital mood rings, visualizing emotions through dynamic color gradients.\nFeatures:\n- Interactive slider to select a mood value.\n- Real-time gradient generation based on mood input.\n- Customizable ring shape and size using Tailwind CSS.\n- Option to save the generated mood ring as an image.\n- Shareable link to the generated mood ring.\n"
   }
 ]
