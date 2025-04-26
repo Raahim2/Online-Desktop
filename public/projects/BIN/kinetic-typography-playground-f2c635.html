@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Typography Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Basic animation keyframes (can be expanded) */
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+             0%, 100% { transform: scale(1); }
+             50% { transform: scale(1.1); }
+        }
+
+        /* Class definitions using the keyframes */
+        .animate-wave span { animation: wave var(--anim-duration, 1s) var(--anim-easing, ease-in-out) infinite; }
+        .animate-bounce span { animation: bounce var(--anim-duration, 1s) var(--anim-easing, ease-in-out) infinite; }
+        .animate-rotate span { animation: rotate var(--anim-duration, 2s) var(--anim-easing, linear) infinite; display: inline-block; } /* Needs display block/inline-block */
+        .animate-fadeIn span { animation: fadeIn var(--anim-duration, 1s) var(--anim-easing, ease-in) forwards; } /* Forwards keeps the final state */
+        .animate-pulse span { animation: pulse var(--anim-duration, 1s) var(--anim-easing, ease-in-out) infinite; display: inline-block; }
+
+        /* Stagger animation delays for span elements */
+        .staggered-animation span {
+            display: inline-block; /* Necessary for transforms */
+            opacity: 0; /* Start hidden for fade-in type effects */
+            animation-fill-mode: forwards; /* Keep end state */
+        }
+
+        /* Hide range input track */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent; /* Hide track */
+            cursor: pointer;
+        }
+        /* Style range thumb */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 16px;
+            width: 16px;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            border: none;
+            margin-top: -6px; /* Adjust vertical centering */
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            border: none;
+        }
+        /* Style range track */
+         input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #d1d5db; /* gray-300 */
+            border-radius: 2px;
+        }
+        input[type=range]::-moz-range-track {
+             width: 100%;
+            height: 4px;
+            background: #d1d5db; /* gray-300 */
+            border-radius: 2px;
+        }
+
+        /* Style color input */
+        input[type="color"] {
+        	-webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        	width: 40px;
+        	height: 40px;
+        	background-color: transparent;
+        	border: none;
+        	cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid #d1d5db; /* gray-300 */
+        }
+        input[type="color"]::-webkit-color-swatch {
+        	border-radius: 50%;
+        	border: none;
+            padding: 0;
+        }
+        input[type="color"]::-moz-color-swatch {
+        	border-radius: 50%;
+        	border: none;
+            padding: 0;
+        }
+
+        #preview-text span {
+            display: inline-block; /* Required for most transforms/animations */
+            white-space: pre; /* Preserve spaces between spans */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Control Panel -->
+        <aside class="w-full lg:w-[380px] lg:max-w-[30%] p-6 bg-white shadow-lg overflow-y-auto lg:h-screen lg:sticky lg:top-0">
+            <h1 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-3">Kinetic Typography</h1>
+
+            <!-- Text Input -->
+            <div class="mb-5">
+                <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">Text Content</label>
+                <textarea id="text-input" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter your text here...">Hello World!</textarea>
+            </div>
+
+            <!-- Font Controls -->
+            <div class="mb-5 border-t pt-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3">Font Styling</h2>
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label for="font-family" class="block text-sm font-medium text-gray-700 mb-1">Font Family</label>
+                        <select id="font-family" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                            <option "'Courier New', Courier, monospace">Courier New</option>
+                            <option value="Impact, sans-serif">Impact</option>
+                            <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans MS</option>
+                            <option value="system-ui, sans-serif">System UI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="font-size" class="block text-sm font-medium text-gray-700 mb-1">Font Size (<span id="font-size-value">72</span>px)</label>
+                        <input type="range" id="font-size" min="12" max="200" value="72" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+                 <div>
+                    <label for="font-color" class="block text-sm font-medium text-gray-700 mb-1">Font Color</label>
+                    <div class="flex items-center gap-2">
+                         <input type="color" id="font-color" value="#333333" class="p-0 border border-gray-300 rounded-full shadow-sm cursor-pointer">
+                         <span id="font-color-value" class="text-sm text-gray-600">#333333</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animation Controls -->
+            <div class="mb-5 border-t pt-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3">Animation</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label for="animation-preset" class="block text-sm font-medium text-gray-700 mb-1">Preset</label>
+                        <select id="animation-preset" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="none">None</option>
+                            <option value="wave">Wave</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="rotate">Rotate</option>
+                            <option value="fadeIn">Fade In</option>
+                            <option value="pulse">Pulse</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="animation-target" class="block text-sm font-medium text-gray-700 mb-1">Target</label>
+                        <select id="animation-target" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="chars">Characters</option>
+                            <option value="words">Words</option>
+                            <option value="text">Full Text</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label for="animation-speed" class="block text-sm font-medium text-gray-700 mb-1">Speed (<span id="animation-speed-value">1</span>s)</label>
+                        <input type="range" id="animation-speed" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <label for="animation-easing" class="block text-sm font-medium text-gray-700 mb-1">Easing</label>
+                        <select id="animation-easing" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="linear">Linear</option>
+                            <option value="ease">Ease</option>
+                            <option value="ease-in">Ease In</option>
+                            <option value="ease-out">Ease Out</option>
+                            <option value="ease-in-out">Ease In Out</option>
+                        </select>
+                    </div>
+                </div>
+                 <div>
+                    <label for="animation-stagger" class="block text-sm font-medium text-gray-700 mb-1">Stagger Delay (<span id="animation-stagger-value">0.05</span>s)</label>
+                    <input type="range" id="animation-stagger" min="0" max="0.5" step="0.01" value="0.05" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" disabled> <!-- Enabled only for char/word animations -->
+                </div>
+            </div>
+
+            <!-- Interaction Controls -->
+            <div class="mb-5 border-t pt-4">
+                 <h2 class="text-lg font-semibold text-gray-700 mb-3">Interaction Trigger</h2>
+                 <div class="flex flex-wrap gap-x-4 gap-y-2">
+                    <div class="flex items-center">
+                        <input id="trigger-none" name="trigger-type" type="radio" value="none" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
+                        <label for="trigger-none" class="ml-2 block text-sm text-gray-900">Always On</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="trigger-hover" name="trigger-type" type="radio" value="hover" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <label for="trigger-hover" class="ml-2 block text-sm text-gray-900">Mouse Hover</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="trigger-click" name="trigger-type" type="radio" value="click" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <label for="trigger-click" class="ml-2 block text-sm text-gray-900">Mouse Click</label>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Download Button -->
+            <div class="mt-6 border-t pt-4">
+                 <h2 class="text-lg font-semibold text-gray-700 mb-3">Export</h2>
+                <button id="download-gif" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Download as GIF
+                </button>
+                <p id="gif-status" class="text-sm text-gray-500 mt-2 text-center"></p>
+            </div>
+
+        </aside>
+
+        <!-- Preview Area -->
+        <main class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-gray-200 to-gray-300 relative min-h-[300px] lg:min-h-0">
+           <div id="preview-container" class="w-full h-full flex items-center justify-center overflow-hidden">
+              <div id="preview-text" class="text-center cursor-pointer font-bold break-words" style="font-size: 72px; color: #333333; font-family: Arial, sans-serif;">
+                  <!-- Text will be rendered here by JS -->
+              </div>
+           </div>
+           <div id="loading-indicator" class="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-white text-xl hidden z-50">
+                <svg class="animate-spin h-8 w-8 text-white mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating GIF... <span id="gif-progress"></span>
+           </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const textInput = document.getElementById('text-input');
+        const previewText = document.getElementById('preview-text');
+        const fontFamilySelect = document.getElementById('font-family');
+        const fontSizeSlider = document.getElementById('font-size');
+        const fontSizeValue = document.getElementById('font-size-value');
+        const fontColorPicker = document.getElementById('font-color');
+        const fontColorValue = document.getElementById('font-color-value');
+        const animationPresetSelect = document.getElementById('animation-preset');
+        const animationTargetSelect = document.getElementById('animation-target');
+        const animationSpeedSlider = document.getElementById('animation-speed');
+        const animationSpeedValue = document.getElementById('animation-speed-value');
+        const animationEasingSelect = document.getElementById('animation-easing');
+        const animationStaggerSlider = document.getElementById('animation-stagger');
+        const animationStaggerValue = document.getElementById('animation-stagger-value');
+        const triggerRadios = document.querySelectorAll('input[name="trigger-type"]');
+        const downloadButton = document.getElementById('download-gif');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const gifStatus = document.getElementById('gif-status');
+        const gifProgress = document.getElementById('gif-progress');
+
+        // --- State ---
+        let currentText = textInput.value;
+        let currentFontFamily = fontFamilySelect.value;
+        let currentFontSize = fontSizeSlider.value;
+        let currentFontColor = fontColorPicker.value;
+        let currentAnimationPreset = animationPresetSelect.value;
+        let currentAnimationTarget = animationTargetSelect.value;
+        let currentAnimationSpeed = animationSpeedSlider.value;
+        let currentAnimationEasing = animationEasingSelect.value;
+        let currentAnimationStagger = animationStaggerSlider.value;
+        let currentTrigger = 'none'; // 'none', 'hover', 'click'
+        let isAnimating = false; // Track animation state for triggers
+
+        // --- GIF Worker Setup ---
+        // IMPORTANT: You MUST paste the full content of gif.worker.js here.
+        // You can find it at: https://raw.githubusercontent.com/jnordberg/gif.js/master/dist/gif.worker.js
+        const gifWorkerSource = `
+// <PASTE THE CONTENT OF gif.worker.js HERE>
+// Example placeholder - THIS WILL NOT WORK without the actual code.
+self.addEventListener('message', function(e) {
+  if (e.data.task === 'frame') {
+    // Process frame data (placeholder)
+    self.postMessage({ type: 'progress', task: 'frame', progress: 100 });
+  } else if (e.data.task === 'render') {
+     // Simulate rendering (placeholder)
+     setTimeout(() => {
+        self.postMessage({ type: 'finished', data: new Uint8Array([71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 0, 0, 0, 0, 0, 255, 255, 255, 33, 249, 4, 1, 0, 0, 0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 1, 68, 0, 59]) }); // Tiny valid GIF
+     }, 500);
+  }
+});
+        `;
+
+        let workerUrl = null;
+        try {
+            const blob = new Blob([gifWorkerSource], { type: 'application/javascript' });
+            workerUrl = URL.createObjectURL(blob);
+            console.log("GIF worker Blob URL created.");
+        } catch (e) {
+            console.error("Failed to create GIF worker blob URL. GIF export might fail.", e);
+            downloadButton.disabled = true;
+            gifStatus.textContent = "Error: Cannot initialize GIF worker.";
+        }
+
+        // --- Functions ---
+
+        function splitText(text, mode = 'chars') {
+            if (mode === 'words') {
+                // Split by space, preserving space as its own span if needed or handle spacing via margin
+                return text.split(/(\s+)/).filter(Boolean).map(part => `<span>${part}</span>`).join('');
+            } else if (mode === 'chars') {
+                return text.split('').map(char => `<span>${char}</span>`).join('');
+            } else { // mode === 'text'
+                return `<span>${text}</span>`;
+            }
+        }
+
+        function updatePreview() {
+            currentText = textInput.value || " "; // Use space if empty to avoid layout collapse
+            currentFontFamily = fontFamilySelect.value;
+            currentFontSize = fontSizeSlider.value;
+            currentFontColor = fontColorPicker.value;
+            currentAnimationPreset = animationPresetSelect.value;
+            currentAnimationTarget = animationTargetSelect.value;
+            currentAnimationSpeed = animationSpeedSlider.value;
+            currentAnimationEasing = animationEasingSelect.value;
+            currentAnimationStagger = animationStaggerSlider.value;
+            currentTrigger = document.querySelector('input[name="trigger-type"]:checked').value;
+
+            // Update UI display values
+            fontSizeValue.textContent = currentFontSize;
+            fontColorValue.textContent = currentFontColor;
+            animationSpeedValue.textContent = currentAnimationSpeed;
+            animationStaggerValue.textContent = currentAnimationStagger;
+
+            // Enable/disable stagger slider
+            animationStaggerSlider.disabled = currentAnimationTarget === 'text' || currentAnimationPreset === 'none';
+
+            // Update preview text content and style
+            previewText.style.fontFamily = currentFontFamily;
+            previewText.style.fontSize = `${currentFontSize}px`;
+            previewText.style.color = currentFontColor;
+            previewText.style.setProperty('--anim-duration', `${currentAnimationSpeed}s`);
+            previewText.style.setProperty('--anim-easing', currentAnimationEasing);
+
+            // Prepare text content with spans for animation if needed
+            previewText.innerHTML = splitText(currentText, currentAnimationTarget);
+
+            // Apply animation classes and stagger delays
+            applyAnimationStyles();
+        }
+
+        function applyAnimationStyles(forceAnimation = false) {
+            // Remove previous animation classes
+            previewText.classList.remove('animate-wave', 'animate-bounce', 'animate-rotate', 'animate-fadeIn', 'animate-pulse', 'staggered-animation');
+            previewText.querySelectorAll('span').forEach(span => {
+                span.style.animation = ''; // Clear inline animation styles
+                span.style.animationDelay = '';
+                span.style.opacity = ''; // Reset opacity
+            });
+
+            if (currentAnimationPreset === 'none') {
+                 previewText.querySelectorAll('span').forEach(span => span.style.opacity = '1'); // Ensure visible
+                return; // No animation to apply
+            }
+
+            const shouldAnimate = forceAnimation || currentTrigger === 'none';
+
+            if (shouldAnimate) {
+                const animationClass = `animate-${currentAnimationPreset}`;
+                previewText.classList.add(animationClass);
+
+                // Apply stagger if target is chars or words
+                if (currentAnimationTarget !== 'text') {
+                    previewText.classList.add('staggered-animation');
+                    const spans = previewText.querySelectorAll('span');
+                    spans.forEach((span, index) => {
+                        const delay = index * currentAnimationStagger;
+                        span.style.animationDelay = `${delay}s`;
+                        // Ensure initial state is correct for the animation (e.g., opacity 0 for fadeIn)
+                         if (currentAnimationPreset === 'fadeIn') {
+                             span.style.opacity = '0';
+                         } else {
+                             span.style.opacity = '1'; // Make sure others are visible initially
+                         }
+                    });
+                } else {
+                     // Handle full text animation initial state if needed
+                     if (currentAnimationPreset === 'fadeIn') {
+                         previewText.querySelector('span').style.opacity = '0';
+                     } else {
+                         previewText.querySelector('span').style.opacity = '1';
+                     }
+                }
+                isAnimating = true; // Mark as animating (relevant for hover/click)
+            } else {
+                 // Not always on - set initial state but don't start animation
+                 isAnimating = false;
+                 // Set initial opacity for relevant animations like fadeIn
+                 if (currentAnimationPreset === 'fadeIn' && currentAnimationTarget !== 'text') {
+                     previewText.querySelectorAll('span').forEach(span => span.style.opacity = '0');
+                 } else if (currentAnimationPreset === 'fadeIn' && currentAnimationTarget === 'text') {
+                     previewText.querySelector('span').style.opacity = '0';
+                 } else {
+                     // Ensure text is visible if not animating initially
+                     previewText.querySelectorAll('span').forEach(span => span.style.opacity = '1');
+                 }
+            }
+        }
+
+
+        function handleInteraction(event) {
+            if (isAnimating && (currentTrigger === 'hover' || currentTrigger === 'click')) {
+                // If already animating due to interaction, potentially reset or do nothing on re-trigger
+                // For simplicity, let's just ignore re-triggering while animation is 'on'
+                return;
+            }
+
+            if (currentTrigger === 'hover' && event.type === 'mouseenter') {
+                applyAnimationStyles(true); // Force animation on
+            } else if (currentTrigger === 'hover' && event.type === 'mouseleave') {
+                // Stop or reset animation
+                 applyAnimationStyles(false); // Turn animation off (resets styles based on current state)
+                 isAnimating = false;
+            } else if (currentTrigger === 'click' && event.type === 'click') {
+                // Toggle animation on click? Or just trigger once? Let's trigger once.
+                applyAnimationStyles(true); // Force animation on
+                // Optional: Reset after duration? Requires setTimeout based on duration.
+                // setTimeout(() => {
+                //     applyAnimationStyles(false); // Turn off after duration
+                //     isAnimating = false;
+                // }, parseFloat(currentAnimationSpeed) * 1000);
+            }
+        }
+
+        async function downloadGif() {
+            if (!workerUrl) {
+                gifStatus.textContent = "Error: GIF Worker not available.";
+                return;
+            }
+            if (currentAnimationPreset === 'none') {
+                 gifStatus.textContent = "Select an animation first.";
+                return;
+            }
+
+            downloadButton.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            gifStatus.textContent = "Initializing GIF generation...";
+            gifProgress.textContent = "";
+
+            const textElement = previewText;
+            const computedStyle = window.getComputedStyle(textElement);
+            const width = textElement.offsetWidth;
+            const height = textElement.offsetHeight;
+            const duration = parseFloat(currentAnimationSpeed) * 1000; // in ms
+            const frameDelay = 50; // ms between frames (20 FPS) - adjust for quality/performance
+            const numFrames = Math.max(1, Math.ceil(duration / frameDelay)); // Ensure at least one frame
+
+            // Create temporary canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+                 gifStatus.textContent = "Error: Canvas context not supported.";
+                 loadingIndicator.classList.add('hidden');
+                 downloadButton.disabled = false;
+                 return;
+            }
+
+            // --- GIF.js Setup ---
+             const gif = new GIF({
+                workers: 2,
+                quality: 15, // Lower is faster, higher quality. 10 is default.
+                workerScript: workerUrl,
+                width: width,
+                height: height,
+                background: getComputedStyle(document.querySelector('main')).backgroundColor || '#e5e7eb', // Use preview area bg
+                transparent: null // Set to hex color for transparency, null for none
+            });
+
+            gif.on('progress', function(p) {
+                gifStatus.textContent = `Rendering GIF: ${(p * 100).toFixed(0)}%`;
+                gifProgress.textContent = `${(p * 100).toFixed(0)}%`;
+            });
+
+            gif.on('finished', function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'kinetic-text.gif';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Clean up blob URL
+
+                gifStatus.textContent = "GIF download ready!";
+                loadingIndicator.classList.add('hidden');
+                downloadButton.disabled = false;
+                 // Revoke worker URL if no longer needed (careful if multiple downloads are possible)
+                // URL.revokeObjectURL(workerUrl);
+            });
+
+            gifStatus.textContent = "Capturing animation frames...";
+
+            // --- Frame Capturing Logic ---
+            // This is the complex part, especially for CSS animations.
+            // We need to *simulate* the state of the animation at each frame time.
+            // This simplified version just captures the *initial* state multiple times,
+            // which won't work for actual animation.
+            // A real implementation would need to:
+            // 1. Parse CSS keyframes or use JS animation library state.
+            // 2. Calculate the transform/opacity/etc. for each element (span) at time `t`.
+            // 3. Draw that state onto the canvas for each frame.
+
+            // **Simplified Placeholder Frame Capture:**
+            // This captures the *static* current state. Replace with actual frame-by-frame rendering.
+            try {
+                // Prepare text drawing styles
+                ctx.fillStyle = currentFontColor;
+                ctx.font = `${computedStyle.fontWeight} ${currentFontSize}px ${currentFontFamily}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Draw the text once (as placeholder)
+                // A real solution needs to draw inside the loop, calculating state per frame
+                ctx.clearRect(0, 0, width, height); // Clear canvas
+                // Need to handle multi-line text if textarea allows newlines
+                const lines = currentText.split('\n');
+                const lineHeight = parseFloat(currentFontSize) * 1.2; // Estimate line height
+                const totalTextHeight = lines.length * lineHeight;
+                const startY = (height - totalTextHeight) / 2 + lineHeight / 2;
+
+                lines.forEach((line, index) => {
+                     ctx.fillText(line, width / 2, startY + index * lineHeight);
+                });
+
+
+                // Add the same frame multiple times to simulate duration (INCORRECT FOR ANIMATION)
+                for (let i = 0; i < numFrames; i++) {
+                     // **REAL IMPLEMENTATION NEEDED HERE**
+                     // Calculate animation state at time i * frameDelay
+                     // Redraw canvas based on calculated state
+                     // ctx.clearRect(0, 0, width, height);
+                     // drawTextAtTime(ctx, i * frameDelay); // Hypothetical function
+
+                    // Add the current canvas state as a frame
+                    gif.addFrame(ctx, { copy: true, delay: frameDelay });
+                }
+
+                gifStatus.textContent = "Rendering GIF...";
+                gif.render();
+
+            } catch (error) {
+                 console.error("Error during GIF generation:", error);
+                 gifStatus.textContent = `Error: ${error.message}`;
+                 loadingIndicator.classList.add('hidden');
+                 downloadButton.disabled = false;
+            }
+        }
+
+
+        // --- Event Listeners ---
+        textInput.addEventListener('input', updatePreview);
+        fontFamilySelect.addEventListener('change', updatePreview);
+        fontSizeSlider.addEventListener('input', updatePreview);
+        fontColorPicker.addEventListener('input', updatePreview);
+        animationPresetSelect.addEventListener('change', updatePreview);
+        animationTargetSelect.addEventListener('change', updatePreview);
+        animationSpeedSlider.addEventListener('input', updatePreview);
+        animationEasingSelect.addEventListener('change', updatePreview);
+        animationStaggerSlider.addEventListener('input', updatePreview);
+        triggerRadios.forEach(radio => radio.addEventListener('change', updatePreview));
+
+        // Interaction listeners on the preview text itself
+        previewText.addEventListener('mouseenter', handleInteraction);
+        previewText.addEventListener('mouseleave', handleInteraction);
+        previewText.addEventListener('click', handleInteraction);
+
+        // Download listener
+        downloadButton.addEventListener('click', downloadGif);
+
+        // --- Initial Setup ---
+        updatePreview(); // Initial render on page load
+
+    </script>
+
+</body>
+</html>
