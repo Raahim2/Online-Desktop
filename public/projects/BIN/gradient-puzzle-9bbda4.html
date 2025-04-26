@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Puzzle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center mb-8">Gradient Puzzle</h1>
+
+        <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
+            <div class="w-64 md:w-96 h-16 bg-gradient-to-r from-gray-300 to-gray-500 rounded-lg shadow-md" id="targetGradient">
+                Target Gradient
+            </div>
+
+            <div class="text-xl font-semibold">Time: <span id="timer">00:00</span></div>
+        </div>
+
+        <div class="grid grid-cols-4 md:grid-cols-8 gap-2 mt-8" id="puzzleContainer">
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+            <div class="w-16 h-16 bg-gray-300 rounded-lg shadow-md cursor-move" draggable="true"></div>
+        </div>
+
+
+        <div class="mt-8 flex justify-center">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="alert('Reset functionality not implemented yet')">
+                Reset
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
