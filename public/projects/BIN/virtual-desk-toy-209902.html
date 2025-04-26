@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Desk Toy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic 3D perspective and shape styling */
+        #toy-area {
+            perspective: 1000px;
+            min-height: 400px; /* Ensure area has height */
+        }
+        .shape {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            transform-style: preserve-3d;
+            transition: transform 0.05s linear; /* Smooth physics updates */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 10%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        .shape:active {
+            cursor: grabbing;
+            z-index: 1000; /* Bring active shape to front */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 0 15px rgba(0,0,0,0.3);
+        }
+        /* Basic gradient transition */
+        body, #toy-area {
+            transition: background 0.5s ease-in-out;
+        }
+        /* Hide range input thumb styles for cross-browser consistency (basic) */
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #4F46E5; border-radius: 50%; cursor: pointer; }
+        input[type=range]::-moz-range-thumb { width: 20px; height: 20px; background: #4F46E5; border-radius: 50%; cursor: pointer; border: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex flex-col font-sans">
+
+    <header class="p-4 bg-white/80 backdrop-blur-sm shadow-md sticky top-0 z-50">
+        <h1 class="text-2xl font-bold text-center text-indigo-700">Virtual Desk Toy</h1>
+        <p class="text-center text-sm text-gray-600">A playful distraction & focus enhancer</p>
+    </header>
+
+    <main class="flex-grow flex flex-col lg:flex-row p-4 gap-4">
+
+        <!-- Toy Interaction Area -->
+        <section id="toy-area" class="flex-grow bg-white/50 rounded-lg shadow-inner relative overflow-hidden border border-gray-200 order-2 lg:order-1">
+            <!-- Shapes will be added here by JavaScript -->
+            <div id="shape-1" class="shape bg-blue-500" style="top: 50px; left: 50px;"></div>
+            <div id="shape-2" class="shape bg-red-500" style="top: 150px; left: 150px; border-radius: 50%;"></div>
+            <div id="shape-3" class="shape bg-green-500" style="top: 100px; left: 250px; transform: rotateZ(45deg);"></div>
+        </section>
+
+        <!-- Controls Panel -->
+        <aside class="w-full lg:w-80 bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 order-1 lg:order-2 flex flex-col gap-6">
+            <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Controls</h2>
+
+            <!-- Customization -->
+            <div class="space-y-4">
+                <h3 class="font-medium text-gray-600">Customize</h3>
+                <div>
+                    <label for="shapeColor" class="block text-sm font-medium text-gray-700 mb-1">Shape Color (Click Shape First)</label>
+                    <input type="color" id="shapeColor" value="#4F46E5" class="w-full h-10 p-1 border border-gray-300 rounded-md cursor-pointer">
+                </div>
+                 <div>
+                    <label for="backgroundGradient" class="block text-sm font-medium text-gray-700 mb-1">Background</label>
+                    <select id="backgroundGradient" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                        <option value="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">Indigo/Purple/Pink</option>
+                        <option value="bg-gradient-to-tr from-green-200 via-blue-200 to-purple-300">Green/Blue/Purple</option>
+                        <option value="bg-gradient-to-bl from-yellow-100 via-red-200 to-pink-300">Yellow/Red/Pink</option>
+                        <option value="bg-gradient-to-r from-gray-700 via-gray-900 to-black">Dark Mode</option>
+                        <option value="bg-white">Plain White</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Physics Engine -->
+            <div class="space-y-4">
+                <h3 class="font-medium text-gray-600">Physics</h3>
+                <div class="flex items-center justify-between">
+                    <label for="physicsToggle" class="text-sm font-medium text-gray-700">Enable Physics</label>
+                    <button id="physicsToggle" class="relative inline-flex items-center h-6 rounded-full w-11 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-gray-200">
+                        <span class="sr-only">Enable Physics</span>
+                        <span class="inline-block w-4 h-4 transform bg-white rounded-full transition ease-in-out duration-200 translate-x-1"></span>
+                    </button>
+                </div>
+                 <div>
+                    <label for="gravity" class="block text-sm font-medium text-gray-700 mb-1">Gravity (<span id="gravityValue">0.1</span>)</label>
+                    <input type="range" id="gravity" min="0" max="1" step="0.05" value="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm dark:bg-gray-700">
+                </div>
+                 <div>
+                    <label for="bounciness" class="block text-sm font-medium text-gray-700 mb-1">Bounciness (<span id="bouncinessValue">0.7</span>)</label>
+                    <input type="range" id="bounciness" min="0" max="1" step="0.05" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm dark:bg-gray-700">
+                </div>
+                 <button id="resetShapes" class="w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-150 text-sm">Reset Positions</button>
+            </div>
+
+            <!-- Audio -->
+            <div class="space-y-4">
+                <h3 class="font-medium text-gray-600">Ambiance</h3>
+                <button id="musicToggle" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-150 text-sm flex items-center justify-center gap-2">
+                    <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                    <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1H8zm5 0a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1h-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span id="musicToggleText">Play Background Music</span>
+                </button>
+                <!-- Note: You need to provide an actual audio file path -->
+                <audio id="backgroundMusic" loop>
+                    <source src="placeholder-audio.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p class="text-xs text-gray-500 text-center">Replace 'placeholder-audio.mp3' with your audio file.</p>
+            </div>
+
+        </aside>
+    </main>
+
+    <script>
+        const toyArea = document.getElementById('toy-area');
+        const shapes = Array.from(document.querySelectorAll('.shape'));
+        const shapeColorInput = document.getElementById('shapeColor');
+        const backgroundGradientSelect = document.getElementById('backgroundGradient');
+        const physicsToggleButton = document.getElementById('physicsToggle');
+        const gravitySlider = document.getElementById('gravity');
+        const bouncinessSlider = document.getElementById('bounciness');
+        const gravityValueSpan = document.getElementById('gravityValue');
+        const bouncinessValueSpan = document.getElementById('bouncinessValue');
+        const musicToggleButton = document.getElementById('musicToggle');
+        const musicToggleText = document.getElementById('musicToggleText');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const resetShapesButton = document.getElementById('resetShapes');
+
+        let activeShape = null;
+        let isDragging = false;
+        let offsetX, offsetY;
+        let physicsEnabled = false;
+        let animationFrameId = null;
+
+        // Store initial positions for reset
+        const initialPositions = shapes.map(shape => ({
+            element: shape,
+            top: shape.style.top,
+            left: shape.style.left,
+            transform: shape.style.transform
+        }));
+
+        // Shape properties for physics
+        let shapeData = shapes.map((shape, index) => ({
+            element: shape,
+            x: parseFloat(shape.style.left) || 50 + index * 100,
+            y: parseFloat(shape.style.top) || 50 + index * 50,
+            vx: 0,
+            vy: 0,
+            rotation: parseFloat(shape.style.transform?.match(/rotateZ\(([-\d.]+)deg\)/)?.[1] || 0),
+            rv: (Math.random() - 0.5) * 2, // Initial random rotation velocity
+            width: shape.offsetWidth,
+            height: shape.offsetHeight,
+            id: shape.id,
+            isDragging: false // Track dragging state per shape for physics
+        }));
+
+        // --- Interaction Logic ---
+
+        function startDrag(e, shape) {
+            if (!physicsEnabled) { // Only allow drag if physics is off, or handle differently if needed
+                activeShape = shape;
+                isDragging = true;
+                activeShape.style.zIndex = 1001; // Ensure dragged shape is above others
+                activeShape.classList.add('shadow-xl');
+
+                const rect = activeShape.getBoundingClientRect();
+                const touch = e.type === 'touchstart' ? e.touches[0] : e;
+
+                // Calculate offset relative to the element's top-left corner
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
+
+                activeShape.style.cursor = 'grabbing';
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', drag, { passive: false }); // Prevent scroll on touch drag
+                document.addEventListener('touchend', endDrag);
+                e.preventDefault(); // Prevent text selection or other default actions
+            } else {
+                 // Allow "picking up" shapes even with physics on
+                 const shapeDatum = shapeData.find(d => d.element === shape);
+                 if (shapeDatum) {
+                     activeShape = shape;
+                     shapeDatum.isDragging = true;
+                     shapeDatum.vx = 0; // Stop physics movement while dragging
+                     shapeDatum.vy = 0;
+                     shapeDatum.rv = 0; // Stop rotation
+                     activeShape.style.zIndex = 1001;
+                     activeShape.classList.add('shadow-xl');
+                     activeShape.style.cursor = 'grabbing';
+
+                     const rect = activeShape.getBoundingClientRect();
+                     const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                     offsetX = touch.clientX - rect.left;
+                     offsetY = touch.clientY - rect.top;
+
+                     document.addEventListener('mousemove', dragPhysics);
+                     document.addEventListener('mouseup', endDragPhysics);
+                     document.addEventListener('touchmove', dragPhysics, { passive: false });
+                     document.addEventListener('touchend', endDragPhysics);
+                     e.preventDefault();
+                 }
+            }
+        }
+
+        function drag(e) {
+            if (!isDragging || !activeShape) return;
+            const touch = e.type === 'touchmove' ? e.touches[0] : e;
+            const toyAreaRect = toyArea.getBoundingClientRect();
+
+            // Calculate new position relative to the toy area
+            let newX = touch.clientX - toyAreaRect.left - offsetX;
+            let newY = touch.clientY - toyAreaRect.top - offsetY;
+
+            // Constrain within toy area boundaries
+            newX = Math.max(0, Math.min(newX, toyAreaRect.width - activeShape.offsetWidth));
+            newY = Math.max(0, Math.min(newY, toyAreaRect.height - activeShape.offsetHeight));
+
+            activeShape.style.left = `${newX}px`;
+            activeShape.style.top = `${newY}px`;
+            // Update shapeData if needed for consistency, though physics is off
+             const shapeDatum = shapeData.find(d => d.element === activeShape);
+             if (shapeDatum) {
+                 shapeDatum.x = newX;
+                 shapeDatum.y = newY;
+             }
+        }
+
+         function dragPhysics(e) {
+            if (!activeShape) return;
+            const shapeDatum = shapeData.find(d => d.element === activeShape);
+            if (!shapeDatum || !shapeDatum.isDragging) return;
+
+            const touch = e.type === 'touchmove' ? e.touches[0] : e;
+            const toyAreaRect = toyArea.getBoundingClientRect();
+
+            let newX = touch.clientX - toyAreaRect.left - offsetX;
+            let newY = touch.clientY - toyAreaRect.top - offsetY;
+
+            // Constrain within toy area boundaries
+            newX = Math.max(0, Math.min(newX, toyAreaRect.width - shapeDatum.width));
+            newY = Math.max(0, Math.min(newY, toyAreaRect.height - shapeDatum.height));
+
+            // Directly update physics data
+            shapeDatum.x = newX;
+            shapeDatum.y = newY;
+            // Apply transform immediately for visual feedback
+            activeShape.style.transform = `translate(${newX}px, ${newY}px) rotateZ(${shapeDatum.rotation}deg)`;
+        }
+
+        function endDrag() {
+            if (!isDragging || !activeShape) return;
+            isDragging = false;
+            activeShape.style.zIndex = ''; // Reset z-index
+            activeShape.classList.remove('shadow-xl');
+            activeShape.style.cursor = 'grab';
+            activeShape = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        function endDragPhysics() {
+            if (!activeShape) return;
+            const shapeDatum = shapeData.find(d => d.element === activeShape);
+            if (shapeDatum) {
+                 shapeDatum.isDragging = false;
+                 // Optional: Give it a slight velocity based on last movement (more complex)
+                 // shapeDatum.vx = /* calculate based on last mouse move delta */ 0;
+                 // shapeDatum.vy = /* calculate based on last mouse move delta */ 0;
+            }
+            activeShape.style.zIndex = '';
+            activeShape.classList.remove('shadow-xl');
+            activeShape.style.cursor = 'grab';
+            activeShape = null;
+            document.removeEventListener('mousemove', dragPhysics);
+            document.removeEventListener('mouseup', endDragPhysics);
+            document.removeEventListener('touchmove', dragPhysics);
+            document.removeEventListener('touchend', endDragPhysics);
+        }
+
+        // Add drag listeners to shapes
+        shapes.forEach(shape => {
+            shape.addEventListener('mousedown', (e) => startDrag(e, shape));
+            shape.addEventListener('touchstart', (e) => startDrag(e, shape));
+            // Select shape for coloring on click when physics is off
+            shape.addEventListener('click', (e) => {
+                 if (!physicsEnabled) {
+                    // Remove border from previously selected
+                    shapes.forEach(s => s.style.border = 'none');
+                    // Add border to clicked shape
+                    shape.style.border = '2px solid #4F46E5'; // Highlight selected
+                    shapeColorInput.value = rgbToHex(shape.style.backgroundColor); // Update color picker
+                    activeShape = shape; // Set as active for color change
+                 }
+            });
+        });
+
+        // --- Customization Logic ---
+
+        shapeColorInput.addEventListener('input', (e) => {
+            if (activeShape && !physicsEnabled) { // Only color the selected shape if physics is off
+                activeShape.style.backgroundColor = e.target.value;
+            } else if (!activeShape && !physicsEnabled) { // Or color all if none selected
+                 shapes.forEach(shape => shape.style.backgroundColor = e.target.value);
+            }
+            // If physics is on, maybe don't allow color change, or apply differently?
+            // For now, color change primarily works when physics is off and a shape is selected.
+        });
+
+        backgroundGradientSelect.addEventListener('change', (e) => {
+            // Remove old gradient classes (find a robust way if more complex classes are used)
+            const bodyClasses = document.body.className.split(' ').filter(cls => !cls.startsWith('bg-gradient') && !cls.startsWith('from-') && !cls.startsWith('via-') && !cls.startsWith('to-') && cls !== 'bg-white');
+            document.body.className = bodyClasses.join(' ') + ' ' + e.target.value;
+        });
+
+        // --- Physics Logic ---
+
+        physicsToggleButton.addEventListener('click', () => {
+            physicsEnabled = !physicsEnabled;
+            const toggleCircle = physicsToggleButton.querySelector('span:last-child');
+            if (physicsEnabled) {
+                physicsToggleButton.classList.remove('bg-gray-200');
+                physicsToggleButton.classList.add('bg-indigo-600');
+                toggleCircle.style.transform = 'translateX(1.25rem)'; // Adjust based on w-11 and w-4 -> (11-4)/2 * 0.25rem? Check Tailwind size mapping. 1.25rem works for h-6/w-11.
+                startPhysics();
+                // Make shapes non-draggable in the traditional sense, physics takes over
+                shapes.forEach(shape => {
+                    shape.style.cursor = 'pointer'; // Indicate interactibility
+                    shape.style.position = 'absolute'; // Ensure physics positioning works
+                    shape.style.border = 'none'; // Remove selection border
+                });
+                activeShape = null; // Deselect shape
+            } else {
+                physicsToggleButton.classList.add('bg-gray-200');
+                physicsToggleButton.classList.remove('bg-indigo-600');
+                toggleCircle.style.transform = 'translateX(0.25rem)'; // Back to start
+                stopPhysics();
+                // Restore draggable cursor and potentially reset positions or leave them
+                 shapes.forEach((shape, index) => {
+                    shape.style.cursor = 'grab';
+                    // Restore position from shapeData if needed, or leave as is
+                    const data = shapeData[index];
+                    shape.style.transform = `translate(${data.x}px, ${data.y}px) rotateZ(${data.rotation}deg)`;
+                 });
+            }
+        });
+
+        gravitySlider.addEventListener('input', (e) => {
+            gravityValueSpan.textContent = e.target.value;
+        });
+
+        bouncinessSlider.addEventListener('input', (e) => {
+            bouncinessValueSpan.textContent = e.target.value;
+        });
+
+        function startPhysics() {
+            if (!animationFrameId) {
+                 // Reset velocities only if starting fresh? Or keep momentum? Resetting is simpler.
+                 shapeData.forEach(data => {
+                     if (!data.isDragging) { // Don't reset if currently being dragged into physics mode
+                        // data.vx = (Math.random() - 0.5) * 5; // Small initial random velocity
+                        // data.vy = (Math.random() - 0.5) * 5;
+                     }
+                     // Ensure initial position is read correctly if shapes were moved manually
+                     const rect = data.element.getBoundingClientRect();
+                     const toyAreaRect = toyArea.getBoundingClientRect();
+                     data.x = rect.left - toyAreaRect.left;
+                     data.y = rect.top - toyAreaRect.top;
+                     data.width = data.element.offsetWidth; // Update size in case it changed
+                     data.height = data.element.offsetHeight;
+                     data.element.style.left = '0px'; // Use transform for positioning
+                     data.element.style.top = '0px';
+                 });
+                updatePhysics();
+            }
+        }
+
+        function stopPhysics() {
+            if (animationFrameId)
