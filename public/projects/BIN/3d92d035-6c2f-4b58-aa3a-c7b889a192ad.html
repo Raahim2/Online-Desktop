@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathe & Bloom - Interactive Breathing Exercise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for smooth transitions not easily covered by Tailwind classes alone */
+        #visualizer {
+            transition: transform 3s ease-in-out, box-shadow 3s ease-in-out;
+        }
+        /* Define animation states via CSS variables controlled by JS */
+        .breathing {
+            transform: scale(var(--breath-scale, 1));
+            box-shadow: 0 0 var(--bloom-blur, 20px) var(--bloom-spread, 10px) var(--bloom-color, rgba(103, 232, 249, 0.5)); /* Default shadow */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white min-h-screen flex flex-col font-sans antialiased">
+
+    <header class="p-4 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Breathe & Bloom</h1>
+        <p class="text-sm text-gray-300 mt-1">Find your calm with guided breathing</p>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        <div class="text-center mb-8">
+            <p id="instruction" class="text-xl md:text-2xl font-semibold text-gray-200 h-8">Press Start to begin</p>
+        </div>
+
+        <div class="relative flex items-center justify-center w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+            <!-- Visualizer Circle -->
+            <div id="visualizer" class="absolute w-full h-full bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full breathing" style="--bloom-color: rgba(103, 232, 249, 0.5);">
+                <!-- Optional inner element for more complex visual effects -->
+                <!-- <div class="absolute inset-2 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-full opacity-80"></div> -->
+            </div>
+             <!-- Placeholder for potential inner text or icon, kept simple -->
+             <span class="z-10 text-lg font-medium text-white opacity-0" id="timerDisplay"></span>
+        </div>
+
+        <div class="mt-12 text-center">
+            <button id="startButton" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-colors duration-300 text-lg">
+                Start
+            </button>
+        </div>
+    </main>
+
+    <footer class="p-4 text-center text-xs text-gray-400">
+        <p>&copy; 2023 Breathe & Bloom. Created with HTML & Tailwind CSS.</p>
+    </footer>
+
+    <script>
+        const visualizer = document.getElementById('visualizer');
+        const instructionText = document.getElementById('instruction');
+        const startButton = document.getElementById('startButton');
+        // const timerDisplay = document.getElementById('timerDisplay'); // Optional timer
+
+        let isRunning = false;
+        let breathCycleTimeout;
+        let animationFrameId; // For potential future frame-based animation
+
+        // Breathing cycle timings (in milliseconds)
+        const inhaleTime = 4000;
+        const holdTime = 4000;
+        const exhaleTime = 6000;
+        const cycleGap = 500; // Small pause between cycles
+
+        const phases = {
+            INHALE: { duration: inhaleTime, text: "Breathe In...", scale: 1.5, blur: '40px', spread: '20px', color: 'rgba(103, 232, 249, 0.7)' },
+            HOLD: { duration: holdTime, text: "Hold...", scale: 1.5, blur: '45px', spread: '25px', color: 'rgba(147, 197, 253, 0.7)' },
+            EXHALE: { duration: exhaleTime, text: "Breathe Out...", scale: 0.8, blur: '15px', spread: '5px', color: 'rgba(167, 139, 250, 0.5)' },
+            RESET: { duration: cycleGap, text: "Prepare...", scale: 1, blur: '20px', spread: '10px', color: 'rgba(103, 232, 249, 0.5)' }
+        };
+
+        function updateVisualizer(phase) {
+            instructionText.textContent = phase.text;
+            visualizer.style.setProperty('--breath-scale', phase.scale);
+            visualizer.style.setProperty('--bloom-blur', phase.blur);
+            visualizer.style.setProperty('--bloom-spread', phase.spread);
+            visualizer.style.setProperty('--bloom-color', phase.color);
+            // Adjust transition duration dynamically for better feel
+            visualizer.style.transitionDuration = `${phase.duration / 1000}s`;
+        }
+
+        function runCycle() {
+            if (!isRunning) return;
+
+            updateVisualizer(phases.INHALE);
+            breathCycleTimeout = setTimeout(() => {
+                updateVisualizer(phases.HOLD);
+                breathCycleTimeout = setTimeout(() => {
+                    updateVisualizer(phases.EXHALE);
+                    breathCycleTimeout = setTimeout(() => {
+                        updateVisualizer(phases.RESET);
+                        breathCycleTimeout = setTimeout(runCycle, phases.RESET.duration); // Loop back after gap
+                    }, phases.EXHALE.duration);
+                }, phases.HOLD.duration);
+            }, phases.INHALE.duration);
+        }
+
+        function startBreathing() {
+            if (isRunning) return;
+            isRunning = true;
+            startButton.textContent = 'Stop';
+            startButton.classList.remove('bg-cyan-600', 'hover:bg-cyan-700');
+            startButton.classList.add('bg-red-600', 'hover:bg-red-700');
+
+            // Initial state before first inhale
+            updateVisualizer(phases.RESET);
+            instructionText.textContent = "Get Ready..."; // Initial instruction
+             // Short delay before starting the first cycle
+            breathCycleTimeout = setTimeout(runCycle, 1500);
+        }
+
+        function stopBreathing() {
+            if (!isRunning) return;
+            isRunning = false;
+            clearTimeout(breathCycleTimeout);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId); // If using rAF
+
+            startButton.textContent = 'Start';
+            startButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+            startButton.classList.add('bg-cyan-600', 'hover:bg-cyan-700');
+
+            // Reset to initial visual state smoothly
+            updateVisualizer(phases.RESET);
+            visualizer.style.transitionDuration = '2s'; // Smoother reset transition
+            instructionText.textContent = "Press Start to begin";
+        }
+
+        startButton.addEventListener('click', () => {
+            if (isRunning) {
+                stopBreathing();
+            } else {
+                startBreathing();
+            }
+        });
+
+        // Initial setup on load
+        instructionText.textContent = "Press Start to begin";
+        visualizer.style.setProperty('--breath-scale', phases.RESET.scale);
+        visualizer.style.setProperty('--bloom-blur', phases.RESET.blur);
+        visualizer.style.setProperty('--bloom-spread', phases.RESET.spread);
+        visualizer.style.setProperty('--bloom-color', phases.RESET.color);
+        visualizer.style.transitionDuration = '2s'; // Initial transition duration
+
+    </script>
+
+</body>
+</html>
