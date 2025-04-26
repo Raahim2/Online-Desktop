@@ -32,5 +32,17 @@
       "Option to load stories from shared links."
     ],
     "raw_output": "Project Name: Interactive Story Weaver\nDescription: Craft branching narratives with a simple, visual interface. Explore different story paths and share your creations.\nFeatures:\n- Drag-and-drop interface for connecting story segments.\n- Customizable text fields for each segment.\n- Visual representation of the story's branching structure.\n- Button to generate a shareable link encoding the story data.\n- Option to load stories from shared links.\n"
+  },
+  {
+    "name": "Gradient Puzzle",
+    "description": "Slide colored tiles to recreate a target gradient, challenging your color perception and puzzle-solving skills.",
+    "features": [
+      "Randomly generated target gradient and shuffled tiles.",
+      "Drag-and-drop tile movement using JavaScript.",
+      "Visual feedback on tile placement accuracy.",
+      "Timer to track completion time.",
+      "Reset button to start a new puzzle."
+    ],
+    "raw_output": "Project Name: Gradient Puzzle\nDescription: Slide colored tiles to recreate a target gradient, challenging your color perception and puzzle-solving skills.\nFeatures:\n- Randomly generated target gradient and shuffled tiles.\n- Drag-and-drop tile movement using JavaScript.\n- Visual feedback on tile placement accuracy.\n- Timer to track completion time.\n- Reset button to start a new puzzle.\n"
   }
 ]
