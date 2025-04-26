@@ -1,2 +1,3 @@
 .
 Project Name: Mood Ring Generator
+Project Name: Interactive Geometric Art Generator

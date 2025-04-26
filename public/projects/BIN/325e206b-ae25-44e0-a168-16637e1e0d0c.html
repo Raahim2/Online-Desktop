@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Ring Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="py-8 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-center">
+        <h1 class="text-3xl font-bold">Mood Ring Generator</h1>
+        <p class="text-lg mt-2">Discover your digital mood!</p>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+            <div id="mood-display" class="w-48 h-48 rounded-full mx-auto mb-6" style="background-color: #ccc;"></div>
+            <p id="mood-text" class="text-center text-xl font-semibold mb-6">Click the button to generate a mood!</p>
+
+            <button id="generate-btn" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded w-full">
+                Generate Mood
+            </button>
+
+            <button id="copy-btn" class="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded w-full" onclick="copyMood()">
+                Copy Mood
+            </button>
+        </div>
+    </main>
+
+    <footer class="bg-gray-200 text-center py-4 mt-8">
+        <p class="text-sm">&copy; 2023 Mood Ring Generator</p>
+    </footer>
+
+    <script>
+        const moods = [
+            { color: '#9400D3', meaning: 'Happy' }, // Dark Violet
+            { color: '#4B0082', meaning: 'Passionate' }, // Indigo
+            { color: '#0000FF', meaning: 'Calm' }, // Blue
+            { color: '#00FF00', meaning: 'Energetic' }, // Green
+            { color: '#FFFF00', meaning: 'Stressed' }, // Yellow
+            { color: '#FFA500', meaning: 'Anxious' }, // Orange
+            { color: '#FF0000', meaning: 'Angry' }, // Red
+            { color: '#808080', meaning: 'Neutral' } // Gray
+        ];
+
+        const moodDisplay = document.getElementById('mood-display');
+        const moodText = document.getElementById('mood-text');
+        const generateBtn = document.getElementById('generate-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        let currentMood = '';
+
+        generateBtn.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * moods.length);
+            const mood = moods[randomIndex];
+            moodDisplay.style.backgroundColor = mood.color;
+            moodText.textContent = mood.meaning;
+            currentMood = `${mood.meaning} (${mood.color})`;
+        });
+
+        function copyMood() {
+            navigator.clipboard.writeText(currentMood).then(() => {
+                alert('Mood copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
