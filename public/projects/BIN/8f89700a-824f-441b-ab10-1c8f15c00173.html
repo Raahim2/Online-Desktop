@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRT Glitch Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal CSS for effects not easily achievable with Tailwind */
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .blinking-cursor {
+          animation: blink 1s step-end infinite;
+        }
+
+        .crt-screen::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.04));
+          background-size: 100% 4px, 6px 100%; /* Scanlines */
+          pointer-events: none;
+          z-index: 10; /* Ensure overlay is on top */
+          animation: flicker 0.05s infinite linear alternate; /* Subtle flicker */
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            100% { opacity: 1; }
+        }
+
+        /* Glitch effect on demand */
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: 1px 1px 0px #ff00ff, -1px -1px 0px #00ffff; }
+            25% { transform: translate(-2px, 2px); text-shadow: -1px 1px 0px #ff00ff, 1px -1px 0px #00ffff; }
+            50% { transform: translate(2px, -2px); text-shadow: 1px -1px 0px #ff00ff, -1px 1px 0px #00ffff; }
+            75% { transform: translate(2px, 2px); text-shadow: -1px -1px 0px #ff00ff, 1px 1px 0px #00ffff; }
+            100% { transform: translate(0); text-shadow: 1px 1px 0px #ff00ff, -1px -1px 0px #00ffff; }
+        }
+        .glitch-active {
+            animation: glitch 0.15s infinite linear alternate-reverse;
+        }
+
+        /* Add a subtle glow/bloom effect */
+        .text-glow {
+            text-shadow: 0 0 3px currentColor, 0 0 5px currentColor;
+        }
+
+        /* Force monospace font */
+        body, pre, code, kbd, samp, button, input {
+            font-family: 'Courier New', Courier, monospace; /* Classic terminal font */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center p-4 font-mono">
+
+    <div class="w-full max-w-4xl bg-black rounded-lg shadow-2xl shadow-green-900/30 overflow-hidden border-4 border-gray-800 relative crt-screen">
+        <!-- CRT Bezel Simulation -->
+        <div class="absolute inset-0 border-[1.5rem] sm:border-[2rem] border-gray-800 rounded-lg pointer-events-none z-0"></div>
+        <div class="absolute inset-0 border-4 border-black rounded-lg pointer-events-none z-0"></div>
+
+        <!-- Terminal Content Area -->
+        <main class="relative z-1 p-4 sm:p-6 md:p-8 text-green-400 text-sm sm:text-base text-glow">
+
+            <!-- Header -->
+            <header class="mb-4 border-b-2 border-green-700 pb-2 glitch-trigger">
+                <h1 class="text-lg sm:text-xl md:text-2xl font-bold glitch-target">[ GLITCH_OS v0.3a - SYSTEM ONLINE ]</h1>
+                <p class="text-xs text-green-600">STATUS: Nominal // MEM: 64KB // USER: guest@localhost</p>
+            </header>
+
+            <!-- Simulated Output -->
+            <section id="terminal-output" class="mb-4 h-64 sm:h-80 overflow-y-auto pr-2">
+                <pre class="whitespace-pre-wrap break-words">Initializing system... OK
+Loading core modules...
+ [core]   Loading kernel... OK
+ [net]    Network interface eth0 detected... FAILED (No Signal)
+ [fs]     Mounting /dev/sda1 on /... OK
+ [glitch] Injecting instability module... WARNING: Unstable!
+ [auth]   Authenticating user 'guest'... OK
+
+Welcome to GLITCH_OS! Type 'help' for available commands.
+
+Loading art module... Displaying artifact...
+</pre>
+                <!-- Glitch Art Placeholder -->
+                <div class="my-4 p-2 border border-green-600 inline-block glitch-trigger">
+                    <img src="https://via.placeholder.com/300x150/000000/00FF00?text=GlitchArt.png" alt="Glitch Art Placeholder" class="glitch-target block mx-auto opacity-90" id="glitch-image">
+                </div>
+                <pre class="whitespace-pre-wrap break-words">
+Artifact displayed. System ready.
+</pre>
+            </section>
+
+            <!-- Interactive Input Area -->
+            <section class="flex items-center border-t-2 border-green-700 pt-2">
+                <span class="text-green-400 mr-2">&gt;</span>
+                <input type="text" id="command-input" class="flex-grow bg-transparent border-none outline-none text-green-400 text-glow placeholder-green-700" placeholder="Enter command...">
+                <span class="blinking-cursor ml-1">_</span>
+            </section>
+
+            <!-- Simple Command Buttons (Optional Interactivity) -->
+            <nav class="mt-4 flex flex-wrap gap-2 text-xs sm:text-sm">
+                <button onclick="runCommand('help')" class="bg-green-900/50 hover:bg-green-700/70 border border-green-700 px-3 py-1 rounded transition-colors duration-150 glitch-trigger"><span class="glitch-target">help</span></button>
+                <button onclick="runCommand('ls')" class="bg-green-900/50 hover:bg-green-700/70 border border-green-700 px-3 py-1 rounded transition-colors duration-150 glitch-trigger"><span class="glitch-target">ls</span></button>
+                <button onclick="runCommand('status')" class="bg-green-900/50 hover:bg-green-700/70 border border-green-700 px-3 py-1 rounded transition-colors duration-150 glitch-trigger"><span class="glitch-target">status</span></button>
+                <button onclick="triggerGlitch()" class="bg-red-900/50 hover:bg-red-700/70 border border-red-700 px-3 py-1 rounded transition-colors duration-150 text-red-400">! GLITCH !</button>
+            </nav>
+
+        </main>
+
+        <!-- Footer (Optional) -->
+        <footer class="absolute bottom-1 right-2 text-xs text-green-800/50 z-1 pointer-events-none">
+            CRT Simulation v1.0
+        </footer>
+    </div>
+
+    <script>
+        const outputElement = document.getElementById('terminal-output');
+        const inputElement = document.getElementById('command-input');
+        const glitchImage = document.getElementById('glitch-image');
+        const bodyElement = document.body; // Target body or a specific container for glitch
+
+        // Simulate command execution
+        function runCommand(cmd) {
+            const outputPre = outputElement.querySelector('pre:last-of-type') || outputElement;
+            const prompt = `<span class="text-green-400">&gt; ${cmd}</span>\n`;
+            let response = '';
+
+            switch (cmd.toLowerCase()) {
+                case 'help':
+                    response = `Available commands:\n  help   - Display this help message\n  ls     - List directory contents (simulated)\n  status - Show system status\n  clear  - Clear the screen\n  glitch - Trigger visual glitch effect`;
+                    break;
+                case 'ls':
+                    response = `drwxr-xr-x 2 guest users 4096 Jan 1 19:84 .\ndrwxr-xr-x 4 root  root  4096 Dec 31 19:83 ..\n-rw-r--r-- 1 guest users  128 Jan 1 19:84 config.sys\n-rwxr-xr-x 1 guest users 8192 Jan 1 19:84 glitch_art.png\n-rw------- 1 guest users   64 Jan 1 19:84 secrets.txt`;
+                    break;
+                case 'status':
+                    response = `System Status: [OPTIMAL]\nCPU Load: 3%\nMemory Usage: 48KB / 64KB\nNetwork: OFFLINE\nInstability Factor: HIGH`;
+                    break;
+                case 'clear':
+                    // Keep initial boot messages and art placeholder structure
+                     outputElement.innerHTML = `<pre class="whitespace-pre-wrap break-words">Initializing system... OK
+Loading core modules...
+ [core]   Loading kernel... OK
+ [net]    Network interface eth0 detected... FAILED (No Signal)
+ [fs]     Mounting /dev/sda1 on /... OK
+ [glitch] Injecting instability module... WARNING: Unstable!
+ [auth]   Authenticating user 'guest'... OK
+
+Welcome to GLITCH_OS! Type 'help' for available commands.
+
+Loading art module... Displaying artifact...
+</pre>
+                <div class="my-4 p-2 border border-green-600 inline-block glitch-trigger">
+                    <img src="https://via.placeholder.com/300x150/000000/00FF00?text=GlitchArt.png" alt="Glitch Art Placeholder" class="glitch-target block mx-auto opacity-90" id="glitch-image">
+                </div>
+                <pre class="whitespace-pre-wrap break-words">
+Screen Cleared. System ready.
+</pre>`;
+                    // Re-assign glitchImage after clearing
+                    glitchImage = document.getElementById('glitch-image');
+                    inputElement.value = ''; // Clear input too
+                    outputElement.scrollTop = outputElement.scrollHeight; // Scroll to bottom
+                    return; // Exit function early
+                case 'glitch':
+                    triggerGlitch();
+                    response = `Glitch effect triggered manually.`;
+                    break;
+                default:
+                    response = `Command not found: ${cmd}`;
+            }
+
+            const newEntry = document.createElement('pre');
+            newEntry.className = 'whitespace-pre-wrap break-words';
+            newEntry.innerHTML = prompt + response; // Use innerHTML to render the span correctly
+            outputElement.appendChild(newEntry);
+
+            inputElement.value = ''; // Clear input field
+            outputElement.scrollTop = outputElement.scrollHeight; // Scroll to bottom
+        }
+
+        // Handle Enter key press in input field
+        inputElement.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission if it were in a form
+                const command = inputElement.value.trim();
+                if (command) {
+                    runCommand(command);
+                } else {
+                    // Add a blank line if user just presses enter
+                     const newEntry = document.createElement('pre');
+                     newEntry.className = 'whitespace-pre-wrap break-words';
+                     newEntry.innerHTML = `<span class="text-green-400">&gt;</span>`;
+                     outputElement.appendChild(newEntry);
+                     outputElement.scrollTop = outputElement.scrollHeight;
+                }
+            }
+        });
+
+        // Function to trigger glitch effect
+        function triggerGlitch() {
+            if (glitchImage) {
+                glitchImage.classList.add('glitch-active');
+                // Add glitch to other elements if desired
+                // document.querySelectorAll('.glitch-target').forEach(el => el.classList.add('glitch-active'));
+
+                // Remove the class after a short duration
+                setTimeout(() => {
+                    glitchImage.classList.remove('glitch-active');
+                    // document.querySelectorAll('.glitch-target').forEach(el => el.classList.remove('glitch-active'));
+                }, 300); // Duration of the glitch effect
+            }
+             // Optionally glitch the whole screen briefly
+             bodyElement.classList.add('glitch-active');
+             setTimeout(() => {
+                 bodyElement.classList.remove('glitch-active');
+             }, 150);
+        }
+
+        // Initial focus on input
+        inputElement.focus();
+        // Keep focus on input when clicking inside the terminal area (optional)
+        // outputElement.parentElement.addEventListener('click', () => inputElement.focus());
+
+        // Add a small random glitch effect periodically (optional)
+        // setInterval(triggerGlitch, 15000); // Trigger every 15 seconds
+
+    </script>
+
+</body>
+</html>
