@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Mood Ring Generator",
+    "description": "Generate a random mood ring color and its associated meaning with a click.  Relive the nostalgic fun of mood rings digitally!",
+    "features": [
+      "Clickable button to generate a new mood color.",
+      "Display of the generated color using Tailwind CSS background utilities.",
+      "Display of the color's corresponding mood meaning.",
+      "Simple, clean design using Tailwind's pre-built components.",
+      "Option to copy the mood/color combination to the clipboard."
+    ]
+  }
+]
