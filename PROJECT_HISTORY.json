@@ -46,5 +46,17 @@
       "Interactive highlighting of related words."
     ],
     "raw_output": "Project Name: Personal Word Cloud Visualizer\nDescription: Create dynamic word clouds from any text input, visualizing word frequency with customizable styles and layouts.\nFeatures:\n- Text input area for pasting or typing content.\n- Adjustable word size, color, and rotation.\n- Different layout options (spiral, grid, etc.).\n- Downloadable SVG of the generated word cloud.\n- Interactive highlighting of related words.\n"
+  },
+  {
+    "name": "Mood Ring Color Mixer",
+    "description": "An interactive color palette generator that blends colors based on selected emotional keywords, creating a personalized \"mood ring\" visual.",
+    "features": [
+      "Selectable emotion keywords (e.g., happy, calm, energetic).",
+      "Dynamic color blending based on chosen emotions.",
+      "Display of the resulting blended color as a large circle.",
+      "Hex code output of the generated color.",
+      "Option to save the generated color palette to local storage."
+    ],
+    "raw_output": "Project Name: Mood Ring Color Mixer\nDescription: An interactive color palette generator that blends colors based on selected emotional keywords, creating a personalized \"mood ring\" visual.\nFeatures:\n- Selectable emotion keywords (e.g., happy, calm, energetic).\n- Dynamic color blending based on chosen emotions.\n- Display of the resulting blended color as a large circle.\n- Hex code output of the generated color.\n- Option to save the generated color palette to local storage.\n"
   }
 ]
