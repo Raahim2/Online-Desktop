@@ -402,12 +402,9 @@ def generate_project():
     print(history_commit_result)
 
     if history_commit_result['status'] != 'success':
-        # Decide how critical history failure is. Maybe just warn and continue?
         print(f"Warning: Failed to update history file '{HISTORY_FILE_PATH}'. Proceeding with project commit anyway.")
-        # Optionally: return here if history update is mandatory
-        # return
+       
 
-    # Add a small delay before the next commit, sometimes helps with API rate limits or consistency
     time.sleep(2)
 
     # 6. Commit the Generated Project Code to GitHub
