@@ -9,5 +9,16 @@
       "Simple, clean design using Tailwind's pre-built components.",
       "Option to copy the mood/color combination to the clipboard."
     ]
+  },
+  {
+    "name": "Geometric Pattern Generator",
+    "description": "Create mesmerizing geometric patterns by adjusting sliders for size, color, and complexity. Download your unique design as an SVG.",
+    "features": [
+      "Interactive sliders to control pattern parameters.",
+      "Real-time pattern generation in an SVG element.",
+      "Customizable color palettes using Tailwind CSS.",
+      "Download button to save the generated SVG.",
+      "Option to change the geometric shape (e.g., circles, squares, triangles)."
+    ]
   }
 ]
