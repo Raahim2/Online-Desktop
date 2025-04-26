@@ -82,5 +82,17 @@
       "Customizable background scenes."
     ],
     "raw_output": "Project Name: CSS Shadow Puppet Theater\nDescription: Create and animate interactive shadow puppets using CSS filters and transforms, putting on a mini-play right in the browser.\nFeatures:\n- Pre-designed puppet characters with adjustable limbs.\n- Draggable puppets across the \"stage\" area.\n- Adjustable light source to change shadow angles and size.\n- Simple animation controls to create puppet movements.\n- Customizable background scenes.\n"
+  },
+  {
+    "name": "Personal Word Cloud Visualizer",
+    "description": "Create dynamic word clouds from any text input, visualizing word frequency with customizable styles and layouts.",
+    "features": [
+      "Text input area for pasting or typing content.",
+      "Adjustable word size, color, and rotation.",
+      "Different layout options (spiral, grid, etc.).",
+      "Downloadable SVG of the generated word cloud.",
+      "Interactive highlighting of related words."
+    ],
+    "raw_output": "Project Name: Personal Word Cloud Visualizer\nDescription: Create dynamic word clouds from any text input, visualizing word frequency with customizable styles and layouts.\nFeatures:\n- Text input area for pasting or typing content.\n- Adjustable word size, color, and rotation.\n- Different layout options (spiral, grid, etc.).\n- Downloadable SVG of the generated word cloud.\n- Interactive highlighting of related words.\n"
   }
 ]
