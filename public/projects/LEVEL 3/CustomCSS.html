@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Tailwind CSS Cheat Sheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for scrollbars if needed, otherwise rely on Tailwind */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+        /* Style for the visualizer box placeholder text */
+        #visualizer-box::before {
+            content: 'Apply classes to me!';
+            color: #9ca3af; /* gray-400 */
+            font-style: italic;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0; /* Behind potential content */
+        }
+        #visualizer-box:not(:empty)::before {
+            display: none; /* Hide placeholder when content exists or classes change significantly */
+        }
+        #visualizer-box > * {
+             position: relative; /* Ensure content is above pseudo-element */
+             z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md sticky top-0 z-20">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Interactive Tailwind Cheat Sheet</h1>
+            <span class="text-sm hidden sm:inline">Click classes to visualize!</span>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto p-4 md:p-6 lg:p-8">
+        <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+
+            <!-- Cheat Sheet Section -->
+            <aside class="w-full lg:w-2/5 xl:w-1/3 bg-white p-4 md:p-6 rounded-lg shadow-lg max-h-[80vh] overflow-y-auto">
+                <h2 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-2">Tailwind Classes</h2>
+
+                <!-- Category: Layout (Flexbox & Grid) -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Layout</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('flex')" class="utility-btn">flex</button>
+                        <button onclick="applyClass('grid')" class="utility-btn">grid</button>
+                        <button onclick="applyClass('inline-flex')" class="utility-btn">inline-flex</button>
+                        <button onclick="applyClass('items-center')" class="utility-btn">items-center</button>
+                        <button onclick="applyClass('justify-center')" class="utility-btn">justify-center</button>
+                        <button onclick="applyClass('justify-between')" class="utility-btn">justify-between</button>
+                        <button onclick="applyClass('gap-4')" class="utility-btn">gap-4</button>
+                        <button onclick="applyClass('grid-cols-3')" class="utility-btn">grid-cols-3</button>
+                    </div>
+                </section>
+
+                <!-- Category: Spacing (Padding & Margin) -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Spacing</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('p-4')" class="utility-btn">p-4</button>
+                        <button onclick="applyClass('p-8')" class="utility-btn">p-8</button>
+                        <button onclick="applyClass('px-6')" class="utility-btn">px-6</button>
+                        <button onclick="applyClass('py-2')" class="utility-btn">py-2</button>
+                        <button onclick="applyClass('m-4')" class="utility-btn">m-4</button>
+                        <button onclick="applyClass('mx-auto')" class="utility-btn">mx-auto</button>
+                        <button onclick="applyClass('space-x-4')" class="utility-btn">space-x-4</button>
+                        <button onclick="applyClass('space-y-4')" class="utility-btn">space-y-4</button>
+                    </div>
+                </section>
+
+                <!-- Category: Sizing (Width & Height) -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Sizing</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('w-32')" class="utility-btn">w-32</button>
+                        <button onclick="applyClass('w-64')" class="utility-btn">w-64</button>
+                        <button onclick="applyClass('w-full')" class="utility-btn">w-full</button>
+                        <button onclick="applyClass('w-1/2')" class="utility-btn">w-1/2</button>
+                        <button onclick="applyClass('h-32')" class="utility-btn">h-32</button>
+                        <button onclick="applyClass('h-64')" class="utility-btn">h-64</button>
+                        <button onclick="applyClass('h-screen')" class="utility-btn">h-screen</button>
+                        <button onclick="applyClass('min-w-min')" class="utility-btn">min-w-min</button>
+                    </div>
+                </section>
+
+                <!-- Category: Typography -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Typography</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('text-sm')" class="utility-btn">text-sm</button>
+                        <button onclick="applyClass('text-lg')" class="utility-btn">text-lg</button>
+                        <button onclick="applyClass('text-2xl')" class="utility-btn">text-2xl</button>
+                        <button onclick="applyClass('font-bold')" class="utility-btn">font-bold</button>
+                        <button onclick="applyClass('font-semibold')" class="utility-btn">font-semibold</button>
+                        <button onclick="applyClass('italic')" class="utility-btn">italic</button>
+                        <button onclick="applyClass('text-center')" class="utility-btn">text-center</button>
+                        <button onclick="applyClass('text-blue-600')" class="utility-btn text-blue-600">text-blue-600</button>
+                        <button onclick="applyClass('text-red-600')" class="utility-btn text-red-600">text-red-600</button>
+                        <button onclick="applyClass('underline')" class="utility-btn">underline</button>
+                    </div>
+                </section>
+
+                <!-- Category: Backgrounds -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Backgrounds</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('bg-slate-200')" class="utility-btn">bg-slate-200</button>
+                        <button onclick="applyClass('bg-sky-500')" class="utility-btn">bg-sky-500</button>
+                        <button onclick="applyClass('bg-emerald-500')" class="utility-btn">bg-emerald-500</button>
+                        <button onclick="applyClass('bg-amber-400')" class="utility-btn">bg-amber-400</button>
+                        <button onclick="applyClass('bg-rose-600')" class="utility-btn">bg-rose-600</button>
+                        <button onclick="applyClass('bg-gradient-to-r')" class="utility-btn">bg-gradient-to-r</button>
+                        <button onclick="applyClass('from-cyan-500')" class="utility-btn">from-cyan-500</button>
+                        <button onclick="applyClass('to-blue-500')" class="utility-btn">to-blue-500</button>
+                    </div>
+                </section>
+
+                <!-- Category: Borders -->
+                <section class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Borders</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('border')" class="utility-btn">border</button>
+                        <button onclick="applyClass('border-2')" class="utility-btn">border-2</button>
+                        <button onclick="applyClass('border-4')" class="utility-btn">border-4</button>
+                        <button onclick="applyClass('border-dashed')" class="utility-btn">border-dashed</button>
+                        <button onclick="applyClass('border-indigo-500')" class="utility-btn">border-indigo-500</button>
+                        <button onclick="applyClass('rounded')" class="utility-btn">rounded</button>
+                        <button onclick="applyClass('rounded-lg')" class="utility-btn">rounded-lg</button>
+                        <button onclick="applyClass('rounded-full')" class="utility-btn">rounded-full</button>
+                    </div>
+                </section>
+
+                <!-- Category: Effects (Shadows, Opacity) -->
+                <section>
+                    <h3 class="text-lg font-medium mb-3 text-sky-700">Effects</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="applyClass('shadow-sm')" class="utility-btn">shadow-sm</button>
+                        <button onclick="applyClass('shadow-md')" class="utility-btn">shadow-md</button>
+                        <button onclick="applyClass('shadow-lg')" class="utility-btn">shadow-lg</button>
+                        <button onclick="applyClass('shadow-xl')" class="utility-btn">shadow-xl</button>
+                        <button onclick="applyClass('opacity-50')" class="utility-btn">opacity-50</button>
+                        <button onclick="applyClass('opacity-75')" class="utility-btn">opacity-75</button>
+                        <button onclick="applyClass('mix-blend-multiply')" class="utility-btn">mix-blend-multiply</button>
+                    </div>
+                </section>
+
+            </aside>
+
+            <!-- Visualizer Section -->
+            <section class="w-full lg:w-3/5 xl:w-2/3">
+                <div class="bg-white p-4 md:p-6 rounded-lg shadow-lg sticky top-24">
+                    <h2 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-2">Visualizer</h2>
+
+                    <div class="mb-4">
+                        <p class="text-sm text-slate-600 mb-1">Applied Classes:</p>
+                        <div class="bg-slate-100 p-2 rounded min-h-[40px] text-sm text-indigo-700 font-mono overflow-x-auto" id="applied-classes-display">
+                            <!-- Applied classes will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex justify-end">
+                        <button onclick="resetVisualizer()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-1 px-3 rounded transition duration-150 ease-in-out">
+                            Reset Visualizer
+                        </button>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-slate-200 to-slate-300 p-6 rounded-md min-h-[300px] flex items-center justify-center border border-slate-300">
+                        <div id="visualizer-box" class="relative min-w-[150px] min-h-[100px] max-w-full bg-white border border-dashed border-slate-400 transition-all duration-300 ease-in-out flex items-center justify-center p-4">
+                            <!-- The element to be styled -->
+                            <!-- Placeholder text is added via CSS ::before -->
+                        </div>
+                    </div>
+                     <p class="text-xs text-slate-500 mt-4 text-center italic">Note: Some classes might override others (e.g., multiple background colors). Reset if needed.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 mt-8 text-slate-500 text-sm">
+        <p>Created with HTML & Tailwind CSS</p>
+    </footer>
+
+    <!-- Minimal JavaScript for Interactivity -->
+    <script>
+        const visualizerBox = document.getElementById('visualizer-box');
+        const appliedClassesDisplay = document.getElementById('applied-classes-display');
+        const baseVisualizerClass = 'relative min-w-[150px] min-h-[100px] max-w-full bg-white border border-dashed border-slate-400 transition-all duration-300 ease-in-out flex items-center justify-center p-4'; // Store base classes
+
+        let appliedClasses = new Set(); // Use a Set to avoid duplicate class displays
+
+        function applyClass(className) {
+            if (!visualizerBox) return;
+
+            // Simple conflict resolution: remove similar classes before adding
+            // Example: Remove existing bg-* before adding a new one
+            if (className.startsWith('bg-')) {
+                const classesToRemove = Array.from(visualizerBox.classList).filter(cls => cls.startsWith('bg-'));
+                visualizerBox.classList.remove(...classesToRemove);
+                appliedClasses.forEach(cls => { if (cls.startsWith('bg-')) appliedClasses.delete(cls); });
+            }
+             if (className.startsWith('text-') && !className.includes('-opacity')) { // Avoid removing text-opacity
+                const classesToRemove = Array.from(visualizerBox.classList).filter(cls => cls.startsWith('text-') && !cls.includes('-opacity') && cls !== className);
+                 visualizerBox.classList.remove(...classesToRemove);
+                 appliedClasses.forEach(cls => { if (cls.startsWith('text-') && !cls.includes('-opacity') && cls !== className) appliedClasses.delete(cls); });
+            }
+             if (className.startsWith('p-') || className.startsWith('px-') || className.startsWith('py-') || className.startsWith('pt-') || className.startsWith('pb-') || className.startsWith('pl-') || className.startsWith('pr-')) {
+                 const classesToRemove = Array.from(visualizerBox.classList).filter(cls => cls.startsWith('p-') || cls.startsWith('px-') || cls.startsWith('py-') || cls.startsWith('pt-') || cls.startsWith('pb-') || cls.startsWith('pl-') || cls.startsWith('pr-'));
+                 visualizerBox.classList.remove(...classesToRemove);
+                 appliedClasses.forEach(cls => { if (cls.startsWith('p-') || cls.startsWith('px-') || cls.startsWith('py-') || cls.startsWith('pt-') || cls.startsWith('pb-') || cls.startsWith('pl-') || cls.startsWith('pr-')) appliedClasses.delete(cls); });
+             }
+             // Add more conflict resolution as needed for margin, border, rounded, shadow etc.
+
+            visualizerBox.classList.add(className);
+            appliedClasses.add(className);
+            updateAppliedClassesDisplay();
+
+             // If the box was empty, adding a class might warrant removing the placeholder via emptiness check
+             if (visualizerBox.innerHTML.trim() === '') {
+                 visualizerBox.style.minHeight = '100px'; // Ensure it doesn't collapse completely if empty
+             }
+        }
+
+        function resetVisualizer() {
+            if (!visualizerBox) return;
+            visualizerBox.className = baseVisualizerClass; // Reset to base classes
+            appliedClasses.clear();
+            updateAppliedClassesDisplay();
+            visualizerBox.innerHTML = ''; // Clear any potential demo content added
+        }
+
+        function updateAppliedClassesDisplay() {
+             if (!appliedClassesDisplay) return;
+             if (appliedClasses.size === 0) {
+                 appliedClassesDisplay.innerHTML = '<span class="text-slate-400 italic">No classes applied yet.</span>';
+             } else {
+                 appliedClassesDisplay.innerHTML = Array.from(appliedClasses).map(cls => `<span class="inline-block bg-indigo-100 text-indigo-800 rounded px-2 py-0.5 mr-1 mb-1">${cls}</span>`).join('');
+             }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Style utility buttons dynamically using Tailwind classes via JS is not allowed per requirements.
+            // We will style them directly with Tailwind in the HTML.
+            // Add base styling to buttons here if needed, but prefer HTML classes.
+            const buttons = document.querySelectorAll('.utility-btn');
+            buttons.forEach(button => {
+                button.classList.add(
+                    'bg-slate-50', 'hover:bg-sky-100', 'text-slate-700', 'text-sm', 'font-medium',
+                    'py-1', 'px-2', 'rounded', 'border', 'border-slate-200', 'transition',
+                    'duration-150', 'ease-in-out', 'text-center', 'truncate'
+                );
+            });
+
+            // Initial display update
+            updateAppliedClassesDisplay();
+        });
+
+    </script>
+
+</body>
+</html>

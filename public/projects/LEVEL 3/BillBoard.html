@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Holographic Billboard Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal necessary styles not easily achievable with standard Tailwind classes */
+        .perspective { perspective: 1000px; }
+        .bg-scanlines { background-image: linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px); background-size: 1px 3px; }
+        /* Custom animation for flicker effect (optional) */
+        @keyframes flicker-animation {
+          0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6)); } /* purple-500 */
+          50% { opacity: 0.85; filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.8)); }
+        }
+        .animate-flicker { animation: flicker-animation 1.5s infinite; }
+        /* Custom animation for pulse effect */
+         @keyframes pulse-glow {
+          0%, 100% { filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.5)); } /* red-500 */
+          50% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.7)); }
+        }
+        .animate-pulse-glow { animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+
+    <header class="p-4 bg-gray-800/80 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+        <h1 class="text-xl sm:text-2xl font-bold text-center text-cyan-400 tracking-wide">Interactive Holographic Billboard Simulator</h1>
+    </header>
+
+    <main class="container mx-auto mt-6 sm:mt-8 p-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+
+            <!-- Billboard Section -->
+            <section class="lg:col-span-2 flex flex-col items-center justify-center p-4 sm:p-6 bg-gray-800 rounded-lg shadow-xl min-h-[450px] relative overflow-hidden group">
+                <div id="billboard-wrapper" class="w-full max-w-3xl aspect-[16/7] flex items-center justify-center perspective">
+                    <div id="billboard-container" class="w-full h-full bg-black/40 rounded-lg shadow-2xl p-4 sm:p-6 flex flex-col items-center justify-center relative transform transition-transform duration-300 ease-out border-2 border-transparent">
+                        <!-- Holographic Effect Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-600/10 via-transparent to-blue-600/10 opacity-60 rounded-lg"></div>
+                        <!-- Scanlines -->
+                        <div class="absolute inset-0 bg-scanlines opacity-20 pointer-events-none rounded-lg"></div>
+
+                        <!-- Ad Content -->
+                        <div class="z-10 text-center flex flex-col items-center justify-center w-full h-full">
+                            <img id="ad-image" src="https://via.placeholder.com/400x150/06B6D4/0F172A?text=HoloAd+Concept" alt="Advertisment" class="max-w-[80%] sm:max-w-[70%] h-auto mx-auto mb-3 sm:mb-4 rounded border-2 object-contain transition-all duration-300">
+                            <h2 id="ad-headline" class="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 transition-colors duration-300">Your Future Ad</h2>
+                            <p id="ad-body" class="text-base sm:text-lg text-gray-200 transition-colors duration-300 px-2">Customize this message!</p>
+                        </div>
+                    </div>
+                </div>
+                 <p class="text-xs text-gray-500 mt-3 italic absolute bottom-3 left-1/2 transform -translate-x-1/2">Hover billboard for perspective shift</p>
+            </section>
+
+            <!-- Controls Section -->
+            <section class="lg:col-span-1 p-5 sm:p-6 bg-gray-800 rounded-lg shadow-xl h-fit">
+                <h2 class="text-xl font-semibold mb-4 text-cyan-400 border-b border-gray-700 pb-2">Customize Your Ad</h2>
+                <form id="ad-controls" class="space-y-4">
+                    <div>
+                        <label for="headline-input" class="block text-sm font-medium text-gray-300 mb-1">Headline Text:</label>
+                        <input type="text" id="headline-input" value="Your Future Ad" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-400 transition duration-200">
+                    </div>
+                    <div>
+                        <label for="body-input" class="block text-sm font-medium text-gray-300 mb-1">Body Text:</label>
+                        <textarea id="body-input" rows="3" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-400 transition duration-200">Customize this message!</textarea>
+                    </div>
+                    <div>
+                        <label for="image-url-input" class="block text-sm font-medium text-gray-300 mb-1">Image URL:</label>
+                        <input type="url" id="image-url-input" value="https://via.placeholder.com/400x150/06B6D4/0F172A?text=HoloAd+Concept" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-400 transition duration-200">
+                         <p class="text-xs text-gray-500 mt-1">Enter full URL (e.g., https://...)</p>
+                    </div>
+                     <div>
+                        <label for="effect-select" class="block text-sm font-medium text-gray-300 mb-1">Visual Effect:</label>
+                        <select id="effect-select" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent appearance-none bg-no-repeat bg-right pr-8" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E'); background-position: right 0.5rem center; background-size: 1.5em 1.5em;">
+                            <option value="standard">Standard Glow (Cyan)</option>
+                            <option value="pulse">Pulse Glow (Red)</option>
+                            <option value="flicker">Flicker Glow (Purple)</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="updateBillboard()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 active:scale-[0.98]">
+                        Update Billboard
+                    </button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="text-center text-gray-500 text-sm mt-10 sm:mt-16 mb-6 px-4">
+        <p>&copy; <span id="current-year"></span> Holographic Billboard Simulator. A UI Concept by AI.</p>
+    </footer>
+
+    <script>
+        // Minimal JavaScript for interactivity
+        function updateBillboard() {
+            const headlineInput = document.getElementById('headline-input');
+            const bodyInput = document.getElementById('body-input');
+            const imageUrlInput = document.getElementById('image-url-input');
+            const effectSelect = document.getElementById('effect-select');
+
+            const adHeadline = document.getElementById('ad-headline');
+            const adBody = document.getElementById('ad-body');
+            const adImage = document.getElementById('ad-image');
+            const billboardContainer = document.getElementById('billboard-container');
+
+            // Update text content
+            adHeadline.innerText = headlineInput.value.trim() || 'Your Future Ad';
+            adBody.innerText = bodyInput.value.trim() || 'Customize this message!';
+
+            // Update image source
+            const newImageUrl = imageUrlInput.value.trim();
+            if (newImageUrl && (newImageUrl.startsWith('http://') || newImageUrl.startsWith('https://') || newImageUrl.startsWith('data:'))) {
+               adImage.src = newImageUrl;
+               adImage.alt = headlineInput.value.trim() || 'Advertisement'; // Update alt text
+               adImage.onerror = () => { // Handle image loading errors
+                   adImage.src = 'https://via.placeholder.com/400x150/DC2626/FFFFFF?text=Image+Load+Error';
+                   adImage.alt = 'Image Load Error';
+               };
+            } else if (!newImageUrl) {
+                // Use default placeholder if URL is empty
+                adImage.src = 'https://via.placeholder.com/400x150/6B7280/FFFFFF?text=Enter+Valid+URL';
+                adImage.alt = 'Placeholder - Enter Valid Image URL';
+            } else {
+                 // Keep current image if input is invalid but not empty
+                 // Optionally show an error or different placeholder
+                 console.warn("Invalid image URL provided.");
+            }
+
+            // --- Update visual effect ---
+            const selectedEffect = effectSelect.value;
+
+            // Reset classes first
+            billboardContainer.classList.remove('border-cyan-400/60', 'border-red-500/60', 'border-purple-500/60', 'animate-pulse-glow', 'animate-flicker');
+            adHeadline.classList.remove('text-cyan-300', 'text-red-300', 'text-purple-300');
+            adHeadline.style.filter = 'none'; // Reset any direct filter styles
+            adImage.classList.remove('border-cyan-400/50', 'border-red-500/50', 'border-purple-500/50');
+            adImage.style.filter = 'none'; // Reset any direct filter styles
+
+            // Apply new effect classes
+            switch (selectedEffect) {
+                case 'pulse':
+                    billboardContainer.classList.add('border-red-500/60', 'animate-pulse-glow');
+                    adHeadline.classList.add('text-red-300');
+                    adHeadline.style.filter = 'drop-shadow(0 1px 2px rgba(255, 100, 100, 0.6))';
+                    adImage.classList.add('border-red-500/50');
+                    adImage.style.filter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.4))'; // red-500
+                    break;
+                case 'flicker':
+                    billboardContainer.classList.add('border-purple-500/60', 'animate-flicker');
+                    adHeadline.classList.add('text-purple-300');
+                    // Flicker effect primarily handled by animation on container
+                    adHeadline.style.filter = 'drop-shadow(0 1px 2px rgba(190, 100, 255, 0.6))';
+                    adImage.classList.add('border-purple-500/50');
+                    adImage.style.filter = 'drop-shadow(0 0 5px rgba(168, 85, 247, 0.4))'; // purple-500
+                    break;
+                case 'standard':
+                default:
+                    billboardContainer.classList.add('border-cyan-400/60');
+                    adHeadline.classList.add('text-cyan-300');
+                    adHeadline.style.filter = 'drop-shadow(0 1px 2px rgba(100, 200, 255, 0.6))';
+                    adImage.classList.add('border-cyan-400/50');
+                    adImage.style.filter = 'drop-shadow(0 0 5px rgba(6, 182, 212, 0.4))'; // cyan-500
+                    break;
+            }
+
+            // Force reflow to potentially help restart CSS animations if needed
+            // billboardContainer.style.animation = 'none';
+            // billboardContainer.offsetHeight; /* trigger reflow */
+            // billboardContainer.style.animation = null;
+        }
+
+        // --- Perspective effect on hover ---
+         const billboardWrapper = document.getElementById('billboard-wrapper');
+         const billboardContainer = document.getElementById('billboard-container');
+         if (billboardWrapper && billboardContainer) {
+             billboardWrapper.addEventListener('mousemove', (e) => {
+                 const rect = billboardWrapper.getBoundingClientRect();
+                 // Calculate position relative to the center of the element
+                 const x = e.clientX - rect.left - rect.width / 2;
+                 const y = e.clientY - rect.top - rect.height / 2;
+                 // Calculate rotation, limiting the maximum rotation angle
+                 const maxRotate = 6; // Max rotation in degrees
+                 const rotateY = (x / (rect.width / 2)) * maxRotate;
+                 const rotateX = (-y / (rect.height / 2)) * (maxRotate * 0.6); // Less rotation on X-axis
+                 // Apply the transform
+                 billboardContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+             });
+             billboardWrapper.addEventListener('mouseleave', () => {
+                 // Reset transform on mouse leave
+                 billboardContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+             });
+         }
+
+         // --- Set current year in footer ---
+         document.getElementById('current-year').textContent = new Date().getFullYear();
+
+         // --- Initialize billboard on load ---
+         document.addEventListener('DOMContentLoaded', updateBillboard);
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive UI Element Anatomy Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style block for custom highlight effect if needed */
+        .highlighted-part {
+            outline: 2px solid #3b82f6; /* blue-500 */
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); /* Subtle glow */
+            transition: outline 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        /* Ensure interactive parts have a cursor */
+        [data-part] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-5 md:py-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Interactive UI Element Anatomy Explorer</h1>
+            <p class="text-gray-600 mt-1">Click on different parts of the UI elements below to learn about their components.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Element Selector -->
+            <nav class="lg:w-1/4">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Select Element</h2>
+                <ul class="space-y-2">
+                    <li><button onclick="showElement('button')" class="w-full text-left px-4 py-2 rounded-md bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition element-selector active:bg-blue-100" data-element="button">Button</button></li>
+                    <li><button onclick="showElement('card')" class="w-full text-left px-4 py-2 rounded-md bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition element-selector active:bg-blue-100" data-element="card">Card</button></li>
+                    <li><button onclick="showElement('input')" class="w-full text-left px-4 py-2 rounded-md bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition element-selector active:bg-blue-100" data-element="input">Input Field</button></li>
+                    <li><button onclick="showElement('modal')" class="w-full text-left px-4 py-2 rounded-md bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition element-selector active:bg-blue-100" data-element="modal">Modal</button></li>
+                </ul>
+            </nav>
+
+            <!-- Element Display & Info -->
+            <div class="lg:w-3/4 flex flex-col md:flex-row gap-8">
+
+                <!-- Element Display Area -->
+                <section class="md:w-2/3 bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[300px] md:min-h-[400px]">
+                    <div id="element-display-area" class="w-full">
+
+                        <!-- Button Example -->
+                        <div id="element-button" class="element-container hidden flex justify-center items-center">
+                            <button
+                                data-part="container" onclick="highlightPart('button', 'container')"
+                                class="relative inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-150 ease-in-out group"
+                                >
+                                <span data-part="icon" onclick="highlightPart('button', 'icon')" class="mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                <span data-part="text" onclick="highlightPart('button', 'text')" class="font-semibold">
+                                    Click Me
+                                </span>
+                                <!-- Invisible layer for shadow interaction -->
+                                <div data-part="shadow" onclick="highlightPart('button', 'shadow')" class="absolute inset-0 rounded-lg -z-10 opacity-50 group-hover:opacity-75 transition-opacity duration-150 ease-in-out" style="box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);"></div>
+                            </button>
+                        </div>
+
+                        <!-- Card Example -->
+                        <div id="element-card" class="element-container hidden flex justify-center items-center">
+                            <div
+                                data-part="container" onclick="highlightPart('card', 'container')"
+                                class="max-w-sm bg-white rounded-xl shadow-lg overflow-hidden"
+                                >
+                                <img
+                                    data-part="image" onclick="highlightPart('card', 'image')"
+                                    class="w-full h-48 object-cover" src="https://via.placeholder.com/400x300/cccccc/969696?text=Placeholder+Image" alt="Card Image">
+                                <div data-part="header" onclick="highlightPart('card', 'header')" class="p-4 border-b border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900">Card Title</h3>
+                                </div>
+                                <div data-part="body" onclick="highlightPart('card', 'body')" class="p-4">
+                                    <p class="text-gray-600 text-sm">
+                                        This is the main content area of the card. It can contain text, lists, or other elements. Click different parts to learn more.
+                                    </p>
+                                </div>
+                                <div data-part="footer" onclick="highlightPart('card', 'footer')" class="p-4 bg-gray-50 border-t border-gray-200">
+                                    <button class="text-sm text-blue-600 hover:text-blue-800 font-medium">Action</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Field Example -->
+                        <div id="element-input" class="element-container hidden w-full max-w-md px-4">
+                           <div data-part="form-group" onclick="highlightPart('input', 'form-group')" class="mb-4 p-2 border border-dashed border-transparent hover:border-gray-300 rounded">
+                                <label data-part="label" onclick="highlightPart('input', 'label')" for="example-input" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <input
+                                    data-part="input-field" onclick="highlightPart('input', 'input-field')"
+                                    type="email" id="example-input" name="email"
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="you@example.com">
+                                <p data-part="help-text" onclick="highlightPart('input', 'help-text')" class="mt-1 text-xs text-gray-500">This is helper text providing context.</p>
+                                <p data-part="error-message" onclick="highlightPart('input', 'error-message')" class="mt-1 text-xs text-red-600 hidden">Error message appears on validation failure.</p>
+                           </div>
+                           <button data-part="submit-button" onclick="highlightPart('input', 'submit-button')" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm">Submit</button>
+                        </div>
+
+                        <!-- Modal Example -->
+                        <div id="element-modal" class="element-container hidden w-full flex justify-center items-center">
+                             <div data-part="overlay" onclick="highlightPart('modal', 'overlay')" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-0 pointer-events-none">
+                                <div data-part="container" onclick="highlightPart('modal', 'container')" class="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6 pointer-events-auto">
+                                    <div data-part="header" onclick="highlightPart('modal', 'header')" class="flex justify-between items-center pb-3 border-b border-gray-200">
+                                        <h3 class="text-lg font-medium text-gray-900">Modal Title</h3>
+                                        <button data-part="close-button" onclick="highlightPart('modal', 'close-button')" class="text-gray-400 hover:text-gray-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div data-part="body" onclick="highlightPart('modal', 'body')" class="py-4">
+                                        <p class="text-sm text-gray-600">This is the main content area of the modal. It can contain forms, information, or confirmations.</p>
+                                    </div>
+                                    <div data-part="footer" onclick="highlightPart('modal', 'footer')" class="pt-3 border-t border-gray-200 flex justify-end space-x-2">
+                                        <button class="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100">Cancel</button>
+                                        <button class="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700">Confirm</button>
+                                    </div>
+                                </div>
+                             </div>
+                             <span class="text-gray-500 italic">(Modal is simulated here. Overlay is part of the example.)</span>
+                        </div>
+
+                        <!-- Initial Placeholder -->
+                        <div id="element-placeholder" class="text-center text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                            <p class="mt-2">Select a UI element from the left menu to explore its anatomy.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Information Panel -->
+                <aside class="md:w-1/3 bg-white p-6 rounded-lg shadow-md self-start">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">Component Info</h2>
+                    <div id="info-panel" class="space-y-3">
+                        <h3 id="info-part-name" class="text-lg font-medium text-blue-700">-</h3>
+                        <p id="info-part-description" class="text-sm text-gray-600">Click on a highlighted part of the element in the display area to see its description here.</p>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-sm">
+            &copy; 2023 UI Element Anatomy Explorer. Built with HTML & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const elementData = {
+            button: {
+                name: "Button",
+                parts: {
+                    container: "The main clickable area and bounding box of the button. Contains text and optional icons. Defines padding, background, and border-radius.",
+                    icon: "An optional visual symbol (SVG or font icon) used to enhance meaning or provide quick recognition of the button's action.",
+                    text: "The primary label describing the button's action (e.g., 'Submit', 'Cancel', 'Learn More').",
+                    shadow: "A visual effect (often using box-shadow) that suggests elevation and interactivity, changing on hover or focus states."
+                }
+            },
+            card: {
+                name: "Card",
+                parts: {
+                    container: "The main wrapper element holding all card content. Typically has a background, border-radius, and shadow to visually group related information.",
+                    image: "An optional media element (usually an image or video) placed typically at the top or side of the card for visual context.",
+                    header: "An optional section usually at the top, containing the card's title, subtitle, or primary identifier.",
+                    body: "The main content area of the card. Contains text descriptions, lists, data, or other relevant information.",
+                    footer: "An optional section usually at the bottom, often containing action buttons, links, meta-information (like timestamps or author), or status indicators."
+                }
+            },
+            input: {
+                name: "Input Field",
+                parts: {
+                    'form-group': "A wrapper element containing the label, input, help text, and error message. Helps with layout and spacing.",
+                    label: "Text describing the purpose of the input field. Should be associated with the input using the 'for' attribute.",
+                    'input-field': "The actual form control element (`<input>`, `<textarea>`, `<select>`) where the user enters data. Includes attributes like type, placeholder, and validation.",
+                    'help-text': "Optional text providing guidance or context for the input field (e.g., format requirements).",
+                    'error-message': "Text displayed (usually conditionally) when the input value fails validation. Typically styled distinctively (e.g., red text).",
+                    'submit-button': "A related button (often outside the immediate group) used to submit the form containing this input."
+                }
+            },
+            modal: {
+                name: "Modal Dialog",
+                parts: {
+                    overlay: "A semi-transparent background layer covering the main page content, focusing user attention on the modal dialog.",
+                    container: "The main dialog box that floats above the overlay. Contains the modal's header, body, and footer.",
+                    header: "The top section of the modal, typically containing the title and an optional close button.",
+                    'close-button': "An icon or text button allowing the user to dismiss the modal without taking an action.",
+                    body: "The primary content area of the modal. Can contain text, forms, images, or other interactive elements.",
+                    footer: "The bottom section of the modal, usually containing action buttons like 'Confirm', 'Cancel', 'Save', or 'OK'."
+                }
+            }
+        };
+
+        let currentElementId = null;
+        let currentlyHighlightedPart = null;
+
+        const displayArea = document.getElementById('element-display-area');
+        const infoPartName = document.getElementById('info-part-name');
+        const infoPartDescription = document.getElementById('info-part-description');
+        const placeholder = document.getElementById('element-placeholder');
+        const elementSelectors = document.querySelectorAll('.element-selector');
+        const elementContainers = document.querySelectorAll('.element-container');
+
+        function clearHighlights() {
+            if (currentlyHighlightedPart) {
+                currentlyHighlightedPart.classList.remove('highlighted-part');
+                currentlyHighlightedPart = null;
+            }
+            // Also remove from nested elements if interaction was on container first
+             const highlightedChildren = displayArea.querySelectorAll('.highlighted-part');
+             highlightedChildren.forEach(el => el.classList.remove('highlighted-part'));
+        }
+
+        function resetInfoPanel() {
+            infoPartName.textContent = '-';
+            infoPartDescription.textContent = 'Click on a part of the element to see its description.';
+        }
+
+        function showElement(elementId) {
+            if (currentElementId === elementId) return; // Do nothing if already selected
+
+            currentElementId = elementId;
+
+            // Hide placeholder and all element containers
+            placeholder.classList.add('hidden');
+            elementContainers.forEach(container => container.classList.add('hidden'));
+
+            // Show the selected element container
+            const elementToShow = document.getElementById(`element-${elementId}`);
+            if (elementToShow) {
+                elementToShow.classList.remove('hidden');
+            }
+
+            // Update selector button styles
+            elementSelectors.forEach(button => {
+                if (button.dataset.element === elementId) {
+                    button.classList.add('bg-blue-100', 'font-semibold');
+                } else {
+                    button.classList.remove('bg-blue-100', 'font-semibold');
+                }
+            });
+
+            // Reset highlights and info panel
+            clearHighlights();
+            resetInfoPanel();
+        }
+
+        function highlightPart(elementId, partName, event) {
+             // Prevent event bubbling if clicked on a nested part inside an already interactive container
+             if (event) {
+                event.stopPropagation();
+            }
+
+            clearHighlights(); // Clear previous highlight
+
+            const elementContainer = document.getElementById(`element-${elementId}`);
+            if (!elementContainer) return;
+
+            // Find the specific part element using data attribute
+            const partElement = elementContainer.querySelector(`[data-part="${partName}"]`);
+
+            if (partElement) {
+                partElement.classList.add('highlighted-part');
+                currentlyHighlightedPart = partElement;
+
+                // Update info panel
+                const data = elementData[elementId];
+                if (data && data.parts[partName]) {
+                    infoPartName.textContent = `${partName.charAt(0).toUpperCase() + partName.slice(1).replace('-', ' ')}`;
+                    infoPartDescription.textContent = data.parts[partName];
+                } else {
+                    resetInfoPanel(); // Fallback
+                }
+            }
+        }
+
+        // Add event listeners to parts (safer than inline onclick with event propagation needs)
+        document.querySelectorAll('[data-part]').forEach(part => {
+            part.addEventListener('click', (event) => {
+                // Find the parent element container to get the elementId
+                const container = part.closest('.element-container');
+                if (container) {
+                    const elementId = container.id.replace('element-', '');
+                    const partName = part.getAttribute('data-part');
+                    highlightPart(elementId, partName, event); // Pass event
+                }
+            });
+        });
+
+        // Initialize: Optionally show the first element by default
+        // showElement('button');
+
+    </script>
+
+</body>
+</html>

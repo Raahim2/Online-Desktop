@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Regex Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minor style for highlighted matches */
+        .highlight {
+            background-color: #fef08a; /* Tailwind yellow-200 */
+            border-radius: 0.125rem; /* Tailwind rounded-sm */
+            padding: 0.1em 0.2em;
+            font-weight: 600; /* Tailwind semibold */
+            box-shadow: 0 0 0 1px #facc15; /* Tailwind yellow-400 */
+        }
+        /* Style for invalid regex input */
+        .invalid-regex {
+            border-color: #f87171; /* Tailwind red-400 */
+            box-shadow: 0 0 0 2px #fecaca; /* Tailwind red-200 */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-blue-100 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                Visual Regex Tester
+            </h1>
+            <span class="text-sm text-gray-500 hidden md:block">Live DOM Preview Edition</span>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6 lg:p-8 flex-grow w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+
+            <!-- Input Section -->
+            <section class="bg-white p-5 rounded-lg shadow-lg border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Test Inputs</h2>
+
+                <div class="mb-4">
+                    <label for="regexInput" class="block text-sm font-medium text-gray-600 mb-1">Regular Expression</label>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-gray-400 text-lg">/</span>
+                        <input type="text" id="regexInput" placeholder="Enter your regex pattern here" class="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition duration-150 ease-in-out font-mono text-sm" value="(\b\w{4}\b)">
+                        <span class="text-gray-400 text-lg">/</span>
+                        <input type="text" id="regexFlags" placeholder="flags" value="g" class="w-12 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition duration-150 ease-in-out font-mono text-sm">
+                    </div>
+                    <p id="regexError" class="text-red-500 text-xs mt-1 h-4"></p> <!-- Error message placeholder -->
+                </div>
+
+                <div class="mb-4">
+                    <label for="testString" class="block text-sm font-medium text-gray-600 mb-1">Test String</label>
+                    <textarea id="testString" rows="10" placeholder="Paste or type the text you want to test against..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition duration-150 ease-in-out font-mono text-sm leading-relaxed resize-vertical">This is a sample text string for testing regular expressions. Try matching words like 'sample' or 'text', or perhaps numbers like 12345. The quick brown fox jumps over the lazy dog. Email addresses like test@example.com can also be targeted. Have fun testing!</textarea>
+                </div>
+
+                <div class="text-xs text-gray-500">
+                    <p>Tip: Use common flags like 'g' (global), 'i' (case-insensitive), 'm' (multiline).</p>
+                </div>
+            </section>
+
+            <!-- Output Section -->
+            <section class="bg-white p-5 rounded-lg shadow-lg border border-gray-200 flex flex-col">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Live Preview & Results</h2>
+
+                <div class="mb-4 flex-grow">
+                    <label for="livePreview" class="block text-sm font-medium text-gray-600 mb-1">DOM Manipulation Preview</label>
+                    <div id="livePreview" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50 font-mono text-sm leading-relaxed whitespace-pre-wrap overflow-auto min-h-[200px]">
+                        <!-- Preview content will be generated here by JavaScript -->
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Match Information</h3>
+                    <div id="matchResults" class="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm space-y-2 overflow-auto max-h-48">
+                        <p class="text-gray-500">Matches will be listed here...</p>
+                        <!-- Match results will be generated here by JavaScript -->
+                    </div>
+                     <p class="text-xs text-gray-500 mt-2">Total Matches: <span id="matchCount" class="font-semibold">0</span></p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="text-center p-4 text-sm text-gray-500 mt-8">
+        &copy; 2023 Visual Regex Tester. Built with HTML & Tailwind CSS.
+    </footer>
+
+    <script>
+        const regexInput = document.getElementById('regexInput');
+        const regexFlagsInput = document.getElementById('regexFlags');
+        const testStringInput = document.getElementById('testString');
+        const livePreviewOutput = document.getElementById('livePreview');
+        const matchResultsOutput = document.getElementById('matchResults');
+        const matchCountOutput = document.getElementById('matchCount');
+        const regexErrorOutput = document.getElementById('regexError');
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function updatePreview() {
+            const pattern = regexInput.value;
+            const flags = regexFlagsInput.value;
+            const testString = testStringInput.value;
+            let regex;
+            let matchCount = 0;
+            let resultsHtml = '';
+
+            // Clear previous errors and styles
+            regexErrorOutput.textContent = '';
+            regexInput.classList.remove('invalid-regex');
+            livePreviewOutput.innerHTML = escapeHtml(testString); // Reset preview with escaped text
+            matchResultsOutput.innerHTML = '<p class="text-gray-500">Processing...</p>';
+
+            if (!pattern) {
+                 matchResultsOutput.innerHTML = '<p class="text-gray-500">Enter a regex pattern.</p>';
+                 matchCountOutput.textContent = '0';
+                 return; // Don't proceed if pattern is empty
+            }
+
+            try {
+                regex = new RegExp(pattern, flags);
+            } catch (e) {
+                regexErrorOutput.textContent = `Invalid Regex: ${e.message}`;
+                regexInput.classList.add('invalid-regex');
+                matchResultsOutput.innerHTML = '<p class="text-red-500">Invalid regular expression.</p>';
+                matchCountOutput.textContent = '0';
+                return; // Stop if regex is invalid
+            }
+
+            try {
+                // --- Live Preview Update ---
+                // Use replace with a function to wrap matches
+                // Escape the original string first, then replace parts with potentially unescaped spans
+                const escapedTestString = escapeHtml(testString);
+                const previewHtml = escapedTestString.replace(regex, (match) => {
+                    // We don't need to escape the match itself here because the *original* string
+                    // was already escaped. We are just adding safe HTML tags around parts of it.
+                    return `<span class="highlight">${match}</span>`;
+                });
+                livePreviewOutput.innerHTML = previewHtml || '&nbsp;'; // Use non-breaking space if empty
+
+                // --- Match Information Update ---
+                const matches = [...testString.matchAll(regex)];
+                matchCount = matches.length;
+
+                if (matchCount > 0) {
+                    resultsHtml = '<ul class="space-y-1 list-disc list-inside">';
+                    matches.forEach((match, index) => {
+                        resultsHtml += `<li class="break-words"><span class="font-semibold">Match ${index + 1}:</span> ${escapeHtml(match[0])}`;
+                        if (match.groups) {
+                             resultsHtml += ' <span class="text-xs text-blue-600">(Groups: ';
+                             resultsHtml += Object.entries(match.groups)
+                                .map(([key, value]) => `${key}: ${escapeHtml(value || 'undefined')}`)
+                                .join(', ');
+                             resultsHtml += ')</span>';
+                        } else if (match.length > 1) {
+                             resultsHtml += ' <span class="text-xs text-green-600">(Groups: ';
+                             resultsHtml += match.slice(1).map((g, i) => `${i+1}: ${escapeHtml(g || 'undefined')}`).join(', ');
+                             resultsHtml += ')</span>';
+                        }
+                        resultsHtml += `</li>`;
+                    });
+                    resultsHtml += '</ul>';
+                } else {
+                    resultsHtml = '<p class="text-gray-500">No matches found.</p>';
+                }
+
+                matchResultsOutput.innerHTML = resultsHtml;
+
+            } catch (e) {
+                // Catch potential errors during matching/replacement (less common)
+                console.error("Error during regex execution:", e);
+                regexErrorOutput.textContent = `Execution Error: ${e.message}`;
+                matchResultsOutput.innerHTML = `<p class="text-red-500">Error executing regex: ${escapeHtml(e.message)}</p>`;
+                matchCount = 0;
+            }
+
+            matchCountOutput.textContent = matchCount;
+        }
+
+        // Add event listeners to update on input
+        regexInput.addEventListener('input', updatePreview);
+        regexFlagsInput.addEventListener('input', updatePreview);
+        testStringInput.addEventListener('input', updatePreview);
+
+        // Initial update on page load
+        document.addEventListener('DOMContentLoaded', updatePreview);
+    </script>
+
+</body>
+</html>

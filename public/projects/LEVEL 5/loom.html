@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weaving Loom - Tailwind Textiles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for grid cell aspect ratio if needed, but prefer Tailwind */
+        #loomGrid > div {
+            /* Ensure cells are square */
+            aspect-ratio: 1 / 1;
+        }
+        /* Simple transition for color changes */
+        #loomGrid > div {
+            transition: background-color 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-md">
+        <div class="container mx-auto px-4 py-6 md:py-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center">Interactive Weaving Loom</h1>
+            <p class="text-center text-indigo-100 mt-2 text-sm md:text-base">Generate unique textile patterns with Tailwind CSS</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Controls Section -->
+            <aside class="lg:w-1/4 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">Controls</h2>
+
+                <div class="space-y-6">
+                    <!-- Grid Size Control (Placeholder) -->
+                    <div>
+                        <label for="gridSize" class="block text-sm font-medium text-gray-700 mb-1">Loom Size (Warp x Weft)</label>
+                        <select id="gridSize" name="gridSize" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                            <option value="16">16 x 16 Threads</option>
+                            <option value="24">24 x 24 Threads</option>
+                            <option value="32">32 x 32 Threads</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Select the density of the weave.</p>
+                    </div>
+
+                    <!-- Color Palette Control (Placeholder) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Color Palette</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2 p-2 rounded border border-indigo-500 bg-indigo-50 ring-2 ring-indigo-300 ring-offset-1">
+                                <input id="palette1" name="palette" type="radio" value="earthy" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" checked>
+                                <label for="palette1" class="ml-2 block text-sm font-medium text-gray-900">Earthy Tones</label>
+                                <div class="flex space-x-1 ml-auto">
+                                    <span class="block w-4 h-4 rounded-full bg-[#A0522D]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#D2B48C]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#8B4513]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#F5F5DC]"></span>
+                                </div>
+                            </div>
+                             <div class="flex items-center space-x-2 p-2 rounded border border-gray-300 hover:border-purple-500 hover:bg-purple-50">
+                                <input id="palette2" name="palette" type="radio" value="oceanic" class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300">
+                                <label for="palette2" class="ml-2 block text-sm font-medium text-gray-700">Oceanic Blues</label>
+                                <div class="flex space-x-1 ml-auto">
+                                    <span class="block w-4 h-4 rounded-full bg-[#00008B]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#4682B4]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#ADD8E6]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#E0FFFF]"></span>
+                                </div>
+                            </div>
+                             <div class="flex items-center space-x-2 p-2 rounded border border-gray-300 hover:border-pink-500 hover:bg-pink-50">
+                                <input id="palette3" name="palette" type="radio" value="sunset" class="focus:ring-pink-500 h-4 w-4 text-pink-600 border-gray-300">
+                                <label for="palette3" class="ml-2 block text-sm font-medium text-gray-700">Sunset Hues</label>
+                                <div class="flex space-x-1 ml-auto">
+                                    <span class="block w-4 h-4 rounded-full bg-[#FF4500]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#FF8C00]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#FFD700]"></span>
+                                    <span class="block w-4 h-4 rounded-full bg-[#8B0000]"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Choose the thread colors.</p>
+                    </div>
+
+                    <!-- Pattern Style (Placeholder) -->
+                     <div>
+                        <label for="patternStyle" class="block text-sm font-medium text-gray-700 mb-1">Weave Style</label>
+                        <select id="patternStyle" name="patternStyle" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                            <option value="random">Random Noise</option>
+                            <option value="plain">Plain Weave (Alternating)</option>
+                            <option value="twill">Twill Simulation (Diagonal)</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Select the pattern generation logic.</p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t">
+                         <button id="generateBtn" class="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Weave Pattern
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Loom Display Section -->
+            <section class="lg:w-3/4 flex-grow flex flex-col items-center justify-center bg-white p-4 sm:p-6 rounded-lg shadow-lg overflow-hidden">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800 self-start">Generated Pattern</h2>
+                <div class="w-full max-w-2xl aspect-square border-4 border-gray-300 bg-gray-200 rounded-md p-1 sm:p-2 shadow-inner overflow-hidden">
+                    <div id="loomGrid" class="grid gap-px sm:gap-0.5 w-full h-full bg-gray-400">
+                        <!-- Grid cells will be generated here by JavaScript -->
+                    </div>
+                </div>
+                 <p class="text-sm text-gray-600 mt-4 text-center">Click "Weave Pattern" to generate a new design.</p>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2023 Tailwind Textiles. Created with HTML, Tailwind CSS, and a touch of JavaScript.</p>
+            <p class="mt-1">An interactive weaving pattern generator concept.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const loomGrid = document.getElementById('loomGrid');
+        const generateBtn = document.getElementById('generateBtn');
+        const gridSizeSelect = document.getElementById('gridSize');
+        const patternStyleSelect = document.getElementById('patternStyle');
+
+        const palettes = {
+            earthy: ['#A0522D', '#D2B48C', '#8B4513', '#F5F5DC', '#CD853F'],
+            oceanic: ['#00008B', '#4682B4', '#ADD8E6', '#E0FFFF', '#5F9EA0'],
+            sunset: ['#FF4500', '#FF8C00', '#FFD700', '#8B0000', '#DC143C']
+        };
+
+        function getCurrentPalette() {
+            const selectedPaletteInput = document.querySelector('input[name="palette"]:checked');
+            return palettes[selectedPaletteInput.value] || palettes.earthy;
+        }
+
+        function generatePattern() {
+            const size = parseInt(gridSizeSelect.value, 10);
+            const patternStyle = patternStyleSelect.value;
+            const palette = getCurrentPalette();
+            const numColors = palette.length;
+
+            // Clear existing grid
+            loomGrid.innerHTML = '';
+            loomGrid.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
+            loomGrid.style.gridTemplateRows = `repeat(${size}, minmax(0, 1fr))`;
+
+            // Generate new grid cells
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                const row = Math.floor(i / size);
+                const col = i % size;
+                let colorIndex;
+
+                switch (patternStyle) {
+                    case 'plain':
+                        // Simple alternating pattern (basic plain weave look)
+                        colorIndex = (row + col) % numColors;
+                        break;
+                    case 'twill':
+                        // Simple diagonal pattern simulation
+                         colorIndex = (row + col * 2) % numColors; // Adjust multiplier for different angles
+                         break;
+                    case 'random':
+                    default:
+                        // Random color for each cell
+                        colorIndex = Math.floor(Math.random() * numColors);
+                        break;
+                }
+
+                cell.style.backgroundColor = palette[colorIndex];
+                // Add Tailwind classes dynamically if needed, e.g., for borders or rounded corners per cell
+                // cell.classList.add('w-full', 'h-full'); // Handled by aspect-ratio and grid layout
+                loomGrid.appendChild(cell);
+            }
+        }
+
+        // Event Listeners
+        generateBtn.addEventListener('click', generatePattern);
+        gridSizeSelect.addEventListener('change', generatePattern);
+        patternStyleSelect.addEventListener('change', generatePattern);
+        document.querySelectorAll('input[name="palette"]').forEach(radio => {
+            radio.addEventListener('change', generatePattern);
+        });
+
+        // Initial pattern generation on load
+        document.addEventListener('DOMContentLoaded', generatePattern);
+
+    </script>
+
+</body>
+</html>

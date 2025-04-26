@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Endless Hill Climb</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; background: #87CEEB; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let scrollX = 0;
+    let speed = 3;
+
+    // Simple "noise" by combining sine waves
+    function getNoise(x, frequency, amplitude) {
+      return Math.sin(x * frequency) * amplitude + Math.sin(x * frequency * 0.5) * (amplitude * 0.5);
+    }
+
+    function getTerrainHeight(x) {
+      let difficulty = Math.min(x / 5000, 3); // Increase difficulty over time
+      let baseHeight = canvas.height * 0.75;
+      
+      let easyHill = getNoise(x, 0.003, 50);
+      let mediumHill = getNoise(x, 0.01, 30) * difficulty;
+      let roughHill = getNoise(x, 0.05, 15) * (difficulty - 1);
+
+      return baseHeight + easyHill + mediumHill + (difficulty > 1 ? roughHill : 0);
+    }
+
+    function drawTerrain() {
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height);
+
+      for (let x = 0; x < canvas.width; x++) {
+        const worldX = scrollX + x;
+        const y = getTerrainHeight(worldX);
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.fillStyle = '#654321';
+      ctx.fill();
+    }
+
+    function drawCar() {
+      const carY = getTerrainHeight(scrollX + 100) - 20;
+      ctx.fillStyle = 'red';
+      ctx.fillRect(100, carY, 40, 20);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawTerrain();
+      drawCar();
+
+      scrollX += speed;
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>

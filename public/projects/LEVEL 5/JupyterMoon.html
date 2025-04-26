@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jovian Moons Orrery & Resonance Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal style for aspect ratio container */
+        .aspect-square {
+            aspect-ratio: 1 / 1;
+        }
+        /* Basic orbit animation placeholder */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .orbit {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .moon {
+            position: absolute;
+            border-radius: 50%;
+            /* Animation can be added here if desired, but keeping it static for simplicity */
+        }
+        /* Simple pulse for resonance highlight */
+        .highlight-resonance {
+            box-shadow: 0 0 15px 5px rgba(0, 191, 255, 0.7); /* Deep sky blue glow */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans leading-normal tracking-normal">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg p-4 md:p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl md:text-3xl font-bold text-white">Jovian Moons Orrery</h1>
+            <button id="info-toggle-button" onclick="toggleInfoPanel()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                Info / Controls
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-8 p-4 flex flex-col lg:flex-row gap-8">
+
+        <!-- Orrery Visualization -->
+        <section class="flex-grow lg:w-2/3 flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Interactive Orrery (Static Placeholder)</h2>
+            <div class="relative w-full max-w-xl aspect-square bg-black rounded-lg shadow-2xl overflow-hidden border border-gray-700">
+                <!-- Jupiter -->
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-400 via-red-500 to-orange-600 rounded-full shadow-lg flex items-center justify-center">
+                    <span class="text-xs text-black font-bold">Jupiter</span>
+                </div>
+
+                <!-- Orbits & Moons (Static Representation) -->
+                <!-- Io -->
+                <div class="orbit" style="width: 35%; height: 35%;">
+                    <div id="io" class="moon w-2.5 h-2.5 md:w-3 md:h-3 bg-yellow-300" style="top: 0%; left: 50%; transform: translate(-50%, -50%);">
+                        <span class="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-yellow-300 whitespace-nowrap">Io</span>
+                    </div>
+                </div>
+                <!-- Europa -->
+                <div class="orbit" style="width: 55%; height: 55%;">
+                    <div id="europa" class="moon w-2.5 h-2.5 md:w-3 md:h-3 bg-blue-200" style="top: 50%; left: 100%; transform: translate(-50%, -50%);">
+                         <span class="absolute top-1/2 left-full ml-2 transform -translate-y-1/2 text-xs text-blue-200 whitespace-nowrap">Europa</span>
+                    </div>
+                </div>
+                <!-- Ganymede -->
+                <div class="orbit" style="width: 75%; height: 75%;">
+                     <div id="ganymede" class="moon w-3 h-3 md:w-4 md:h-4 bg-gray-400" style="top: 100%; left: 50%; transform: translate(-50%, -50%);">
+                         <span class="absolute top-full mt-1 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap">Ganymede</span>
+                     </div>
+                </div>
+                <!-- Callisto -->
+                <div class="orbit" style="width: 95%; height: 95%;">
+                    <div id="callisto" class="moon w-3 h-3 md:w-4 md:h-4 bg-red-300" style="top: 50%; left: 0%; transform: translate(-50%, -50%);">
+                        <span class="absolute top-1/2 right-full mr-2 transform -translate-y-1/2 text-xs text-red-300 whitespace-nowrap">Callisto</span>
+                    </div>
+                </div>
+
+                 <!-- Resonance Indicator Lines (Conceptual - Static Example) -->
+                 <div id="resonance-lines" class="absolute inset-0 hidden"> <!-- Initially hidden -->
+                    <!-- Example line from center to Io -->
+                    <svg class="absolute inset-0 w-full h-full" style="transform: translate(-50%, -50%) scale(0.35); top:50%; left:50%;">
+                        <line x1="50%" y1="50%" x2="50%" y2="0%" stroke="rgba(0, 191, 255, 0.5)" stroke-width="2" stroke-dasharray="4 4"/>
+                    </svg>
+                     <!-- Example line from center to Europa -->
+                     <svg class="absolute inset-0 w-full h-full" style="transform: translate(-50%, -50%) scale(0.55); top:50%; left:50%;">
+                        <line x1="50%" y1="50%" x2="100%" y2="50%" stroke="rgba(0, 191, 255, 0.5)" stroke-width="2" stroke-dasharray="4 4"/>
+                    </svg>
+                     <!-- Example line from center to Ganymede -->
+                     <svg class="absolute inset-0 w-full h-full" style="transform: translate(-50%, -50%) scale(0.75); top:50%; left:50%;">
+                        <line x1="50%" y1="50%" x2="50%" y2="100%" stroke="rgba(0, 191, 255, 0.5)" stroke-width="2" stroke-dasharray="4 4"/>
+                    </svg>
+                 </div>
+
+            </div>
+            <p class="text-sm text-gray-400 mt-4 text-center">Note: This is a static representation. Moon positions are illustrative.</p>
+        </section>
+
+        <!-- Information and Controls Panel -->
+        <aside id="info-panel" class="lg:w-1/3 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg hidden lg:block">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl md:text-2xl font-semibold">Information & Controls</h2>
+                <button onclick="toggleInfoPanel()" class="lg:hidden text-gray-400 hover:text-white">&times;</button>
+            </div>
+
+            <!-- Controls Section -->
+            <section class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-1">Controls</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label for="speed-slider" class="block text-sm font-medium text-gray-300">Simulation Speed (Placeholder)</label>
+                        <input type="range" id="speed-slider" name="speed" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" disabled>
+                        <span class="text-xs text-gray-400">Speed: 1x</span>
+                    </div>
+                     <div>
+                        <label for="zoom-slider" class="block text-sm font-medium text-gray-300">Zoom Level (Placeholder)</label>
+                        <input type="range" id="zoom-slider" name="zoom" min="0.5" max="2" step="0.1" value="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" disabled>
+                        <span class="text-xs text-gray-400">Zoom: 1x</span>
+                    </div>
+                    <button onclick="highlightResonance()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                        Highlight 1:2:4 Resonance
+                    </button>
+                     <button onclick="resetHighlight()" class="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                        Reset Highlight
+                    </button>
+                </div>
+            </section>
+
+            <!-- Information Section -->
+            <section>
+                <h3 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-1">About the Jovian System</h3>
+                <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    <article>
+                        <h4 class="font-semibold text-blue-300">Orbital Resonance</h4>
+                        <p class="text-sm text-gray-300">
+                            The three inner Galilean moons (Io, Europa, Ganymede) are locked in a special 1:2:4 orbital resonance, known as the Laplace resonance. For every orbit Ganymede completes, Europa completes exactly two orbits, and Io completes exactly four orbits. This gravitational interaction maintains their orbital eccentricities and influences geological activity, particularly on Io. Callisto, the outermost Galilean moon, does not participate in this resonance.
+                        </p>
+                    </article>
+                     <article>
+                        <h4 class="font-semibold text-yellow-300">Io</h4>
+                        <img src="https://via.placeholder.com/100x75/FBBF24/FFFFFF?text=Io" alt="Io Placeholder" class="float-right ml-2 mb-1 w-20 rounded">
+                        <p class="text-sm text-gray-300">
+                            The most volcanically active body in the Solar System. Its activity is driven by tidal heating caused by Jupiter's gravity and the orbital resonance with Europa and Ganymede. Orbital Period: ~1.77 Earth days.
+                        </p>
+                    </article>
+                     <article>
+                        <h4 class="font-semibold text-blue-200">Europa</h4>
+                         <img src="https://via.placeholder.com/100x75/BFDBFE/FFFFFF?text=Europa" alt="Europa Placeholder" class="float-right ml-2 mb-1 w-20 rounded">
+                        <p class="text-sm text-gray-300">
+                            Features a smooth, icy crust believed to cover a vast subsurface saltwater ocean, making it a prime candidate for extraterrestrial life. Orbital Period: ~3.55 Earth days.
+                        </p>
+                    </article>
+                     <article>
+                        <h4 class="font-semibold text-gray-400">Ganymede</h4>
+                         <img src="https://via.placeholder.com/100x75/9CA3AF/FFFFFF?text=Ganymede" alt="Ganymede Placeholder" class="float-right ml-2 mb-1 w-20 rounded">
+                        <p class="text-sm text-gray-300">
+                            The largest moon in the Solar System (larger than Mercury). It's the only moon known to have its own magnetic field. Features both dark, cratered regions and lighter, grooved terrain. Orbital Period: ~7.15 Earth days.
+                        </p>
+                    </article>
+                     <article>
+                        <h4 class="font-semibold text-red-300">Callisto</h4>
+                         <img src="https://via.placeholder.com/100x75/FCA5A5/FFFFFF?text=Callisto" alt="Callisto Placeholder" class="float-right ml-2 mb-1 w-20 rounded">
+                        <p class="text-sm text-gray-300">
+                            Heavily cratered and ancient surface, indicating minimal geological activity. It orbits outside the main resonance. Orbital Period: ~16.69 Earth days.
+                        </p>
+                    </article>
+                </div>
+            </section>
+        </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 shadow-inner mt-12 p-4 text-center">
+        <p class="text-sm text-gray-500">
+            Jovian Orrery Visualization Concept | Built with HTML & Tailwind CSS | Placeholder Data
+        </p>
+    </footer>
+
+    <!-- Minimal JavaScript for UI Interaction -->
+    <script>
+        const infoPanel = document.getElementById('info-panel');
+        const infoToggleButton = document.getElementById('info-toggle-button');
+        const resonanceLines = document.getElementById('resonance-lines');
+        const ioMoon = document.getElementById('io');
+        const europaMoon = document.getElementById('europa');
+        const ganymedeMoon = document.getElementById('ganymede');
+        const callistoMoon = document.getElementById('callisto'); // Although not in resonance, might want to reset it
+
+        function toggleInfoPanel() {
+            infoPanel.classList.toggle('hidden');
+            // Optional: Change button text based on state
+             if (infoPanel.classList.contains('hidden')) {
+                infoToggleButton.textContent = 'Info / Controls';
+            } else {
+                infoToggleButton.textContent = 'Close Panel';
+            }
+        }
+
+        function highlightResonance() {
+            // Add highlight class to resonant moons
+            ioMoon.classList.add('highlight-resonance');
+            europaMoon.classList.add('highlight-resonance');
+            ganymedeMoon.classList.add('highlight-resonance');
+
+            // Remove highlight from non-resonant moon (if any applied previously)
+            callistoMoon.classList.remove('highlight-resonance');
+
+            // Show conceptual resonance lines
+            if (resonanceLines) {
+                resonanceLines.classList.remove('hidden');
+            }
+
+            console.log("Highlighting 1:2:4 Resonance (Io, Europa, Ganymede)");
+        }
+
+        function resetHighlight() {
+             // Remove highlight class from all moons
+            ioMoon.classList.remove('highlight-resonance');
+            europaMoon.classList.remove('highlight-resonance');
+            ganymedeMoon.classList.remove('highlight-resonance');
+            callistoMoon.classList.remove('highlight-resonance');
+
+             // Hide conceptual resonance lines
+            if (resonanceLines) {
+                resonanceLines.classList.add('hidden');
+            }
+
+            console.log("Resetting Highlights");
+        }
+
+        // Ensure panel is hidden on mobile initially if JS is enabled
+        // Check screen size to apply initial state reasonably
+        if (window.innerWidth < 1024 && infoPanel) {
+             infoPanel.classList.add('hidden');
+             infoToggleButton.textContent = 'Info / Controls';
+        } else if (infoPanel) {
+            infoPanel.classList.remove('hidden'); // Ensure visible on larger screens
+             infoToggleButton.textContent = 'Close Panel'; // Set button text for large screens
+        }
+
+    </script>
+
+</body>
+</html>
