@@ -58,5 +58,17 @@
       "Download the generated constellation as an SVG image."
     ],
     "raw_output": "Project Name: Procedural Constellation Generator\nDescription: Create unique, randomized star patterns and constellations with customizable density, brightness, and connection styles.\nFeatures:\n- Adjustable star count and distribution area.\n- Customizable star size and brightness.\n- Option to connect stars to form constellations.\n- Different connection styles (lines, curves, etc.).\n- Download the generated constellation as an SVG image.\n"
+  },
+  {
+    "name": "Geometric Pattern Weaver",
+    "description": "Design and generate intricate geometric patterns using a simple, interactive interface.",
+    "features": [
+      "Adjustable grid size and shape.",
+      "Customizable tile colors and rotations.",
+      "Preset pattern templates for inspiration.",
+      "Downloadable SVG of the generated pattern.",
+      "Randomization feature for unexpected designs."
+    ],
+    "raw_output": "Project Name: Geometric Pattern Weaver\nDescription: Design and generate intricate geometric patterns using a simple, interactive interface.\nFeatures:\n- Adjustable grid size and shape.\n- Customizable tile colors and rotations.\n- Preset pattern templates for inspiration.\n- Downloadable SVG of the generated pattern.\n- Randomization feature for unexpected designs.\n"
   }
 ]
