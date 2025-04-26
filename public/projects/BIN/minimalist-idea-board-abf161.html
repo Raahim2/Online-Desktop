@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Idea Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minor custom styles */
+        .note {
+            min-width: 180px;
+            min-height: 120px;
+            max-width: 600px; /* Optional max width */
+            max-height: 500px; /* Optional max height */
+            touch-action: none; /* Prevent default touch actions like scrolling */
+            overflow: hidden; /* Needed for resize handle and textarea */
+            position: absolute; /* Crucial for positioning */
+            display: flex;
+            flex-direction: column;
+        }
+        .note-textarea {
+            flex-grow: 1;
+            resize: none;
+            border: none;
+            background-color: transparent;
+            padding: 8px; /* Inner padding for text */
+            margin-top: 24px; /* Space for header/buttons */
+            outline: none;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.25rem;
+        }
+        .note-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 28px; /* Adjust as needed */
+            cursor: grab;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 4px;
+            /* background-color: rgba(0, 0, 0, 0.05); Optional subtle header */
+        }
+        .note:active .note-header {
+            cursor: grabbing;
+        }
+        .delete-note {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px; /* rounded-full */
+            background-color: rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+        .delete-note:hover {
+            background-color: rgba(220, 38, 38, 0.7); /* hover:bg-red-600/70 */
+            color: white;
+        }
+        .resize-handle {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            cursor: nwse-resize;
+            border-radius: 2px;
+        }
+        .color-palette {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            display: flex;
+            gap: 4px;
+        }
+        .color-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 9999px;
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease;
+        }
+        .color-swatch:hover {
+            transform: scale(1.2);
+        }
+        .color-swatch.active {
+            border: 2px solid rgba(0, 0, 0, 0.5);
+        }
+        /* Subtle background pattern */
+        body {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            background-image: radial-gradient(#d1d5db 0.5px, transparent 0.5px); /* bg-gray-300 */
+            background-size: 15px 15px;
+        }
+        #board {
+             min-height: 100vh; /* Ensure board takes full viewport height */
+        }
+    </style>
+</head>
+<body class="font-sans overflow-hidden">
+
+    <main id="board" class="relative w-full h-screen overflow-auto cursor-default">
+        <!-- Notes will be dynamically added here -->
+    </main>
+
+    <template id="note-template">
+        <div class="note rounded-lg shadow-lg border border-gray-300/50" style="left: 50px; top: 50px; width: 200px; height: 150px; background-color: #fef9c3;">
+            <div class="note-header">
+                <button class="delete-note text-xs text-gray-600 hover:text-white" title="Delete Note">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <textarea class="note-textarea" placeholder="Type here..."></textarea>
+            <div class="color-palette">
+                <!-- Color swatches will be added by JS -->
+            </div>
+            <div class="resize-handle" title="Resize Note"></div>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('board');
+            const noteTemplate = document.getElementById('note-template');
+            let notes = [];
+            let highestZIndex = 1;
+            const availableColors = [
+                { name: 'yellow', hex: '#fef9c3', class: 'bg-yellow-100' }, // Lighter yellow
+                { name: 'blue', hex: '#dbeafe', class: 'bg-blue-100' },
+                { name: 'green', hex: '#dcfce7', class: 'bg-green-100' },
+                { name: 'pink', hex: '#fce7f3', class: 'bg-pink-100' },
+                { name: 'purple', hex: '#ede9fe', class: 'bg-purple-100' },
+                { name: 'gray', hex: '#f3f4f6', class: 'bg-gray-100' }
+            ];
+
+            // --- State Management ---
+            function saveNotes() {
+                try {
+                    localStorage.setItem('minimalistIdeaBoardNotes', JSON.stringify(notes));
+                } catch (e) {
+                    console.error("Error saving notes to localStorage:", e);
+                    alert("Could not save notes. Local storage might be full or disabled.");
+                }
+            }
+
+            function loadNotes() {
+                const savedNotes = localStorage.getItem('minimalistIdeaBoardNotes');
+                if (savedNotes) {
+                    try {
+                        notes = JSON.parse(savedNotes);
+                        // Ensure all notes have necessary properties (backward compatibility)
+                        notes = notes.map(note => ({
+                            id: note.id || `note-${Date.now()}-${Math.random()}`,
+                            x: note.x || 50,
+                            y: note.y || 50,
+                            width: note.width || 200,
+                            height: note.height || 150,
+                            color: note.color || availableColors[0].hex,
+                            text: note.text || '',
+                            zIndex: note.zIndex || 1
+                        }));
+                        highestZIndex = Math.max(1, ...notes.map(n => n.zIndex || 1));
+                        notes.forEach(createNoteElement);
+                    } catch (e) {
+                        console.error("Error parsing saved notes:", e);
+                        notes = []; // Reset if parsing fails
+                        localStorage.removeItem('minimalistIdeaBoardNotes'); // Clear corrupted data
+                    }
+                } else {
+                     // Create a default welcome note if no notes are saved
+                    const welcomeNote = {
+                        id: `note-${Date.now()}`,
+                        x: Math.max(50, window.innerWidth / 2 - 125), // Center horizontally
+                        y: 50,
+                        width: 250,
+                        height: 160,
+                        color: availableColors[0].hex,
+                        text: "Welcome!\n\n- Double-click anywhere to create a new note.\n- Drag notes by their top edge.\n- Resize using the bottom-right handle.\n- Click colors to change.",
+                        zIndex: 1
+                    };
+                    notes.push(welcomeNote);
+                    createNoteElement(welcomeNote);
+                    saveNotes();
+                }
+            }
+
+            // --- Note Creation ---
+            function createNewNote(x, y) {
+                highestZIndex++;
+                const newNoteData = {
+                    id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    x: Math.max(0, x - 100), // Offset slightly from click point
+                    y: Math.max(0, y - 20),
+                    width: 200,
+                    height: 150,
+                    color: availableColors[0].hex,
+                    text: '',
+                    zIndex: highestZIndex
+                };
+                notes.push(newNoteData);
+                createNoteElement(newNoteData);
+                saveNotes();
+                // Focus the new note's textarea
+                const newNoteElement = document.getElementById(newNoteData.id);
+                if (newNoteElement) {
+                    const textarea = newNoteElement.querySelector('.note-textarea');
+                    if (textarea) {
+                        textarea.focus();
+                    }
+                }
+            }
+
+            function createNoteElement(noteData) {
+                const noteElement = noteTemplate.content.firstElementChild.cloneNode(true);
+                noteElement.id = noteData.id;
+                noteElement.style.left = `${noteData.x}px`;
+                noteElement.style.top = `${noteData.y}px`;
+                noteElement.style.width = `${noteData.width}px`;
+                noteElement.style.height = `${noteData.height}px`;
+                noteElement.style.backgroundColor = noteData.color;
+                noteElement.style.zIndex = noteData.zIndex;
+
+                const textarea = noteElement.querySelector('.note-textarea');
+                textarea.value = noteData.text;
+
+                // Add color swatches
+                const paletteContainer = noteElement.querySelector('.color-palette');
+                availableColors.forEach(color => {
+                    const swatch = document.createElement('div');
+                    swatch.classList.add('color-swatch');
+                    swatch.style.backgroundColor = color.hex;
+                    swatch.dataset.color = color.hex;
+                    swatch.title = `Change to ${color.name}`;
+                    if (noteData.color === color.hex) {
+                        swatch.classList.add('active');
+                    }
+                    swatch.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent triggering drag/create
+                        updateNoteData(noteData.id, { color: color.hex });
+                        noteElement.style.backgroundColor = color.hex;
+                        // Update active state visual
+                        paletteContainer.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                        swatch.classList.add('active');
+                    });
+                    paletteContainer.appendChild(swatch);
+                });
+
+                // Add event listeners
+                setupNoteEventListeners(noteElement, noteData);
+
+                board.appendChild(noteElement);
+            }
+
+            // --- Event Listeners Setup ---
+            function setupNoteEventListeners(noteElement, noteData) {
+                const header = noteElement.querySelector('.note-header');
+                const textarea = noteElement.querySelector('.note-textarea');
+                const deleteButton = noteElement.querySelector('.delete-note');
+                const resizeHandle = noteElement.querySelector('.resize-handle');
+
+                // Bring to front on interaction
+                const bringToFront = () => {
+                    highestZIndex++;
+                    noteElement.style.zIndex = highestZIndex;
+                    updateNoteData(noteData.id, { zIndex: highestZIndex }, false); // Save later if needed
+                };
+
+                noteElement.addEventListener('mousedown', bringToFront, { capture: true }); // Capture phase to ensure it runs first
+
+                // Dragging
+                let isDragging = false;
+                let dragStartX, dragStartY, initialNoteX, initialNoteY;
+
+                header.addEventListener('mousedown', (e) => {
+                    // Prevent starting drag if clicking on delete button inside header
+                    if (e.target === deleteButton || deleteButton.contains(e.target)) return;
+
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    initialNoteX = noteElement.offsetLeft;
+                    initialNoteY = noteElement.offsetTop;
+                    header.style.cursor = 'grabbing'; // Change cursor
+                    noteElement.classList.add('shadow-xl'); // Enhance shadow while dragging
+
+                    document.addEventListener('mousemove', onDragMove);
+                    document.addEventListener('mouseup', onDragEnd);
+                });
+
+                function onDragMove(e) {
+                    if (!isDragging) return;
+                    const dx = e.clientX - dragStartX;
+                    const dy = e.clientY - dragStartY;
+                    let newX = initialNoteX + dx;
+                    let newY = initialNoteY + dy;
+
+                    // Optional: Constrain to board boundaries (consider board scroll)
+                    const boardRect = board.getBoundingClientRect();
+                    newX = Math.max(0, Math.min(newX, board.scrollWidth - noteElement.offsetWidth));
+                    newY = Math.max(0, Math.min(newY, board.scrollHeight - noteElement.offsetHeight));
+
+
+                    noteElement.style.left = `${newX}px`;
+                    noteElement.style.top = `${newY}px`;
+                }
+
+                function onDragEnd(e) {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    header.style.cursor = 'grab';
+                    noteElement.classList.remove('shadow-xl');
+                    document.removeEventListener('mousemove', onDragMove);
+                    document.removeEventListener('mouseup', onDragEnd);
+
+                    // Update data and save
+                    updateNoteData(noteData.id, { x: noteElement.offsetLeft, y: noteElement.offsetTop, zIndex: parseInt(noteElement.style.zIndex) });
+                }
+
+                // Resizing
+                let isResizing = false;
+                let resizeStartX, resizeStartY, initialWidth, initialHeight;
+
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation(); // Prevent triggering drag
+                    isResizing = true;
+                    resizeStartX = e.clientX;
+                    resizeStartY = e.clientY;
+                    initialWidth = noteElement.offsetWidth;
+                    initialHeight = noteElement.offsetHeight;
+                    document.body.style.cursor = 'nwse-resize'; // Global cursor change
+
+                    document.addEventListener('mousemove', onResizeMove);
+                    document.addEventListener('mouseup', onResizeEnd);
+                });
+
+                function onResizeMove(e) {
+                    if (!isResizing) return;
+                    const dx = e.clientX - resizeStartX;
+                    const dy = e.clientY - resizeStartY;
+                    let newWidth = initialWidth + dx;
+                    let newHeight = initialHeight + dy;
+
+                    // Enforce min dimensions from CSS (or define here)
+                    const minWidth = parseInt(getComputedStyle(noteElement).minWidth) || 150;
+                    const minHeight = parseInt(getComputedStyle(noteElement).minHeight) || 100;
+                    newWidth = Math.max(minWidth, newWidth);
+                    newHeight = Math.max(minHeight, newHeight);
+
+                     // Optional: Max dimensions
+                    const maxWidth = parseInt(getComputedStyle(noteElement).maxWidth) || Infinity;
+                    const maxHeight = parseInt(getComputedStyle(noteElement).maxHeight) || Infinity;
+                    newWidth = Math.min(maxWidth, newWidth);
+                    newHeight = Math.min(maxHeight, newHeight);
+
+                    noteElement.style.width = `${newWidth}px`;
+                    noteElement.style.height = `${newHeight}px`;
+                }
+
+                function onResizeEnd() {
+                    if (!isResizing) return;
+                    isResizing = false;
+                    document.body.style.cursor = 'default';
+                    document.removeEventListener('mousemove', onResizeMove);
+                    document.removeEventListener('mouseup', onResizeEnd);
+
+                    // Update data and save
+                    updateNoteData(noteData.id, { width: noteElement.offsetWidth, height: noteElement.offsetHeight });
+                }
+
+                // Text Input (with debouncing)
+                let debounceTimer;
+                textarea.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        updateNoteData(noteData.id, { text: textarea.value });
+                    }, 500); // Save 500ms after user stops typing
+                });
+
+                // Deleting
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering drag
+                    if (confirm('Are you sure you want to delete this note?')) {
+                        deleteNote(noteData.id);
+                    }
+                });
+            }
+
+            // --- Data Update and Deletion ---
+            function updateNoteData(id, updates, shouldSave = true) {
+                notes = notes.map(note => {
+                    if (note.id === id) {
+                        return { ...note, ...updates };
+                    }
+                    return note;
+                });
+                if (shouldSave) {
+                    saveNotes();
+                }
+            }
+
+            function deleteNote(id) {
+                const noteElement = document.getElementById(id);
+                if (noteElement) {
+                    noteElement.remove();
+                }
+                notes = notes.filter(note => note.id !== id);
+                saveNotes();
+            }
+
+            // --- Board Interaction ---
+            board.addEventListener('dblclick', (e) => {
+                // Only create note if double-clicking directly on the board, not on a note
+                if (e.target === board) {
+                    // Adjust click position relative to the board and its scroll
+                    const rect = board.getBoundingClientRect();
+                    const x = e.clientX - rect.left + board.scrollLeft;
+                    const y = e.clientY - rect.top + board.scrollTop;
+                    createNewNote(x, y);
+                }
+            });
+
+            // --- Initialization ---
+            loadNotes();
+
+        });
+    </script>
+
+</body>
+</html>
