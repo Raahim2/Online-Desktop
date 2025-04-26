@@ -1,39 +1,5 @@
 [
   {
-    "name": "Mood Ring Generator",
-    "description": "Generate a random mood ring color and its associated meaning with a click.  Relive the nostalgic fun of mood rings digitally!",
-    "features": [
-      "Clickable button to generate a new mood color.",
-      "Display of the generated color using Tailwind CSS background utilities.",
-      "Display of the color's corresponding mood meaning.",
-      "Simple, clean design using Tailwind's pre-built components.",
-      "Option to copy the mood/color combination to the clipboard."
-    ]
-  },
-  {
-    "name": "Geometric Pattern Generator",
-    "description": "Create mesmerizing geometric patterns by adjusting sliders for size, color, and complexity. Download your unique design as an SVG.",
-    "features": [
-      "Interactive sliders to control pattern parameters.",
-      "Real-time pattern generation in an SVG element.",
-      "Customizable color palettes using Tailwind CSS.",
-      "Download button to save the generated SVG.",
-      "Option to change the geometric shape (e.g., circles, squares, triangles)."
-    ]
-  },
-  {
-    "name": "Interactive Story Weaver",
-    "description": "Craft branching narratives with a simple, visual interface. Explore different story paths and share your creations.",
-    "features": [
-      "Drag-and-drop interface for connecting story segments.",
-      "Customizable text fields for each segment.",
-      "Visual representation of the story's branching structure.",
-      "Button to generate a shareable link encoding the story data.",
-      "Option to load stories from shared links."
-    ],
-    "raw_output": "Project Name: Interactive Story Weaver\nDescription: Craft branching narratives with a simple, visual interface. Explore different story paths and share your creations.\nFeatures:\n- Drag-and-drop interface for connecting story segments.\n- Customizable text fields for each segment.\n- Visual representation of the story's branching structure.\n- Button to generate a shareable link encoding the story data.\n- Option to load stories from shared links.\n"
-  },
-  {
     "name": "Gradient Puzzle",
     "description": "Slide colored tiles to recreate a target gradient, challenging your color perception and puzzle-solving skills.",
     "features": [

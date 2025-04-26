@@ -2,42 +2,59 @@ import os
 import re
 import requests
 import base64
-import random
 import uuid
-import time # Import time for potential delays
+import time
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
 # --- Configuration ---
 GITHUB_TOKEN = os.getenv("REPO_GITHUB_TOKEN")
 API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL_IDEA = "gemini-1.5-pro-latest" # Model for generating the idea
-GEMINI_MODEL_CODE = "gemini-1.5-pro-latest" # Model for generating the code (Using 1.5 pro as 2.5 is experimental/may not exist)
-TARGET_REPO_URL = "https://github.com/Raahim2/Online-Desktop" # Your repo URL
-TARGET_BRANCH = "master" # Or your specific branch
-COMMIT_PATH_PREFIX = "public/projects/BIN/" # Path within the repo for projects
-HISTORY_FILE_PATH = "PROJECT_HISTORY.txt" # Path for the history file (relative to repo root)
-MAX_HISTORY_ITEMS = 50 # Limit the number of history items included in the prompt
+GEMINI_MODEL_IDEA = "gemini-1.5-pro-latest"
+GEMINI_MODEL_CODE = "gemini-2.5-pro-exp-03-25"
+TARGET_REPO_URL = "https://github.com/Raahim2/Online-Desktop"
+TARGET_BRANCH = "master"
+COMMIT_PATH_PREFIX = "public/projects/BIN/"
+HISTORY_FILE_PATH = "PROJECT_HISTORY.json"
 
-# --- Helper Functions ---
+# --- History Limits Explanation ---
+# MAX_HISTORY_ITEMS_FOR_PROMPT: Limits how many recent project interaction turns (user+model)
+# are sent to the Gemini API as context for generating the *next* idea.
+# Helps manage API token limits, cost, performance, and focus. Adjust based on needs.
+MAX_HISTORY_ITEMS_FOR_PROMPT = 25
+
+# MAX_STORED_HISTORY_ITEMS: Limits the total number of project entries permanently
+# stored in the PROJECT_HISTORY.json file in the GitHub repo.
+# Prevents the file from growing indefinitely large. Oldest entries are removed first.
+MAX_STORED_HISTORY_ITEMS = 200
+# --- End History Limits Explanation ---
+
+
+# --- Helper Functions (slugify needs to be robust, others same) ---
 
 def slugify(text):
-    """Converts a string to a URL-friendly slug."""
+    """Converts a string to a URL-friendly and filename-safe slug."""
+    if not text:
+        return "unnamed-project"
+    # Remove unsupported characters (allow letters, numbers, hyphens, underscores)
     text = re.sub(r'[^\w\s-]', '', text).strip().lower()
+    # Replace whitespace and consecutive hyphens with a single hyphen
     text = re.sub(r'[-\s]+', '-', text)
+    # Remove leading/trailing hyphens
+    text = text.strip('-')
+    # Handle empty string after cleaning
+    if not text:
+        return "generated-project"
     return text
 
 def clean_gemini_code_output(raw_code):
     """Removes potential markdown fences and leading/trailing whitespace."""
-    if not raw_code:
-        return ""
-    # Remove ```html ... ``` or ``` ... ``` blocks
+    if not raw_code: return ""
     cleaned_code = re.sub(r'^```(?:html|HTML)?\s*\n', '', raw_code.strip(), flags=re.IGNORECASE)
     cleaned_code = re.sub(r'\n```\s*$', '', cleaned_code)
-    # Basic check if it looks like HTML
     if not cleaned_code.strip().startswith(('<!DOCTYPE', '<html')):
          print("Warning: Cleaned code doesn't start with standard HTML tags. Review output.")
-         # Add <!DOCTYPE html> if missing and it looks like partial html
          if cleaned_code.strip().startswith('<'):
               cleaned_code = "<!DOCTYPE html>\n" + cleaned_code
     return cleaned_code.strip()
@@ -45,397 +62,307 @@ def clean_gemini_code_output(raw_code):
 def get_repo_details(repo_url):
     """Extracts username and repo name from URL."""
     match = re.search(r'github\.com/([^/]+)/([^/]+)', repo_url)
-    if not match:
-        return None, None
+    if not match: return None, None
     username = match.group(1)
     repo_name = match.group(2).replace(".git", "")
     return username, repo_name
 
 def get_github_file_content(token, repo_url, branch, file_path):
     """Fetches content and SHA of a file from GitHub."""
-    if not token:
-        print("Error: GitHub token not provided for getting file content.")
-        return None, None
-
+    if not token: print("Error: GitHub token not provided."); return None, None
     username, repo_name = get_repo_details(repo_url)
-    if not username:
-        print(f"Error: Invalid GitHub repository URL: {repo_url}")
-        return None, None
-
+    if not username: print(f"Error: Invalid GitHub URL: {repo_url}"); return None, None
     api_url = f'https://api.github.com/repos/{username}/{repo_name}/contents/{file_path}'
-    headers = {
-        'Authorization': f'token {token}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
-
+    headers = { 'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json' }
     try:
-        response = requests.get(api_url, headers=headers, params={'ref': branch})
-        response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
-
-        if response.status_code == 200:
-            data = response.json()
-            content_encoded = data.get('content')
-            sha = data.get('sha')
-            if content_encoded and sha:
-                content_decoded = base64.b64decode(content_encoded).decode('utf-8')
-                print(f"Successfully fetched '{file_path}'. SHA: {sha}")
-                return content_decoded, sha
-            else:
-                 print(f"Warning: Fetched file '{file_path}' but content or SHA missing in response.")
-                 return None, None # Or handle differently if needed
-        else:
-            # This part might not be reached due to raise_for_status, but good practice
-            print(f"Error fetching file '{file_path}'. Status: {response.status_code}")
-            return None, None
-
+        response = requests.get(api_url, headers=headers, params={'ref': branch}, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        content_encoded = data.get('content')
+        sha = data.get('sha')
+        if content_encoded and sha:
+            content_decoded = base64.b64decode(content_encoded).decode('utf-8')
+            print(f"Successfully fetched '{file_path}'. SHA: {sha}")
+            return content_decoded, sha
+        else: print(f"Warning: Fetched '{file_path}', content/SHA missing."); return None, None
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            print(f"File '{file_path}' not found in branch '{branch}'. Assuming empty history.")
-            return None, None # File doesn't exist, valid case for history
-        else:
-            print(f"HTTP Error fetching file '{file_path}': {e.response.status_code} {e.response.text}")
-            return None, None
-    except requests.exceptions.RequestException as e:
-        print(f"Network Error fetching file '{file_path}': {e}")
-        return None, None
-    except Exception as e:
-        print(f"Unexpected error fetching file '{file_path}': {e}")
-        return None, None
-
+        if e.response.status_code == 404: print(f"File '{file_path}' not found."); return None, None
+        else: print(f"HTTP Error fetching '{file_path}': {e.response.status_code} {e.response.text}"); return None, None
+    except requests.exceptions.RequestException as e: print(f"Network Error fetching '{file_path}': {e}"); return None, None
+    except Exception as e: print(f"Unexpected error fetching '{file_path}': {e}"); return None, None
 
 def commit_to_github(token, repo_url, branch, file_path, commit_message, content, current_sha=None):
     """Commits content to GitHub, creating or updating the file."""
-    if not token:
-        return {'status': 'failure', 'error': 'GitHub token not provided.'}
-    if not content:
-        # Allow committing empty history file initially, but maybe warn for project files
-        if COMMIT_PATH_PREFIX in file_path:
-             print(f"Warning: Content for project file '{file_path}' is empty. Committing anyway.")
-        # return {'status': 'failure', 'error': 'Content is empty, cannot commit.'} # Original check
+    if not token: return {'status': 'failure', 'error': 'GitHub token not provided.'}
+    if content is None: return {'status': 'failure', 'error': 'Content is None.'}
 
     username, repo_name = get_repo_details(repo_url)
-    if not username:
-        return {'status': 'failure', 'error': 'Invalid GitHub repository URL'}
-
+    if not username: return {'status': 'failure', 'error': 'Invalid GitHub repository URL'}
     api_url = f'https://api.github.com/repos/{username}/{repo_name}/contents/{file_path}'
-    headers = {
-        'Authorization': f'token {token}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
+    headers = { 'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json' }
 
-    # If current_sha isn't provided, try fetching it (useful if called directly without pre-fetch)
+    # --- Check for existing file with the SAME path before committing ---
+    # This is crucial when using non-UUID filenames to avoid unintentional overwrites
+    # if the short ID wasn't enough (though unlikely with the added ID).
+    # We still need the SHA for updates, so `get_github_file_content` is appropriate.
     if current_sha is None:
-        print(f"SHA not provided for '{file_path}', attempting to fetch...")
+        print(f"SHA not provided for '{file_path}', fetching to check existence and get SHA...")
         _, fetched_sha = get_github_file_content(token, repo_url, branch, file_path)
         if fetched_sha:
-            current_sha = fetched_sha
-            print(f"Found existing SHA: {current_sha}")
-        elif fetched_sha is None:
+             current_sha = fetched_sha
+             print(f"File '{file_path}' exists. Found SHA for update: {current_sha}")
+        else:
              print(f"File '{file_path}' likely doesn't exist or fetch failed. Proceeding with creation.")
-        # If fetch failed but wasn't 404, maybe add more robust error handling here
-
+    # --- End check ---
 
     encoded_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
-    data = {
-        'message': commit_message,
-        'content': encoded_content,
-        'branch': branch
-    }
-    if current_sha:
-        data['sha'] = current_sha
+    data = { 'message': commit_message, 'content': encoded_content, 'branch': branch }
+    if current_sha: data['sha'] = current_sha # Include SHA only if updating
 
     try:
-        put_response = requests.put(api_url, headers=headers, json=data)
-        put_response.raise_for_status() # Raise HTTPError for bad responses
-
+        put_response = requests.put(api_url, headers=headers, json=data, timeout=60)
+        put_response.raise_for_status()
         commit_sha = put_response.json().get('commit', {}).get('sha', 'N/A')
         action = "updated" if current_sha else "created"
-        print(f"Successfully {action} '{file_path}' in branch '{branch}'. Commit SHA: {commit_sha}")
+        print(f"Successfully {action} '{file_path}'. Commit SHA: {commit_sha}")
         return {'status': 'success', 'details': put_response.json()}
-
     except requests.exceptions.HTTPError as e:
-        print(f"Commit failed for '{file_path}': {e.response.status_code}")
-        print(f"Response: {e.response.text}")
-        # Specific check for SHA mismatch (409 Conflict)
-        if e.response.status_code == 409:
-            print("Error: SHA mismatch (409 Conflict). The file may have been updated since the SHA was fetched.")
-            return {'status': 'failure', 'error': f'SHA mismatch (409 Conflict): {e.response.json()}'}
-        elif e.response.status_code == 422: # Unprocessable Entity - often bad content or structure
-             print("Error: Unprocessable Entity (422). Check commit data/content.")
-             return {'status': 'failure', 'error': f'Unprocessable Entity (422): {e.response.json()}'}
-        else:
-            return {'status': 'failure', 'error': f'HTTP Error {e.response.status_code}: {e.response.json()}'}
-    except requests.exceptions.RequestException as e:
-        print(f"Network error during commit for '{file_path}': {e}")
-        return {'status': 'failure', 'error': f'Network error: {e}'}
-    except Exception as e:
-        print(f"Unexpected error during commit for '{file_path}': {e}")
-        return {'status': 'failure', 'error': f'Unexpected error: {e}'}
+        error_details = e.response.json() if e.response.content else str(e)
+        print(f"Commit failed for '{file_path}': {e.response.status_code} {error_details}")
+        status_code = e.response.status_code
+        error_key = 'SHA mismatch (409 Conflict)' if status_code == 409 else \
+                    'Unprocessable Entity (422)' if status_code == 422 else \
+                    f'HTTP Error {status_code}'
+        # Add specific warning for 422 if it might be a filename collision (less likely now)
+        if status_code == 422 and 'message' in error_details and 'invalid' in error_details['message'].lower():
+             print("Error 422 might indicate an invalid path/filename or other issue.")
+        return {'status': 'failure', 'error': f'{error_key}: {error_details}'}
+    except requests.exceptions.RequestException as e: print(f"Network error during commit: {e}"); return {'status': 'failure', 'error': f'Network error: {e}'}
+    except Exception as e: print(f"Unexpected error during commit: {e}"); return {'status': 'failure', 'error': f'Unexpected error: {e}'}
 
 
-def gemini(prompt, gemini_api_key=API_KEY, model="gemini-1.5-pro-latest", temperature=0.7, top_p=1.0):
-    """Function to interact with the Gemini API."""
-    # (Keep the gemini function exactly as it was in the original prompt - it's robust)
-    if not gemini_api_key:
-        print("Error: GEMINI_API_KEY not found.")
-        return None
-
+def gemini(prompt, history=None, gemini_api_key=API_KEY, model="gemini-1.5-pro-latest", temperature=0.7, top_p=1.0):
+    """Interacts with Gemini API, supporting conversation history."""
+    # (Function remains the same as previous version)
+    if not gemini_api_key: print("Error: GEMINI_API_KEY not found."); return None
+    contents = []
+    if history:
+        if isinstance(history, list) and all(isinstance(item, dict) and 'role' in item and 'parts' in item for item in history):
+             contents.extend(history)
+        else: print("Warning: Invalid history format provided. Ignoring.")
+    contents.append({"role": "user", "parts": [{"text": prompt}]})
     try:
-        # Use v1beta endpoint which seems more reliable for some configs
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         headers = {"Content-Type": "application/json"}
         params = {"key": gemini_api_key}
-        payload = {
-            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "temperature": temperature,
-                "topP": top_p,
-                 "maxOutputTokens": 8192, # Explicitly set max tokens if needed
-            }
-            # Optional: Adjust safety settings if needed
-            # "safetySettings": [ ... ]
-        }
-
-        response = requests.post(url, headers=headers, params=params, json=payload, timeout=300) # Increased timeout
-        response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
-
+        payload = { "contents": contents, "generationConfig": {"temperature": temperature, "topP": top_p, "maxOutputTokens": 8192} }
+        response = requests.post(url, headers=headers, params=params, json=payload, timeout=300)
+        response.raise_for_status()
         result = response.json()
-
-        # Check for successful response structure
         if 'candidates' in result and result['candidates']:
             candidate = result['candidates'][0]
-            if 'content' in candidate and 'parts' in candidate['content'] and candidate['content']['parts']:
-                 # Strip potential leading/trailing quotes sometimes added by models
-                 return candidate['content']['parts'][0]['text'].strip('" ')
+            if 'content' in candidate and 'parts' in candidate['content'] and candidate['content']['parts']: return candidate['content']['parts'][0]['text'].strip('" ')
             elif 'finishReason' in candidate and candidate['finishReason'] != 'STOP':
-                 print(f"Warning: Generation finished unexpectedly. Reason: {candidate['finishReason']}")
-                 if 'safetyRatings' in candidate:
-                     print(f"Safety Ratings: {candidate['safetyRatings']}")
-                 # Attempt to return partial content if available (sometimes in safety cases)
-                 if 'content' in candidate and 'parts' in candidate['content'] and candidate['content']['parts']:
-                    print("Returning potentially partial content due to finish reason.")
-                    return candidate['content']['parts'][0]['text'].strip('" ')
-                 return None # Indicate potential issue
-            else:
-                 print("Error: Unexpected response structure (missing content/parts or empty parts):")
-                 print(result)
+                 print(f"Warning: Gen finished unexpectedly. Reason: {candidate['finishReason']}")
+                 if 'safetyRatings' in candidate: print(f"Safety Ratings: {candidate['safetyRatings']}")
+                 if 'content' in candidate and 'parts' in candidate['content'] and candidate['content']['parts']: print("Returning potentially partial content."); return candidate['content']['parts'][0]['text'].strip('" ')
                  return None
-        # Handle cases where response might be 200 but contains an error (e.g., prompt blocked)
+            else: print("Error: Unexpected response structure (missing content/parts):", result); return None
         elif 'promptFeedback' in result and 'blockReason' in result['promptFeedback']:
              print(f"Error: Prompt blocked. Reason: {result['promptFeedback']['blockReason']}")
-             if 'safetyRatings' in result['promptFeedback']:
-                 print(f"Safety Ratings: {result['promptFeedback']['safetyRatings']}")
+             if 'safetyRatings' in result['promptFeedback']: print(f"Safety Ratings: {result['promptFeedback']['safetyRatings']}")
              return None
-        else:
-            print("Error: Unexpected API response structure:")
-            print(result)
-            return None
-
-    except requests.exceptions.Timeout:
-        print(f"Error: API request timed out after 300 seconds for model {model}.")
-        return None
+        else: print("Error: Unexpected API response structure:", result); return None
+    except requests.exceptions.Timeout: print(f"Error: API request timed out ({model})."); return None
     except requests.exceptions.RequestException as e:
         print(f"HTTP Request Error: {e}")
-        if hasattr(e, 'response') and e.response is not None:
-            print(f"Response Status Code: {e.response.status_code}")
-            print(f"Response Text: {e.response.text}")
+        if hasattr(e, 'response') and e.response is not None: print(f"Response: {e.response.status_code} {e.response.text}")
         return None
-    except Exception as e:
-        print(f"An unexpected error occurred in gemini function: {e}")
-        import traceback
-        traceback.print_exc() # Print full traceback for debugging
-        return None
+    except Exception as e: print(f"An unexpected error in gemini function: {e}"); import traceback; traceback.print_exc(); return None
 
-def extract_idea_summary(full_idea_text):
-    """Extracts a concise summary (e.g., first line) from the generated idea."""
-    if not full_idea_text:
-        return "Unknown Project Idea"
-    lines = full_idea_text.strip().split('\n')
-    # Try to find a line starting with "Project Name:" or similar, otherwise take the first non-empty line
+def parse_project_idea_text(full_idea_text):
+    """Parses the structured text output, includes raw_output."""
+    # (Function remains the same as previous version)
+    if not full_idea_text: return None
+    project_details = { "name": "Unknown Project Idea", "description": "No description.", "features": [], "raw_output": full_idea_text }
+    current_section = None; lines = full_idea_text.strip().split('\n'); feature_lines = []
     for line in lines:
-        if line.strip().lower().startswith("project name:"):
-            return line.strip() # Return the whole line
-    # Fallback to the first non-empty line
-    for line in lines:
-        if line.strip():
-            return line.strip()
-    return "Unnamed Project Idea" # Fallback if all lines are empty
+        line_stripped = line.strip();
+        if not line_stripped: continue
+        if line_stripped.lower().startswith("project name:"): project_details["name"] = line_stripped[len("project name:"):].strip(); current_section = "name"
+        elif line_stripped.lower().startswith("description:"): project_details["description"] = line_stripped[len("description:"):].strip(); current_section = "description"
+        elif line_stripped.lower().startswith("features:"): current_section = "features"
+        elif current_section == "features":
+            if line_stripped.startswith(('-', '*')): feature_lines.append(line_stripped[1:].strip())
+        elif current_section == "description":
+             if not line_stripped.lower().startswith(("project name:", "features:")): project_details["description"] += " " + line_stripped
+    project_details["features"] = feature_lines
+    if project_details["name"] == "Unknown Project Idea" and project_details["description"] == "No description.":
+        print(f"Warning: Could not parse details reliably from text.")
+        first_line = next((l.strip() for l in lines if l.strip()), None)
+        if first_line: project_details["name"] = first_line
+    return project_details
+
+
+def load_history_from_json(history_content):
+    """Loads history from a JSON string, returns a list."""
+    # (Function remains the same as previous version)
+    if not history_content: return []
+    try:
+        history_data = json.loads(history_content)
+        if isinstance(history_data, list): return history_data
+        else: print("Warning: History is not a JSON list."); return []
+    except json.JSONDecodeError: print("Warning: Could not decode history JSON."); return []
 
 
 # --- Main Execution ---
 
 def generate_project():
-    # 1. Fetch Project History from GitHub
+    # 1. Fetch and Load Project History (JSON)
     print(f"\nFetching project history from '{HISTORY_FILE_PATH}'...")
-    history_content, history_sha = get_github_file_content(
-        token=GITHUB_TOKEN,
-        repo_url=TARGET_REPO_URL,
-        branch=TARGET_BRANCH,
-        file_path=HISTORY_FILE_PATH
+    history_json_content, history_sha = get_github_file_content(
+        token=GITHUB_TOKEN, repo_url=TARGET_REPO_URL, branch=TARGET_BRANCH, file_path=HISTORY_FILE_PATH
     )
+    past_projects_data = load_history_from_json(history_json_content)
+    print(f"Loaded {len(past_projects_data)} projects from history.")
 
-    past_ideas = []
-    if history_content:
-        # Split by newline, remove empty lines, strip whitespace
-        past_ideas = [line.strip() for line in history_content.splitlines() if line.strip()]
-        print(f"Found {len(past_ideas)} historical project ideas.")
-        if len(past_ideas) > MAX_HISTORY_ITEMS:
-            print(f"Limiting history sent to AI to the last {MAX_HISTORY_ITEMS} items.")
-            past_ideas = past_ideas[-MAX_HISTORY_ITEMS:] # Keep only the most recent N ideas
-    else:
-        print("No history found or file doesn't exist.")
+    # 2. Construct Conversation History for Gemini API
+    conversation_history_for_api = []
+    if past_projects_data:
+        history_to_use = past_projects_data[-MAX_HISTORY_ITEMS_FOR_PROMPT:]
+        print(f"Constructing conversation history from last {len(history_to_use)} projects...")
+        for project_data in history_to_use:
+            # Placeholder user turn
+            conversation_history_for_api.append({ "role": "user", "parts": [{"text": "Give me another unique project idea (HTML, Tailwind, Vanilla JS, no external APIs)."}] })
+            # Model's response (raw_output preferred)
+            model_output_text = project_data.get("raw_output")
+            if not model_output_text: # Fallback reconstruction
+                features_str = "\n".join([f"- {f}" for f in project_data.get("features", [])])
+                model_output_text = (f"Project Name: {project_data.get('name', 'N/A')}\nDescription: {project_data.get('description', 'N/A')}\nFeatures:\n{features_str}").strip()
+                print(f"Warning: Reconstructing model output for history: {project_data.get('name', 'N/A')}")
+            if model_output_text: conversation_history_for_api.append({ "role": "model", "parts": [{"text": model_output_text}] })
+            else:
+                 print(f"Warning: Skipping empty history turn for {project_data.get('name', 'N/A')}")
+                 if conversation_history_for_api and conversation_history_for_api[-1]["role"] == "user": conversation_history_for_api.pop() # Remove orphan user turn
 
-    # 2. Generate a Unique Project Idea, considering history
-    print("\nGenerating project idea...")
-
-    history_prompt_section = ""
-    if past_ideas:
-        history_prompt_section = "Here are some project ideas that have already been generated. Please provide something distinctly different from these:\n\n"
-        history_prompt_section += "\n".join([f"- {idea}" for idea in past_ideas])
-        history_prompt_section += "\n\nPlease ensure the new idea is novel compared to the list above."
-        history_prompt_section += "\n---\n" # Separator
-
-    idea_generation_prompt = f"""
-    {history_prompt_section}
+    # 3. Define the *Current* User Prompt
+    idea_generation_prompt = """
     Give me an innovative and easily implementable project idea for a one-page website using only HTML, Tailwind CSS, and vanilla JavaScript.
-    The project MUST NOT require any API keys or external services beyond the Tailwind CDN.
+    The project MUST NOT require any API keys or external services beyond the Tailwind CDN. Ensure the idea is distinct from any previous examples in our conversation.
 
     **Output Format:**
-    Please format the output EXACTLY like this:
+    Please format the output EXACTLY like this, with each part on a new line:
     Project Name: [A Creative and Unique Project Name]
-    Description: [A short, compelling description of the project (1-2 sentences)]
+    Description: [A short, compelling description (1-2 sentences)]
     Features:
     - [Feature 1]
     - [Feature 2]
     - [Feature 3+]
     (List 3-5 key features implementable with HTML/Tailwind/minimal JS)
 
-    **IMPORTANT:** Do NOT include any other text, greetings, explanations, or markdown formatting around this structure. Just provide the Name, Description, and Features as specified. Make the idea distinct from any provided history.
+    **IMPORTANT:** Do NOT include any other text, greetings, explanations, or markdown formatting around this structure. Just provide the Name, Description, and Features as specified.
     """
 
-    project_idea_full = gemini(
-        idea_generation_prompt,
-        model=GEMINI_MODEL_IDEA,
-        temperature=0.95, # Keep high for creativity
-        top_p=0.9
+    # 4. Generate New Idea using Gemini with History
+    print("\nGenerating new project idea (using conversation history)...")
+    project_idea_text = gemini(
+        prompt=idea_generation_prompt, history=conversation_history_for_api,
+        model=GEMINI_MODEL_IDEA, temperature=0.95, top_p=0.9
     )
+    if not project_idea_text: print("Failed to generate project idea text. Exiting."); return
+    print(f"\nGenerated Raw Project Idea Text:\n---\n{project_idea_text}\n---")
 
-    if not project_idea_full:
-        print("Failed to generate a project idea. Exiting.")
-        return # Use return instead of exit() for better flow control if called as function
+    # 5. Parse the *New* Generated Text
+    new_project_details = parse_project_idea_text(project_idea_text)
+    if not new_project_details: # Basic fallback if parsing completely fails
+        print("Failed to parse project details. Using fallback name.")
+        fallback_name = "generated-project-" + str(uuid.uuid4())[:6]
+        new_project_details = {"name": fallback_name, "description": "", "features": [], "raw_output": project_idea_text or ""}
+    print(f"Parsed New Project Details: {json.dumps(new_project_details, indent=2)}")
 
-    project_idea_full = project_idea_full.strip().strip('"') # Basic cleaning
-    print(f"\nGenerated Raw Project Idea:\n---\n{project_idea_full}\n---")
+    # --- Determine Filename ---
+    project_name = new_project_details.get('name', 'unnamed-project')
+    project_slug = slugify(project_name)
+    # Add a short unique ID to prevent collisions, even with slugify
+    short_id = str(uuid.uuid4())[:6]
+    project_filename = f"{project_slug}-{short_id}.html"
+    print(f"Generated Filename: {project_filename}")
+    # --- End Determine Filename ---
 
-    # Extract a concise summary for history and commit messages
-    idea_summary = extract_idea_summary(project_idea_full)
-    print(f"Extracted Idea Summary for history/commit: '{idea_summary}'")
-
-    # 3. Generate Code based on the full idea description
+    # 6. Generate Code
     code_generation_prompt = f"""
-    Generate the complete HTML code for a single-page website based on this specific project idea:
+    Generate the complete HTML code for a single-page website based on this specific project idea text:
 
-    {project_idea_full}
+    {project_idea_text}
 
     **Strict Requirements:**
-
-    1.  **Single File Output:** The entire code MUST be contained within a single HTML file (`.html`).
-    2.  **HTML & Tailwind CSS Only:** Use only standard HTML5 and Tailwind CSS for ALL styling. Include Tailwind via its CDN script: `<script src="https://cdn.tailwindcss.com"></script>` within the `<head>`. Do NOT use external CSS files or `<style>` blocks unless absolutely necessary for very specific, minor tweaks not achievable with Tailwind classes.
-    3.  **UI/UX Focus:** Prioritize a clean, visually appealing, and intuitive user interface. Make it look polished and modern. Use appropriate Tailwind utilities for layout (Flexbox, Grid), spacing, typography, colors, effects, and potentially subtle animations/transitions.
-    4.  **Responsiveness:** The layout MUST be fully responsive (mobile, tablet, desktop). Use Tailwind's responsive modifiers (`sm:`, `md:`, `lg:`). Test basic responsiveness in your generation logic.
-    5.  **Clean & Structured Code:** Write well-formatted, readable HTML with semantic tags (`<header>`, `<nav>`, `<main>`, `<section>`, `<footer>` etc.). Use comments only where essential.
-    6.  **Placeholder Content:** Use relevant placeholder text and images (`https://via.placeholder.com/...' or similar like placeholder.co) that fit the project's theme.
-    7.  **Interactivity (Optional but Encouraged):** If the project idea suggests interactivity suitable for vanilla JS (e.g., toggles, simple calculations, dynamic text updates), implement it using minimal inline JavaScript (`onclick="..."`) or a small `<script>` tag at the end of the `<body>`. AVOID complex JS logic or external libraries. Keep it simple and focused on enhancing the UI based on the idea.
-    8.  **COMPLETE CODE ONLY:** Output ONLY the raw, complete HTML code starting from `<!DOCTYPE html>` and ending with `</html>`. Do NOT include:
-        *   Any explanations before or after the code.
-        *   Any descriptive text about the code (like "Here is the HTML code...").
-        *   Markdown formatting like ```html ... ``` surrounding the code block.
-        *   Any conversational text.
+    1. Single File Output (.html).
+    2. HTML & Tailwind CSS Only (via CDN: <script src="https://cdn.tailwindcss.com"></script>). No external CSS/<style> blocks unless essential.
+    3. Clean, polished, intuitive, modern UI/UX using Tailwind utilities (Flexbox, Grid, spacing, typography, colors, effects).
+    4. Fully Responsive (mobile, tablet, desktop) using Tailwind modifiers (sm:, md:, lg:).
+    5. Well-formatted, readable HTML with semantic tags. Minimal comments.
+    6. Relevant placeholder text/images (e.g., https://via.placeholder.com/...).
+    7. Optional: Minimal vanilla JS interactivity (inline onclick or small <script> at end of body) if applicable. No complex JS/libraries.
+    8. COMPLETE CODE ONLY: Output ONLY raw HTML from <!DOCTYPE html> to </html>. No explanations, markdown fences, or conversational text.
 
     Begin the HTML code now:
     """
+    print("\nGenerating HTML code...")
+    raw_code = gemini(code_generation_prompt, model=GEMINI_MODEL_CODE, temperature=0.4) # No history needed
+    if not raw_code: print("Failed to generate code. Exiting."); return
 
-    print("\nGenerating HTML code based on the idea...")
-    raw_code = gemini(code_generation_prompt, model=GEMINI_MODEL_CODE, temperature=0.4) # Lower temp for code
-
-    if not raw_code:
-        print("Failed to generate the code. Exiting.")
-        return
-
-    # 4. Clean the Generated Code
+    # 7. Clean Generated Code
     print("\nCleaning generated code...")
     cleaned_code = clean_gemini_code_output(raw_code)
-
-    if not cleaned_code or not cleaned_code.strip():
-        print("Code cleaning resulted in empty content. Cannot proceed. Exiting.")
-        return
-
-    print("\nCleaned Code Snippet (first 500 chars):")
-    print(cleaned_code[:500] + "...")
-    print("-" * 20)
+    if not cleaned_code or not cleaned_code.strip(): print("Cleaned code is empty. Exiting."); return
+    print("\nCleaned Code Snippet (first 500 chars):"); print(cleaned_code[:500] + "..."); print("-" * 20)
 
     # --- Commit Phase ---
+    # Use the generated filename
+    project_file_path = f"{COMMIT_PATH_PREFIX.strip('/')}/{project_filename}"
+    # Use the original (unslugified) project name for the commit message for clarity
+    commit_project_name = new_project_details.get('name', 'Generated Project')
+    project_commit_message = f"feat: Add project '{commit_project_name[:50]}...' ({project_filename})" # Include filename in msg
 
-    unique_id = uuid.uuid4()
-    # Use a random theme or keyword if needed, or remove if idea_summary is enough
-    random_theme = random.choice(["innovation", "utility", "design", "interactive", "concept"])
-    project_file_path = f"{COMMIT_PATH_PREFIX.strip('/')}/{unique_id}.html"
-    project_commit_message = f"feat: Add project '{idea_summary[:50]}...' ({random_theme}) ({unique_id})"
-
-    # 5. Update Project History on GitHub BEFORE committing the project file
+    # 8. Update Project History (JSON) on GitHub
     print(f"\nAttempting to update history file '{HISTORY_FILE_PATH}'...")
-    new_history_content = (history_content + "\n" + idea_summary).strip() # Append new summary
-
-    history_commit_message = f"chore: Update project history with '{idea_summary[:50]}...'"
-
+    if new_project_details and new_project_details.get("name") != "Unknown Project Idea":
+        past_projects_data.append(new_project_details)
+    else: print("Warning: Not adding potentially poorly parsed project details to history.")
+    if len(past_projects_data) > MAX_STORED_HISTORY_ITEMS:
+         print(f"Trimming history from {len(past_projects_data)} to {MAX_STORED_HISTORY_ITEMS} items.")
+         past_projects_data = past_projects_data[-MAX_STORED_HISTORY_ITEMS:]
+    new_history_json_content = json.dumps(past_projects_data, indent=2)
+    history_commit_message = f"chore: Update project history with '{commit_project_name[:50]}...'"
     history_commit_result = commit_to_github(
-        token=GITHUB_TOKEN,
-        repo_url=TARGET_REPO_URL,
-        branch=TARGET_BRANCH,
-        file_path=HISTORY_FILE_PATH,
-        commit_message=history_commit_message,
-        content=new_history_content,
-        current_sha=history_sha # Pass the SHA obtained earlier for update
+        token=GITHUB_TOKEN, repo_url=TARGET_REPO_URL, branch=TARGET_BRANCH,
+        file_path=HISTORY_FILE_PATH, commit_message=history_commit_message,
+        content=new_history_json_content, current_sha=history_sha
     )
-
-    print("\nHistory Commit Result:")
-    print(history_commit_result)
-
+    print("\nHistory Commit Result:"); print(history_commit_result)
     if history_commit_result['status'] != 'success':
-        print(f"Warning: Failed to update history file '{HISTORY_FILE_PATH}'. Proceeding with project commit anyway.")
-       
+        print(f"Warning: Failed to update history file '{HISTORY_FILE_PATH}'. Proceeding anyway.")
 
-    time.sleep(2)
+    time.sleep(2) # Small delay
 
-    # 6. Commit the Generated Project Code to GitHub
-    print(f"\nAttempting to commit project file to: {TARGET_REPO_URL}")
-    print(f"File path: {project_file_path}")
-    print(f"Branch: {TARGET_BRANCH}")
-    print(f"Commit message: {project_commit_message}")
-
+    # 9. Commit Generated Project Code
+    print(f"\nAttempting to commit project file: {project_file_path}")
     project_commit_result = commit_to_github(
-        token=GITHUB_TOKEN,
-        repo_url=TARGET_REPO_URL,
-        branch=TARGET_BRANCH,
-        file_path=project_file_path,
-        commit_message=project_commit_message,
+        token=GITHUB_TOKEN, repo_url=TARGET_REPO_URL, branch=TARGET_BRANCH,
+        file_path=project_file_path, commit_message=project_commit_message,
         content=cleaned_code
-        # No SHA needed here, as it's a new file with UUID
+        # SHA handling is now inside commit_to_github for checking existence
     )
-
-    print("\nProject Commit Result:")
-    print(project_commit_result)
+    print("\nProject Commit Result:"); print(project_commit_result)
 
     if project_commit_result['status'] == 'success':
-        print("\nProcess completed successfully! New project and history updated.")
+        print("\nProcess completed successfully! New project committed and history updated.")
     else:
         print("\nProcess failed during project commit.")
 
 # --- Run the generator ---
 if __name__ == "__main__":
-    # Basic check for essential env vars
     if not GITHUB_TOKEN or not API_KEY:
         print("Error: Missing GITHUB_TOKEN or GEMINI_API_KEY environment variables.")
-        print("Please ensure your .env file is correctly set up.")
     else:
         generate_project()
