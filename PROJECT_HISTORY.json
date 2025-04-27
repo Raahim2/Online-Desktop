@@ -190,5 +190,17 @@
       "Preset data sets to inspire poetic exploration."
     ],
     "raw_output": "Project Name: Interactive Data Poetry\nDescription: Craft poems where data shapes the structure and aesthetic, visualizing numerical input as a dynamic, evolving text layout.\nFeatures:\n- Input fields for numerical data that influence line breaks, font sizes, and spacing.\n- Real-time rendering of the poem as data is adjusted.\n- Customizable color palettes reflecting the data's range.\n- Option to download the poem as an image or text file.\n- Preset data sets to inspire poetic exploration.\n"
+  },
+  {
+    "name": "Element Morphing Gallery",
+    "description": "A visually engaging gallery where images morph and transition smoothly based on cursor proximity, creating a fluid and interactive experience.",
+    "features": [
+      "Multiple image containers laid out in a grid.",
+      "Smooth image scaling and transformation based on mouse position.",
+      "Subtle color shifts and overlay effects on hover.",
+      "Optional image captions revealed on hover.",
+      "Keyboard navigation for accessibility."
+    ],
+    "raw_output": "Project Name: Element Morphing Gallery\nDescription: A visually engaging gallery where images morph and transition smoothly based on cursor proximity, creating a fluid and interactive experience.\nFeatures:\n- Multiple image containers laid out in a grid.\n- Smooth image scaling and transformation based on mouse position.\n- Subtle color shifts and overlay effects on hover.\n- Optional image captions revealed on hover.\n- Keyboard navigation for accessibility.\n"
   }
 ]
