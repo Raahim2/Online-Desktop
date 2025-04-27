@@ -334,5 +334,17 @@
       "Interactive controls for adjusting canvas size and grid visibility."
     ],
     "raw_output": "Project Name: Geometric Pattern Weaver\nDescription: Design intricate geometric patterns by manipulating shapes and colors on an interactive canvas, creating unique tessellations and artistic compositions.\nFeatures:\n- Drag-and-drop interface for positioning and rotating geometric shapes.\n- Customizable shape properties (color, size, opacity) using Tailwind CSS classes and JavaScript.\n- Preset shape libraries and color palettes for quick inspiration.\n- Download the generated pattern as an SVG image.\n- Interactive controls for adjusting canvas size and grid visibility.\n"
+  },
+  {
+    "name": "Shadow Puppet Theatre",
+    "description": "Create and animate digital shadow puppets with customizable shapes, colors, and movements, putting on a miniature theatrical performance in your browser.",
+    "features": [
+      "Drag-and-drop interface for positioning and scaling puppet shapes.",
+      "Adjustable light source position and color to create dynamic shadows.",
+      "Simple animation controls for puppet movement and transformations.",
+      "Preset puppet shapes and background scenes.",
+      "Downloadable snapshot of the shadow puppet scene."
+    ],
+    "raw_output": "Project Name: Shadow Puppet Theatre\nDescription: Create and animate digital shadow puppets with customizable shapes, colors, and movements, putting on a miniature theatrical performance in your browser.\nFeatures:\n- Drag-and-drop interface for positioning and scaling puppet shapes.\n- Adjustable light source position and color to create dynamic shadows.\n- Simple animation controls for puppet movement and transformations.\n- Preset puppet shapes and background scenes.\n- Downloadable snapshot of the shadow puppet scene.\n"
   }
 ]
