@@ -154,5 +154,17 @@
       "Timer to track completion time."
     ],
     "raw_output": "Project Name: Procedural Maze Generator\nDescription: Generate and explore unique, randomly created mazes directly in your browser.\nFeatures:\n- Adjustable maze size and complexity.\n- Interactive navigation through the generated maze.\n- Visual cues for start and end points.\n- Option to regenerate a new maze with different parameters.\n- Timer to track completion time.\n"
+  },
+  {
+    "name": "Lyrically Inspired Color Palettes",
+    "description": "Generate unique color palettes based on the emotional tone of song lyrics entered by the user.",
+    "features": [
+      "Text input field for song lyrics.",
+      "JavaScript algorithm to analyze text sentiment (positive, negative, neutral).",
+      "Dynamically generated color palettes based on sentiment analysis.",
+      "Display of hex codes for each color in the generated palette.",
+      "Option to copy the generated palette to the clipboard."
+    ],
+    "raw_output": "Project Name: Lyrically Inspired Color Palettes\nDescription: Generate unique color palettes based on the emotional tone of song lyrics entered by the user.\nFeatures:\n- Text input field for song lyrics.\n- JavaScript algorithm to analyze text sentiment (positive, negative, neutral).\n- Dynamically generated color palettes based on sentiment analysis.\n- Display of hex codes for each color in the generated palette.\n- Option to copy the generated palette to the clipboard.\n"
   }
 ]
