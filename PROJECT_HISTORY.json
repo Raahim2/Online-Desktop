@@ -202,5 +202,17 @@
       "Keyboard navigation for accessibility."
     ],
     "raw_output": "Project Name: Element Morphing Gallery\nDescription: A visually engaging gallery where images morph and transition smoothly based on cursor proximity, creating a fluid and interactive experience.\nFeatures:\n- Multiple image containers laid out in a grid.\n- Smooth image scaling and transformation based on mouse position.\n- Subtle color shifts and overlay effects on hover.\n- Optional image captions revealed on hover.\n- Keyboard navigation for accessibility.\n"
+  },
+  {
+    "name": "Personalized Breathing Exercises",
+    "description": "Guide users through calming breathing exercises with customizable visuals and pacing, promoting relaxation and mindfulness.",
+    "features": [
+      "Adjustable breath cycle duration and visualization style.",
+      "Animated visual cues to guide inhalation and exhalation.",
+      "Optional background music or nature sounds (using HTML audio elements).",
+      "Session timer and progress indicator.",
+      "Customizable color themes to match user preferences."
+    ],
+    "raw_output": "Project Name: Personalized Breathing Exercises\nDescription: Guide users through calming breathing exercises with customizable visuals and pacing, promoting relaxation and mindfulness.\nFeatures:\n- Adjustable breath cycle duration and visualization style.\n- Animated visual cues to guide inhalation and exhalation.\n- Optional background music or nature sounds (using HTML audio elements).\n- Session timer and progress indicator.\n- Customizable color themes to match user preferences.\n"
   }
 ]
