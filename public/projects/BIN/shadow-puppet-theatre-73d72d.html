@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Puppet Theatre</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic styling for draggable elements (visual cue) */
+        .puppet {
+            cursor: grab;
+            position: absolute; /* Needed for positioning within the stage */
+            /* Default shadow - JS would dynamically update this */
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.7));
+            transition: transform 0.1s ease-out; /* Smooth movement */
+        }
+        .puppet:active {
+            cursor: grabbing;
+            z-index: 100; /* Bring to front when dragging */
+        }
+        /* Simple placeholder shapes */
+        .shape-circle { border-radius: 50%; }
+        .shape-square { border-radius: 0; }
+        .shape-triangle {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 70px solid; /* Color set by Tailwind */
+            background-color: transparent !important; /* Override background */
+        }
+        /* Stage background presets */
+        .bg-scene-1 { background: linear-gradient(to bottom, #f0f9ff, #a5f3fc); }
+        .bg-scene-2 { background: linear-gradient(to bottom, #1e3a8a, #fde68a); }
+        .bg-scene-3 { background: linear-gradient(to bottom, #4b5563, #111827); }
+
+        /* Custom scrollbar for controls */
+        .controls-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .controls-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; /* coolGray-100 */
+            border-radius: 10px;
+        }
+        .controls-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* coolGray-400 */
+            border-radius: 10px;
+        }
+        .controls-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* coolGray-500 */
+        }
+
+        /* Simple animation placeholder */
+        @keyframes basic-sway {
+            0%, 100% { transform: rotate(-5deg) translateX(-5px); }
+            50% { transform: rotate(5deg) translateX(5px); }
+        }
+        .animate-sway {
+            animation: basic-sway 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+
+        <!-- Controls Sidebar -->
+        <aside class="w-full lg:w-72 xl:w-80 bg-white shadow-lg p-4 lg:p-6 flex flex-col space-y-6 border-r border-gray-200 controls-scrollbar overflow-y-auto lg:max-h-screen">
+
+            <header class="pb-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-700">Shadow Puppet Theatre</h1>
+                <p class="text-sm text-gray-500">Create your performance</p>
+            </header>
+
+            <!-- Puppet Selection -->
+            <section>
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Puppets</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <button class="aspect-square bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors" title="Add Circle Puppet">
+                        <div class="w-10 h-10 bg-gray-700 shape-circle"></div>
+                    </button>
+                    <button class="aspect-square bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors" title="Add Square Puppet">
+                        <div class="w-10 h-10 bg-gray-700 shape-square"></div>
+                    </button>
+                    <button class="aspect-square bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors" title="Add Triangle Puppet">
+                         <div class="w-0 h-0 border-l-[20px] border-r-[20px] border-b-[35px] border-l-transparent border-r-transparent border-b-gray-700"></div>
+                    </button>
+                     <button class="aspect-square bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors" title="Add Star Puppet">
+                        <!-- Placeholder Star Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                    </button>
+                    </div>
+            </section>
+
+            <!-- Selected Puppet Controls (Placeholder - JS would show/update this) -->
+            <section id="selected-puppet-controls" class="border-t border-gray-200 pt-4 space-y-4 opacity-50 pointer-events-none">
+                 <h3 class="text-md font-semibold text-gray-500">Selected Puppet</h3>
+                 <div>
+                    <label for="puppet-color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                    <input type="color" id="puppet-color" name="puppet-color" value="#374151" class="w-full h-8 p-0 border border-gray-300 rounded cursor-pointer">
+                 </div>
+                 <div>
+                    <label for="puppet-scale" class="block text-sm font-medium text-gray-700 mb-1">Scale</label>
+                    <input type="range" id="puppet-scale" name="puppet-scale" min="0.5" max="3" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                 </div>
+                 <div>
+                    <label for="puppet-rotation" class="block text-sm font-medium text-gray-700 mb-1">Rotation</label>
+                    <input type="range" id="puppet-rotation" name="puppet-rotation" min="0" max="360" step="1" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                 </div>
+            </section>
+
+            <!-- Light Source Controls -->
+            <section class="border-t border-gray-200 pt-4 space-y-4">
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Light Source</h2>
+                <div>
+                    <label for="light-color" class="block text-sm font-medium text-gray-700 mb-1">Light Color</label>
+                    <input type="color" id="light-color" name="light-color" value="#ffffff" class="w-full h-8 p-0 border border-gray-300 rounded cursor-pointer">
+                </div>
+                <div>
+                    <label for="light-x" class="block text-sm font-medium text-gray-700 mb-1">Position X</label>
+                    <input type="range" id="light-x" name="light-x" min="-100" max="100" step="1" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+                 <div>
+                    <label for="light-y" class="block text-sm font-medium text-gray-700 mb-1">Position Y</label>
+                    <input type="range" id="light-y" name="light-y" min="-100" max="100" step="1" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+                 <div>
+                    <label for="shadow-intensity" class="block text-sm font-medium text-gray-700 mb-1">Shadow Intensity</label>
+                    <input type="range" id="shadow-intensity" name="shadow-intensity" min="0" max="20" step="1" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+            </section>
+
+            <!-- Animation Controls -->
+            <section class="border-t border-gray-200 pt-4 space-y-3">
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Animation</h2>
+                <div class="flex space-x-2">
+                    <button class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition-colors flex items-center justify-center space-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Play</span>
+                    </button>
+                    <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded transition-colors flex items-center justify-center space-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 4a1 1 0 100 2h3a1 1 0 100-2H8z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Pause</span>
+                    </button>
+                     <button class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition-colors flex items-center justify-center space-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Stop</span>
+                    </button>
+                </div>
+                <!-- Add more complex animation controls later if needed -->
+            </section>
+
+            <!-- Background Scenes -->
+            <section class="border-t border-gray-200 pt-4 space-y-3">
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Backgrounds</h2>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="aspect-video bg-scene-1 rounded border-2 border-transparent hover:border-blue-500 focus:border-blue-500 transition-all" title="Sky Scene"></button>
+                    <button class="aspect-video bg-scene-2 rounded border-2 border-transparent hover:border-blue-500 focus:border-blue-500 transition-all" title="Sunset Scene"></button>
+                    <button class="aspect-video bg-scene-3 rounded border-2 border-transparent hover:border-blue-500 focus:border-blue-500 transition-all" title="Night Scene"></button>
+                    <button class="aspect-video bg-gray-100 rounded border-2 border-transparent hover:border-blue-500 focus:border-blue-500 transition-all flex items-center justify-center text-gray-400" title="Plain Scene">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Download Snapshot -->
+            <section class="border-t border-gray-200 pt-4 mt-auto">
+                 <button class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition-colors flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Download Scene</span>
+                </button>
+            </section>
+
+        </aside>
+
+        <!-- Main Stage Area -->
+        <main class="flex-1 bg-gradient-to-br from-yellow-50 via-orange-100 to-amber-200 p-4 md:p-8 flex items-center justify-center relative overflow-hidden">
+            <div id="stage" class="relative w-full h-full max-w-4xl max-h-[70vh] lg:max-h-[80vh] bg-white bg-opacity-80 backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden border border-gray-300">
+                <!-- Stage Background Layer (JS will change this) -->
+                <div id="stage-background" class="absolute inset-0 bg-scene-1 transition-all duration-500"></div>
+
+                <!-- Light Source Visualizer (Placeholder) -->
+                <div id="light-visualizer" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white border-2 border-gray-400 shadow-md" title="Light Source Position (Visual Only)"></div>
+
+                <!-- Puppet Container -->
+                <div id="puppet-container" class="absolute inset-0">
+                    <!-- Example Puppets (JS would add/remove/position these) -->
+                    <div class="puppet bg-gray-800 w-20 h-20 shape-circle" style="top: 30%; left: 25%; transform: scale(1.2) rotate(-15deg);"></div>
+                    <div class="puppet bg-gray-700 w-24 h-24 shape-square" style="top: 50%; left: 60%; transform: scale(0.9) rotate(10deg);"></div>
+                    <div class="puppet border-b-gray-900 shape-triangle" style="top: 15%; left: 75%; transform: scale(1.0) rotate(5deg); width:0; height:0; border-left-width: 30px; border-right-width: 30px; border-bottom-width: 50px;"></div>
+
+                    <!-- Example Animated Puppet -->
+                     <div class="puppet bg-purple-800 w-16 h-24 rounded-t-full" style="top: 65%; left: 35%; transform-origin: bottom center;" >
+                        <div class="animate-sway" style="width: 100%; height: 100%; background: inherit; border-radius: inherit;"></div>
+                     </div>
+                </div>
+
+                <!-- Stage Frame / Border -->
+                 <div class="absolute inset-0 border-[10px] border-black border-opacity-70 rounded-lg pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"></div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        // Basic interactivity placeholders (Full functionality requires more JS)
+        document.addEventListener('DOMContentLoaded', () => {
+            const stage = document.getElementById('stage');
+            const puppetContainer = document.getElementById('puppet-container');
+            const puppets = puppetContainer.querySelectorAll('.puppet');
+            const selectedControls = document.getElementById('selected-puppet-controls');
+            const backgroundButtons = document.querySelectorAll('section:nth-of-type(5) button'); // Adjust index if sections change
+            const stageBackground = document.getElementById('stage-background');
+
+            let selectedPuppet = null;
+            let offsetX, offsetY;
+
+            // --- Puppet Selection and Basic Drag ---
+            puppets.forEach(puppet => {
+                puppet.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Prevent browser drag behavior
+                    selectedPuppet = puppet;
+                    offsetX = e.clientX - puppet.getBoundingClientRect().left;
+                    offsetY = e.clientY - puppet.getBoundingClientRect().top;
+                    puppet.style.cursor = 'grabbing';
+                    puppet.style.zIndex = 100; // Bring to front
+
+                    // Show/Enable controls for the selected puppet (basic)
+                    selectedControls.classList.remove('opacity-50', 'pointer-events-none');
+                    // TODO: Populate controls with current puppet values (color, scale, rotation)
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            });
+
+            function onMouseMove(e) {
+                if (!selectedPuppet) return;
+                const stageRect = stage.getBoundingClientRect();
+
+                // Calculate new position relative to the stage container
+                let newX = e.clientX - stageRect.left - offsetX;
+                let newY = e.clientY - stageRect.top - offsetY;
+
+                // Constrain within stage boundaries (approximate)
+                newX = Math.max(0, Math.min(newX, stageRect.width - selectedPuppet.offsetWidth));
+                newY = Math.max(0, Math.min(newY, stageRect.height - selectedPuppet.offsetHeight));
+
+                selectedPuppet.style.left = `${newX}px`;
+                selectedPuppet.style.top = `${newY}px`;
+            }
+
+            function onMouseUp() {
+                if (selectedPuppet) {
+                    selectedPuppet.style.cursor = 'grab';
+                    selectedPuppet.style.zIndex = ''; // Reset z-index
+                }
+                // Keep controls enabled until another puppet is selected or deselected
+                // selectedControls.classList.add('opacity-50', 'pointer-events-none'); // Deselect logic needed
+
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                // selectedPuppet = null; // Keep selected for controls
+            }
+
+            // Deselect puppet if clicking on stage background
+            stage.addEventListener('mousedown', (e) => {
+                 if (e.target === stage || e.target === puppetContainer || e.target === stageBackground) {
+                    if(selectedPuppet) {
+                        // Add visual deselection if needed (e.g., remove border)
+                    }
+                    selectedPuppet = null;
+                    selectedControls.classList.add('opacity-50', 'pointer-events-none');
+                 }
+            });
+
+
+            // --- Background Scene Selection ---
+            backgroundButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove existing bg classes
+                    stageBackground.className = 'absolute inset-0 transition-all duration-500'; // Reset classes
+
+                    if (button.title.includes('Sky')) {
+                        stageBackground.classList.add('bg-scene-1');
+                    } else if (button.title.includes('Sunset')) {
+                        stageBackground.classList.add('bg-scene-2');
+                    } else if (button.title.includes('Night')) {
+                        stageBackground.classList.add('bg-scene-3');
+                    } else if (button.title.includes('Plain')) {
+                         stageBackground.classList.add('bg-gray-100');
+                    }
+                    // Add active state to button
+                    backgroundButtons.forEach(btn => btn.classList.remove('border-blue-500'));
+                    button.classList.add('border-blue-500');
+                });
+            });
+
+            // --- Placeholder for Control Input Handling ---
+            // Example: Update selected puppet color
+            const colorInput = document.getElementById('puppet-color');
+            colorInput.addEventListener('input', (e) => {
+                if (selectedPuppet) {
+                    // Handle different shape types (div background vs border color for triangle)
+                    if (selectedPuppet.classList.contains('shape-triangle')) {
+                         selectedPuppet.style.borderBottomColor = e.target.value;
+                    } else {
+                         selectedPuppet.style.backgroundColor = e.target.value;
+                    }
+                }
+            });
+
+             // Example: Update selected puppet scale
+            const scaleInput = document.getElementById('puppet-scale');
+            scaleInput.addEventListener('input', (e) => {
+                if (selectedPuppet) {
+                    // Extract existing rotation if any
+                    const currentTransform = selectedPuppet.style.transform || '';
+                    const rotationMatch = currentTransform.match(/rotate\((.*?)\)/);
+                    const rotation = rotationMatch ? rotationMatch[0] : '';
+                    selectedPuppet.style.transform = `scale(${e.target.value}) ${rotation}`;
+                }
+            });
+
+            // Example: Update selected puppet rotation
+            const rotationInput = document.getElementById('puppet-rotation');
+            rotationInput.addEventListener('input', (e) => {
+                if (selectedPuppet) {
+                     // Extract existing scale if any
+                    const currentTransform = selectedPuppet.style.transform || '';
+                    const scaleMatch = currentTransform.match(/scale\((.*?)\)/);
+                    const scale = scaleMatch ? scaleMatch[0] : 'scale(1)'; // Default scale if not set
+                    selectedPuppet.style.transform = `${scale} rotate(${e.target.value}deg)`;
+                }
+            });
+
+
+            // TODO: Implement Light source controls affecting shadow (complex JS/CSS)
+            // TODO: Implement Puppet adding/removing
+            // TODO: Implement Animation controls logic
+            // TODO: Implement Download snapshot functionality (e.g., using html2canvas)
+
+        });
+    </script>
+
+</body>
+</html>
