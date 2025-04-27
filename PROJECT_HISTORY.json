@@ -130,5 +130,17 @@
       "Option to search and highlight specific bookmarks."
     ],
     "raw_output": "Project Name: Dynamic Bookmark Visualizer\nDescription: Transform your browser bookmarks into an interactive and visually engaging treemap.\nFeatures:\n- Import bookmarks from a browser-exported HTML file.\n- Visualize bookmarks as a treemap, with area representing the number of sub-bookmarks.\n- Interactive exploration by clicking on folders to expand/collapse.\n- Customizable color schemes for different bookmark categories.\n- Option to search and highlight specific bookmarks.\n"
+  },
+  {
+    "name": "Personalized Avatar Styler",
+    "description": "Design and customize a unique digital avatar with various hairstyles, facial features, and clothing options.",
+    "features": [
+      "Drag-and-drop interface for selecting and positioning avatar elements.",
+      "Customizable color palettes for skin, hair, and clothing.",
+      "Preset options for different facial features and accessories.",
+      "Downloadable SVG of the finished avatar.",
+      "Randomization button for generating unexpected combinations."
+    ],
+    "raw_output": "Project Name: Personalized Avatar Styler\nDescription: Design and customize a unique digital avatar with various hairstyles, facial features, and clothing options.\nFeatures:\n- Drag-and-drop interface for selecting and positioning avatar elements.\n- Customizable color palettes for skin, hair, and clothing.\n- Preset options for different facial features and accessories.\n- Downloadable SVG of the finished avatar.\n- Randomization button for generating unexpected combinations.\n"
   }
 ]
