@@ -346,5 +346,17 @@
       "Downloadable snapshot of the shadow puppet scene."
     ],
     "raw_output": "Project Name: Shadow Puppet Theatre\nDescription: Create and animate digital shadow puppets with customizable shapes, colors, and movements, putting on a miniature theatrical performance in your browser.\nFeatures:\n- Drag-and-drop interface for positioning and scaling puppet shapes.\n- Adjustable light source position and color to create dynamic shadows.\n- Simple animation controls for puppet movement and transformations.\n- Preset puppet shapes and background scenes.\n- Downloadable snapshot of the shadow puppet scene.\n"
+  },
+  {
+    "name": "Kinetic Scrolling Gallery",
+    "description": "A visually captivating image gallery where scrolling triggers parallax effects and dynamic animations, creating a sense of depth and immersion.",
+    "features": [
+      "Parallax scrolling effect on background images.",
+      "Smooth image transitions and animations on scroll.",
+      "Customizable image captions and overlay effects.",
+      "Navigation dots to indicate scroll progress.",
+      "Mobile-friendly responsive design."
+    ],
+    "raw_output": "Project Name: Kinetic Scrolling Gallery\nDescription:  A visually captivating image gallery where scrolling triggers parallax effects and dynamic animations, creating a sense of depth and immersion.\nFeatures:\n- Parallax scrolling effect on background images.\n- Smooth image transitions and animations on scroll.\n- Customizable image captions and overlay effects.\n- Navigation dots to indicate scroll progress.\n- Mobile-friendly responsive design.\n"
   }
 ]
