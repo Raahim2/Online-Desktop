@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric Pattern Weaver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for SVG interaction */
+        .draggable {
+            cursor: move;
+            user-select: none; /* Prevent text selection during drag */
+        }
+        .selected {
+            stroke: #facc15; /* yellow-400 */
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+        #interactiveCanvas {
+            background-color: #f3f4f6; /* gray-100 */
+            background-image:
+                linear-gradient(to right, #d1d5db 1px, transparent 1px),
+                linear-gradient(to bottom, #d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+         #interactiveCanvas.grid-hidden {
+            background-image: none;
+        }
+        /* Hide default number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Control Panel -->
+    <aside class="w-full md:w-72 lg:w-80 bg-white shadow-lg p-4 overflow-y-auto flex flex-col space-y-6 md:h-screen">
+        <header class="border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-800">GeoWeaver</h1>
+            <p class="text-sm text-gray-500">Create geometric patterns</p>
+        </header>
+
+        <!-- Shape Library -->
+        <section>
+            <h2 class="text-lg font-semibold mb-3 text-gray-700">Shapes</h2>
+            <div class="grid grid-cols-3 gap-2">
+                <button data-shape="rect" class="shape-btn border border-blue-500 bg-blue-100 p-2 rounded hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 flex justify-center items-center aspect-square" title="Rectangle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-blue-600"><path d="M4 4h16v16H4z"/></svg>
+                </button>
+                <button data-shape="circle" class="shape-btn border border-gray-300 bg-gray-50 p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 flex justify-center items-center aspect-square" title="Circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-600"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg>
+                </button>
+                <button data-shape="triangle" class="shape-btn border border-gray-300 bg-gray-50 p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 flex justify-center items-center aspect-square" title="Triangle">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-600"><path d="M12 .587l11.5 21H.5z"/></svg>
+                </button>
+                 <button data-shape="hexagon" class="shape-btn border border-gray-300 bg-gray-50 p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 flex justify-center items-center aspect-square" title="Hexagon">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-gray-600"><path d="M17.657 5.303l-4.657-3.303a2 2 0 0 0-2 0L6.343 5.303a2 2 0 0 0-1 1.732v6.93l-1.732 1a2 2 0 0 0 0 2l1.732 1v6.93a2 2 0 0 0 1 1.732l4.657 3.303a2 2 0 0 0 2 0l4.657-3.303a2 2 0 0 0 1-1.732v-6.93l1.732-1a2 2 0 0 0 0-2l-1.732-1v-6.93a2 2 0 0 0-1-1.732z"/></svg> <!-- Approximation -->
+                 </button>
+            </div>
+        </section>
+
+        <!-- Color Palette -->
+        <section>
+            <h2 class="text-lg font-semibold mb-3 text-gray-700">Color</h2>
+            <div class="grid grid-cols-5 gap-2">
+                <button class="color-swatch w-10 h-10 rounded border-2 border-blue-500" style="background-color: #3b82f6;" data-color="#3b82f6"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #ef4444;" data-color="#ef4444"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #22c55e;" data-color="#22c55e"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #eab308;" data-color="#eab308"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #a855f7;" data-color="#a855f7"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #ec4899;" data-color="#ec4899"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #64748b;" data-color="#64748b"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #f97316;" data-color="#f97316"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #14b8a6;" data-color="#14b8a6"></button>
+                <button class="color-swatch w-10 h-10 rounded border border-gray-300" style="background-color: #ffffff;" data-color="#ffffff"></button>
+            </div>
+             <div class="mt-3">
+                <label for="customColor" class="text-sm font-medium text-gray-600 mr-2">Custom:</label>
+                <input type="color" id="customColor" value="#3b82f6" class="w-10 h-10 p-0 border-none rounded cursor-pointer">
+            </div>
+        </section>
+
+        <!-- Properties -->
+        <section>
+            <h2 class="text-lg font-semibold mb-3 text-gray-700">Properties</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="sizeSlider" class="block text-sm font-medium text-gray-600 mb-1">Size (<span id="sizeValue">50</span>px)</label>
+                    <input type="range" id="sizeSlider" min="10" max="200" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm dark:bg-gray-700">
+                </div>
+                <div>
+                    <label for="opacitySlider" class="block text-sm font-medium text-gray-600 mb-1">Opacity (<span id="opacityValue">1.0</span>)</label>
+                    <input type="range" id="opacitySlider" min="0.1" max="1" step="0.05" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm dark:bg-gray-700">
+                </div>
+                <!-- Rotation could be added here -->
+            </div>
+        </section>
+
+        <!-- Canvas Controls -->
+        <section>
+            <h2 class="text-lg font-semibold mb-3 text-gray-700">Canvas</h2>
+             <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label for="canvasWidth" class="text-sm font-medium text-gray-600">Width (px):</label>
+                    <input type="number" id="canvasWidth" value="800" min="100" step="50" class="w-20 p-1 border border-gray-300 rounded text-sm">
+                </div>
+                 <div class="flex items-center justify-between">
+                    <label for="canvasHeight" class="text-sm font-medium text-gray-600">Height (px):</label>
+                    <input type="number" id="canvasHeight" value="600" min="100" step="50" class="w-20 p-1 border border-gray-300 rounded text-sm">
+                </div>
+                <button id="resizeCanvasBtn" class="w-full text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded transition duration-150 ease-in-out">Apply Size</button>
+                <div class="flex items-center mt-2">
+                    <input type="checkbox" id="gridToggle" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="gridToggle" class="ml-2 text-sm font-medium text-gray-700">Show Grid</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <section class="mt-auto pt-4 border-t">
+             <div class="space-y-2">
+                <button id="deleteSelectedBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed" disabled>Delete Selected</button>
+                <button id="clearCanvasBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded transition duration-150 ease-in-out">Clear Canvas</button>
+                <button id="downloadBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition duration-150 ease-in-out">Download SVG</button>
+            </div>
+        </section>
+
+    </aside>
+
+    <!-- Main Canvas Area -->
+    <main class="flex-1 bg-gray-200 flex items-center justify-center p-4 overflow-auto h-screen">
+        <div class="shadow-lg bg-white">
+            <svg id="interactiveCanvas" width="800" height="600" class="border border-gray-300"></svg>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const svgCanvas = document.getElementById('interactiveCanvas');
+            const shapeButtons = document.querySelectorAll('.shape-btn');
+            const colorSwatches = document.querySelectorAll('.color-swatch');
+            const customColorInput = document.getElementById('customColor');
+            const sizeSlider = document.getElementById('sizeSlider');
+            const sizeValueSpan = document.getElementById('sizeValue');
+            const opacitySlider = document.getElementById('opacitySlider');
+            const opacityValueSpan = document.getElementById('opacityValue');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const gridToggle = document.getElementById('gridToggle');
+            const canvasWidthInput = document.getElementById('canvasWidth');
+            const canvasHeightInput = document.getElementById('canvasHeight');
+            const resizeCanvasBtn = document.getElementById('resizeCanvasBtn');
+            const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+
+            let currentShapeType = 'rect';
+            let currentColor = '#3b82f6';
+            let currentSize = 50;
+            let currentOpacity = 1;
+
+            let selectedElement = null;
+            let offset = { x: 0, y: 0 };
+            let isDragging = false;
+
+            const SVG_NS = "http://www.w3.org/2000/svg";
+
+            function updateShapeSelectionUI(selectedBtn) {
+                shapeButtons.forEach(btn => {
+                    btn.classList.remove('border-blue-500', 'bg-blue-100');
+                    btn.classList.add('border-gray-300', 'bg-gray-50');
+                    btn.querySelector('svg').classList.remove('text-blue-600');
+                    btn.querySelector('svg').classList.add('text-gray-600');
+                });
+                selectedBtn.classList.add('border-blue-500', 'bg-blue-100');
+                selectedBtn.classList.remove('border-gray-300', 'bg-gray-50');
+                selectedBtn.querySelector('svg').classList.add('text-blue-600');
+                selectedBtn.querySelector('svg').classList.remove('text-gray-600');
+            }
+
+            function updateColorSelectionUI(selectedSwatch) {
+                colorSwatches.forEach(sw => {
+                    sw.classList.remove('border-2', 'border-blue-500');
+                    sw.classList.add('border', 'border-gray-300');
+                });
+                 if (selectedSwatch) {
+                    selectedSwatch.classList.add('border-2', 'border-blue-500');
+                    selectedSwatch.classList.remove('border', 'border-gray-300');
+                }
+                // Update custom color picker if a swatch was clicked
+                if (selectedSwatch && selectedSwatch.dataset.color) {
+                     customColorInput.value = selectedSwatch.dataset.color;
+                }
+            }
+
+            function getMousePosition(event) {
+                const CTM = svgCanvas.getScreenCTM();
+                if (!CTM) return { x: 0, y: 0 }; // Avoid errors if CTM is null
+                return {
+                    x: (event.clientX - CTM.e) / CTM.a,
+                    y: (event.clientY - CTM.f) / CTM.d
+                };
+            }
+
+            function deselectElement() {
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    selectedElement = null;
+                    deleteSelectedBtn.disabled = true;
+                }
+            }
+
+            function selectElement(element) {
+                deselectElement(); // Deselect any previously selected element
+                selectedElement = element;
+                selectedElement.classList.add('selected');
+                deleteSelectedBtn.disabled = false;
+
+                // Optionally update controls to reflect selected element's properties
+                // Example: Update sliders (more complex as needs parsing attributes)
+                // opacitySlider.value = selectedElement.getAttribute('fill-opacity') || 1;
+                // opacityValueSpan.textContent = opacitySlider.value;
+                // // Size is harder as it depends on shape type and might be width/height/r
+            }
+
+             function createShape(type, x, y, size, color, opacity) {
+                let shape;
+                const commonAttrs = {
+                    'fill': color,
+                    'fill-opacity': opacity,
+                    'class': 'draggable' // Add class for potential styling/selection
+                };
+
+                switch (type) {
+                    case 'circle':
+                        shape = document.createElementNS(SVG_NS, 'circle');
+                        shape.setAttributes({ cx: x, cy: y, r: size / 2, ...commonAttrs });
+                        break;
+                    case 'triangle':
+                        shape = document.createElementNS(SVG_NS, 'polygon');
+                        const points = `${x},${y - size / 2} ${x - size / 2},${y + size / 2} ${x + size / 2},${y + size / 2}`;
+                        shape.setAttributes({ points: points, ...commonAttrs });
+                        break;
+                    case 'hexagon':
+                        shape = document.createElementNS(SVG_NS, 'polygon');
+                        const hexPoints = [];
+                        for (let i = 0; i < 6; i++) {
+                            const angle_deg = 60 * i - 30; // Start from -30 deg for flat top
+                            const angle_rad = Math.PI / 180 * angle_deg;
+                            hexPoints.push(`${x + size / 2 * Math.cos(angle_rad)},${y + size / 2 * Math.sin(angle_rad)}`);
+                        }
+                        shape.setAttributes({ points: hexPoints.join(' '), ...commonAttrs });
+                        break;
+                    case 'rect':
+                    default:
+                        shape = document.createElementNS(SVG_NS, 'rect');
+                        shape.setAttributes({ x: x - size / 2, y: y - size / 2, width: size, height: size, ...commonAttrs });
+                        break;
+                }
+
+                // Add event listeners directly to the shape
+                shape.addEventListener('mousedown', startDrag);
+                svgCanvas.appendChild(shape);
+            }
+
+            // Helper to set multiple attributes
+            Element.prototype.setAttributes = function (attrs) {
+                for (var key in attrs) {
+                    this.setAttribute(key, attrs[key]);
+                }
+            }
+
+            // Drag and Drop Logic
+            function startDrag(event) {
+                event.stopPropagation(); // Prevent canvas click when clicking shape
+                if (event.target.classList.contains('draggable')) {
+                    selectElement(event.target); // Select the clicked element
+                    isDragging = true;
+                    const mousePos = getMousePosition(event);
+
+                    // Calculate offset based on shape type
+                    if (selectedElement.tagName === 'circle') {
+                        offset.x = mousePos.x - parseFloat(selectedElement.getAttribute('cx'));
+                        offset.y = mousePos.y - parseFloat(selectedElement.getAttribute('cy'));
+                    } else if (selectedElement.tagName === 'rect') {
+                        offset.x = mousePos.x - parseFloat(selectedElement.getAttribute('x'));
+                        offset.y = mousePos.y - parseFloat(selectedElement.getAttribute('y'));
+                    } else if (selectedElement.tagName === 'polygon') {
+                        // For polygons, use transform for simplicity
+                        const transform = selectedElement.transform.baseVal;
+                        let currentTranslate = { x: 0, y: 0 };
+                        // Find existing translate transform
+                        for (let i = 0; i < transform.numberOfItems; i++) {
+                            const item = transform.getItem(i);
+                            if (item.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+                                currentTranslate.x = item.matrix.e;
+                                currentTranslate.y = item.matrix.f;
+                                break;
+                            }
+                        }
+                         offset.x = mousePos.x - currentTranslate.x;
+                         offset.y = mousePos.y - currentTranslate.y;
+
+                    } else { // Default fallback (treat like rect)
+                         offset.x = mousePos.x - parseFloat(selectedElement.getAttribute('x') || 0);
+                         offset.y = mousePos.y - parseFloat(selectedElement.getAttribute('y') || 0);
+                    }
+
+                    // Add move/up listeners to the document/window to capture mouse outside SVG
+                    document.addEventListener('mousemove', drag);
+                    document.addEventListener('mouseup', endDrag);
+                }
+            }
+
+            function drag(event) {
+                if (isDragging && selectedElement) {
+                    event.preventDefault();
+                    const mousePos = getMousePosition(event);
+                    const newX = mousePos.x - offset.x;
+                    const newY = mousePos.y - offset.y;
+
+                    if (selectedElement.tagName === 'circle') {
+                        selectedElement.setAttribute('cx', newX);
+                        selectedElement.setAttribute('cy', newY);
+                    } else if (selectedElement.tagName === 'rect') {
+                         selectedElement.setAttribute('x', newX);
+                         selectedElement.setAttribute('y', newY);
+                    } else if (selectedElement.tagName === 'polygon') {
+                        // Apply translation via transform
+                        const transformList = selectedElement.transform.baseVal;
+                        let translateTransform = null;
+
+                        // Find existing translate transform
+                         for (let i = 0; i < transformList.numberOfItems; i++) {
+                            const item = transformList.getItem(i);
+                            if (item.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+                                translateTransform = item;
+                                break;
+                            }
+                        }
+
+                        if (translateTransform) {
+                            translateTransform.setTranslate(newX, newY);
+                        } else {
+                            // If no translate exists, create and append one
+                            const newTranslate = svgCanvas.createSVGTransform();
+                            newTranslate.setTranslate(newX, newY);
+                            transformList.appendItem(newTranslate);
+                        }
+                    } else { // Fallback
+                         selectedElement.setAttribute('x', newX);
+                         selectedElement.setAttribute('y', newY);
+                    }
+                }
+            }
+
+            function endDrag(event) {
+                if (isDragging) {
+                    isDragging = false;
+                    // Remove global listeners
+                    document.removeEventListener('mousemove', drag);
+                    document.removeEventListener('mouseup', endDrag);
+                }
+            }
+
+            // Event Listeners Setup
+            shapeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentShapeType = button.dataset.shape;
+                    updateShapeSelectionUI(button);
+                    deselectElement(); // Deselect when changing tool
+                });
+            });
+
+            colorSwatches.forEach(swatch => {
+                swatch.addEventListener('click', () => {
+                    currentColor = swatch.dataset.color;
+                    updateColorSelectionUI(swatch);
+                });
+            });
+
+             customColorInput.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+                // Deselect palette swatches if custom color is chosen
+                updateColorSelectionUI(null);
+            });
+             customColorInput.addEventListener('change', (e) => { // Ensure final value is captured
+                currentColor = e.target.value;
+                updateColorSelectionUI(null);
+            });
+
+
+            sizeSlider.addEventListener('input', (e) => {
+                currentSize = parseInt(e.target.value, 10);
+                sizeValueSpan.textContent = currentSize;
+                // If an element is selected, update its size (more complex)
+                // if (selectedElement) updateSelectedElementSize(currentSize);
+            });
+
+            opacitySlider.addEventListener('input', (e) => {
+                currentOpacity = parseFloat(e.target.value);
+                opacityValueSpan.textContent = currentOpacity.toFixed(2);
+                 if (selectedElement) {
+                     selectedElement.setAttribute('fill-opacity', currentOpacity);
+                 }
+            });
+
+            svgCanvas.addEventListener('click', (event) => {
+                // Only add shape if clicking directly on canvas, not on an existing shape
+                 if (event.target === svgCanvas && !isDragging) {
+                    const pos = getMousePosition(event);
+                    createShape(currentShapeType, pos.x, pos.y, currentSize, currentColor, currentOpacity);
+                    deselectElement(); // Deselect after adding a new shape
+                 }
+            });
+
+             svgCanvas.addEventListener('mousedown', (event) => {
+                 // Deselect if clicking on the canvas background
+                 if (event.target === svgCanvas) {
+                     deselectElement();
+                 }
+             });
+
+            gridToggle.addEventListener('change', () => {
+                svgCanvas.classList.toggle('grid-hidden', !gridToggle.checked);
+            });
+
+            resizeCanvasBtn.addEventListener('click', () => {
+                const newWidth = canvasWidthInput.value;
+                const newHeight = canvasHeightInput.value;
+                svgCanvas.setAttribute('width', newWidth);
+                svgCanvas.setAttribute('height', newHeight);
+                 // Optional: Adjust viewBox if needed, though width/height usually suffice
+                 // svgCanvas.setAttribute('viewBox', `0 0 ${newWidth} ${newHeight}`);
+            });
+
+            clearCanvasBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the canvas?')) {
+                    // Remove all shape elements (children except maybe defs or grid lines if implemented differently)
+                    while (svgCanvas.firstChild) {
+                         // Be careful not to remove essential elements like <defs> if added later
+                         // A safer way is to only remove elements with the 'draggable' class
+                         if (svgCanvas.firstChild.classList && svgCanvas.firstChild.classList.contains('draggable')) {
+                            svgCanvas.removeChild(svgCanvas.firstChild);
+                         } else {
+                             // If we add non-draggable elements (like grid lines) we might need to skip them
+                             // For now, this simple removal works if only shapes are added.
+                             // A more robust approach: iterate and check tagName or class
+                             let elementToRemove = null;
+                             for(let i = 0; i < svgCanvas.children.length; i++) {
+                                 if(svgCanvas.children[i].classList.contains('draggable')) {
+                                     elementToRemove = svgCanvas.children[i];
+                                     break;
+                                 }
+                             }
+                             if(elementToRemove) {
+                                 svgCanvas.removeChild(elementToRemove);
+                             } else {
+                                 break; // No more draggable elements found
+                             }
+                         }
+                    }
+                    deselectElement(); // Ensure nothing is selected
+                }
+            });
+
+            deleteSelectedBtn.addEventListener('click', () => {
+                if (selectedElement) {
+                    selectedElement.remove(); // Remove the element from the SVG
+                    deselectElement(); // Clear selection state
+                }
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                deselectElement(); // Ensure no selection artifacts (like dashed border) are in the SVG data
+
+                const svgData = new XMLSerializer().serializeToString(svgCanvas);
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'geometric_pattern.svg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            });
+
+            // Initial setup
+            updateShapeSelectionUI(document.querySelector('.shape-btn[data-shape="rect"]'));
+            updateColorSelectionUI(document.querySelector('.color-swatch[data-color="#3b82f6"]'));
+            sizeValueSpan.textContent = sizeSlider.value;
+            opacityValueSpan.textContent = parseFloat(opacitySlider.value).toFixed(2);
+            deleteSelectedBtn.disabled = true; // Initially disabled
+        });
+    </script>
+
+</body>
+</html>
