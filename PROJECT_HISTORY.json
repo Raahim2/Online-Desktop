@@ -238,5 +238,17 @@
       "Option to slow down or speed up the folding animation."
     ],
     "raw_output": "Project Name: Interactive Origami Simulator\nDescription: Fold and unfold digital origami creations with realistic paper-like physics, exploring the art of paper folding in a new dimension.\nFeatures:\n- Click-and-drag controls to simulate folding along pre-defined creases.\n- Visual feedback with dynamic shadows and paper textures.\n- Selection of different origami models with varying complexity.\n- Reset button to revert to the unfolded state.\n- Option to slow down or speed up the folding animation.\n"
+  },
+  {
+    "name": "Dynamic Mosaic Maker",
+    "description": "Create mesmerizing mosaic patterns from any uploaded image, transforming photos into pixelated artwork.",
+    "features": [
+      "Image upload and preview functionality.",
+      "Adjustable pixel size and color palette controls.",
+      "Downloadable mosaic image as a PNG or SVG.",
+      "Interactive highlighting of individual mosaic tiles on hover.",
+      "Option to apply different dithering algorithms for varied visual effects."
+    ],
+    "raw_output": "Project Name: Dynamic Mosaic Maker\nDescription: Create mesmerizing mosaic patterns from any uploaded image, transforming photos into pixelated artwork.\nFeatures:\n- Image upload and preview functionality.\n- Adjustable pixel size and color palette controls.\n- Downloadable mosaic image as a PNG or SVG.\n- Interactive highlighting of individual mosaic tiles on hover.\n- Option to apply different dithering algorithms for varied visual effects.\n"
   }
 ]
