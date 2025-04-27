@@ -142,5 +142,17 @@
       "Randomization button for generating unexpected combinations."
     ],
     "raw_output": "Project Name: Personalized Avatar Styler\nDescription: Design and customize a unique digital avatar with various hairstyles, facial features, and clothing options.\nFeatures:\n- Drag-and-drop interface for selecting and positioning avatar elements.\n- Customizable color palettes for skin, hair, and clothing.\n- Preset options for different facial features and accessories.\n- Downloadable SVG of the finished avatar.\n- Randomization button for generating unexpected combinations.\n"
+  },
+  {
+    "name": "Procedural Maze Generator",
+    "description": "Generate and explore unique, randomly created mazes directly in your browser.",
+    "features": [
+      "Adjustable maze size and complexity.",
+      "Interactive navigation through the generated maze.",
+      "Visual cues for start and end points.",
+      "Option to regenerate a new maze with different parameters.",
+      "Timer to track completion time."
+    ],
+    "raw_output": "Project Name: Procedural Maze Generator\nDescription: Generate and explore unique, randomly created mazes directly in your browser.\nFeatures:\n- Adjustable maze size and complexity.\n- Interactive navigation through the generated maze.\n- Visual cues for start and end points.\n- Option to regenerate a new maze with different parameters.\n- Timer to track completion time.\n"
   }
 ]
