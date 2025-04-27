@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS-Only Digital Clock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic smooth transition for text color and background */
+        .clock-display, .clock-display span, body, .control-panel button {
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+        }
+        /* Animation for digit change - subtle fade */
+        .digit-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .digit-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .digit-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .digit-exit-active {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        }
+        /* Add a subtle flicker/glow effect */
+        @keyframes subtleGlow {
+            0%, 100% { text-shadow: 0 0 5px currentColor, 0 0 10px currentColor; }
+            50% { text-shadow: 0 0 10px currentColor, 0 0 15px currentColor; }
+        }
+        .glow {
+            animation: subtleGlow 2s ease-in-out infinite;
+        }
+
+        /* Hide scrollbar */
+        body {
+            overflow: hidden;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-green-400 flex flex-col items-center justify-center min-h-screen font-mono p-4 transition-colors duration-500" id="app-body">
+
+    <div id="clock-container" class="w-full max-w-3xl mx-auto text-center">
+        <div id="clock-display" class="clock-display mb-8 p-4 sm:p-6 md:p-8 rounded-lg shadow-lg border-2 border-green-500/50 bg-gray-800/30 backdrop-blur-sm glow">
+            <span id="hours" class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight">00</span>
+            <span id="separator-1" class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mx-1 sm:mx-2 animate-pulse">:</span>
+            <span id="minutes" class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight">00</span>
+            <span id="separator-2" class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mx-1 sm:mx-2">:</span>
+            <span id="seconds" class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight">00</span>
+            <span id="ampm" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl ml-2 sm:ml-4 align-baseline font-medium">AM</span>
+        </div>
+
+        <div class="control-panel space-y-6 md:space-y-0 md:flex md:flex-wrap md:justify-center md:gap-4 items-center" id="controls">
+
+            <div class="theme-controls flex justify-center flex-wrap gap-2 md:gap-3">
+                <span class="w-full md:w-auto text-sm font-medium text-gray-400 mb-2 md:mb-0 md:mr-2 self-center">Theme:</span>
+                <button data-theme="neon" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500/40 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900">Neon</button>
+                <button data-theme="sky" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-sky-500/20 border border-sky-500 text-sky-400 hover:bg-sky-500/40 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-gray-900">Sky</button>
+                <button data-theme="amber" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-amber-500/20 border border-amber-500 text-amber-400 hover:bg-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900">Amber</button>
+                 <button data-theme="rose" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-rose-500/20 border border-rose-500 text-rose-400 hover:bg-rose-500/40 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-gray-900">Rose</button>
+                <button data-theme="light" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-gray-200/80 border border-gray-400 text-gray-800 hover:bg-gray-300/90 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-100">Light</button>
+            </div>
+
+            <div class="format-controls flex justify-center gap-2 md:gap-3">
+                 <button id="toggle-format" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-indigo-500/20 border border-indigo-500 text-indigo-400 hover:bg-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-900">Toggle 12/24 Hr</button>
+                 <button id="toggle-seconds" class="px-3 py-1.5 text-xs sm:text-sm rounded-md bg-teal-500/20 border border-teal-500 text-teal-400 hover:bg-teal-500/40 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900">Hide Seconds</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const ampmElement = document.getElementById('ampm');
+        const separator1Element = document.getElementById('separator-1');
+        const separator2Element = document.getElementById('separator-2');
+        const clockDisplayElement = document.getElementById('clock-display');
+        const bodyElement = document.getElementById('app-body');
+        const controlsElement = document.getElementById('controls');
+
+        const toggleFormatButton = document.getElementById('toggle-format');
+        const toggleSecondsButton = document.getElementById('toggle-seconds');
+
+        let is24HourFormat = false;
+        let showSeconds = true;
+        let currentTheme = 'neon'; // Default theme
+
+        const themes = {
+            neon: {
+                body: 'bg-gray-900',
+                text: 'text-green-400',
+                border: 'border-green-500/50',
+                displayBg: 'bg-gray-800/30',
+                controlOffset: 'focus:ring-offset-gray-900',
+                buttonClasses: ['bg-green-500/20', 'border-green-500', 'text-green-400', 'hover:bg-green-500/40', 'focus:ring-green-400'],
+                formatButtonClasses: ['bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'hover:bg-indigo-500/40', 'focus:ring-indigo-400'],
+                secondsButtonClasses: ['bg-teal-500/20', 'border-teal-500', 'text-teal-400', 'hover:bg-teal-500/40', 'focus:ring-teal-400'],
+                themeLabelColor: 'text-gray-400'
+            },
+            sky: {
+                body: 'bg-gray-900',
+                text: 'text-sky-400',
+                border: 'border-sky-500/50',
+                displayBg: 'bg-gray-800/30',
+                controlOffset: 'focus:ring-offset-gray-900',
+                buttonClasses: ['bg-sky-500/20', 'border-sky-500', 'text-sky-400', 'hover:bg-sky-500/40', 'focus:ring-sky-400'],
+                 formatButtonClasses: ['bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'hover:bg-indigo-500/40', 'focus:ring-indigo-400'],
+                secondsButtonClasses: ['bg-teal-500/20', 'border-teal-500', 'text-teal-400', 'hover:bg-teal-500/40', 'focus:ring-teal-400'],
+                themeLabelColor: 'text-gray-400'
+            },
+            amber: {
+                body: 'bg-gray-900',
+                text: 'text-amber-400',
+                border: 'border-amber-500/50',
+                displayBg: 'bg-gray-800/30',
+                controlOffset: 'focus:ring-offset-gray-900',
+                buttonClasses: ['bg-amber-500/20', 'border-amber-500', 'text-amber-400', 'hover:bg-amber-500/40', 'focus:ring-amber-400'],
+                 formatButtonClasses: ['bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'hover:bg-indigo-500/40', 'focus:ring-indigo-400'],
+                secondsButtonClasses: ['bg-teal-500/20', 'border-teal-500', 'text-teal-400', 'hover:bg-teal-500/40', 'focus:ring-teal-400'],
+                themeLabelColor: 'text-gray-400'
+            },
+            rose: {
+                body: 'bg-gray-900',
+                text: 'text-rose-400',
+                border: 'border-rose-500/50',
+                displayBg: 'bg-gray-800/30',
+                controlOffset: 'focus:ring-offset-gray-900',
+                buttonClasses: ['bg-rose-500/20', 'border-rose-500', 'text-rose-400', 'hover:bg-rose-500/40', 'focus:ring-rose-400'],
+                 formatButtonClasses: ['bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'hover:bg-indigo-500/40', 'focus:ring-indigo-400'],
+                secondsButtonClasses: ['bg-teal-500/20', 'border-teal-500', 'text-teal-400', 'hover:bg-teal-500/40', 'focus:ring-teal-400'],
+                themeLabelColor: 'text-gray-400'
+            },
+             light: {
+                body: 'bg-gray-100',
+                text: 'text-gray-800',
+                border: 'border-gray-400/50',
+                displayBg: 'bg-white/50',
+                controlOffset: 'focus:ring-offset-gray-100',
+                 buttonClasses: ['bg-gray-200/80', 'border-gray-400', 'text-gray-800', 'hover:bg-gray-300/90', 'focus:ring-gray-500'], // Generic button style for light theme
+                formatButtonClasses: ['bg-indigo-200', 'border-indigo-400', 'text-indigo-800', 'hover:bg-indigo-300', 'focus:ring-indigo-500'],
+                secondsButtonClasses: ['bg-teal-200', 'border-teal-400', 'text-teal-800', 'hover:bg-teal-300', 'focus:ring-teal-500'],
+                themeLabelColor: 'text-gray-600'
+            }
+        };
+
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            if (!theme) return;
+
+            // Remove previous theme classes carefully
+            Object.values(themes).forEach(t => {
+                bodyElement.classList.remove(t.body);
+                clockDisplayElement.classList.remove(t.text, t.border, t.displayBg);
+                controlsElement.querySelectorAll('button').forEach(btn => {
+                    // Remove all potential theme-specific button classes
+                    Object.values(t).filter(val => Array.isArray(val)).flat().forEach(cls => btn.classList.remove(cls));
+                    btn.classList.remove(t.controlOffset); // Remove offset specific to the theme
+                });
+                 controlsElement.querySelector('.theme-controls span')?.classList.remove(t.themeLabelColor);
+            });
+
+            // Apply new theme classes
+            bodyElement.classList.add(theme.body);
+            clockDisplayElement.classList.add(theme.text, theme.border, theme.displayBg);
+            controlsElement.querySelector('.theme-controls span')?.classList.add(theme.themeLabelColor);
+
+
+            // Apply specific button styles
+            controlsElement.querySelectorAll('.theme-controls button').forEach(btn => {
+                const btnThemeName = btn.dataset.theme;
+                const btnTheme = themes[btnThemeName];
+                if (btnTheme) {
+                    btn.classList.add(...btnTheme.buttonClasses, theme.controlOffset);
+                     // Special handling for light theme's generic button style if it's the active theme
+                    if (themeName === 'light' && btnThemeName !== 'light') {
+                         btn.classList.remove(...themes.light.buttonClasses); // Remove light's generic if applying another theme's specific style
+                         btn.classList.add(...btnTheme.buttonClasses);
+                    } else if (themeName === 'light' && btnThemeName === 'light') {
+                         btn.classList.add(...themes.light.buttonClasses); // Ensure light theme button gets its style
+                    } else if (themeName !== 'light'){
+                         btn.classList.add(...btnTheme.buttonClasses); // Apply specific theme button styles for dark themes
+                    }
+                }
+            });
+
+             toggleFormatButton.classList.add(...theme.formatButtonClasses, theme.controlOffset);
+             toggleSecondsButton.classList.add(...theme.secondsButtonClasses, theme.controlOffset);
+
+
+            currentTheme = themeName;
+        }
+
+
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            let ampm = '';
+
+            if (!is24HourFormat) {
+                ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // Hour '0' should be '12'
+            } else {
+                 ampm = ''; // No AM/PM in 24-hour format
+            }
+
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+
+            // Basic update (no complex animation for now)
+            if (hoursElement.textContent !== formattedHours) hoursElement.textContent = formattedHours;
+            if (minutesElement.textContent !== formattedMinutes) minutesElement.textContent = formattedMinutes;
+            if (showSeconds && secondsElement.textContent !== formattedSeconds) secondsElement.textContent = formattedSeconds;
+
+            ampmElement.textContent = ampm;
+            ampmElement.style.display = is24HourFormat ? 'none' : 'inline-block';
+
+            // Toggle seconds visibility
+            secondsElement.style.display = showSeconds ? 'inline-block' : 'none';
+            separator2Element.style.display = showSeconds ? 'inline-block' : 'none';
+
+             // Toggle separator animation based on seconds visibility
+            if (showSeconds) {
+                separator1Element.classList.add('animate-pulse');
+                separator2Element.classList.add('animate-pulse');
+            } else {
+                separator1Element.classList.remove('animate-pulse');
+                separator2Element.classList.remove('animate-pulse');
+                 // Maybe pulse the first separator if seconds are hidden
+                 separator1Element.classList.add('animate-pulse');
+            }
+        }
+
+        toggleFormatButton.addEventListener('click', () => {
+            is24HourFormat = !is24HourFormat;
+            updateClock(); // Update immediately
+        });
+
+        toggleSecondsButton.addEventListener('click', () => {
+            showSeconds = !showSeconds;
+            toggleSecondsButton.textContent = showSeconds ? 'Hide Seconds' : 'Show Seconds';
+            updateClock(); // Update immediately
+        });
+
+        controlsElement.querySelectorAll('.theme-controls button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const themeName = e.target.dataset.theme;
+                applyTheme(themeName);
+            });
+        });
+
+        // Initial Setup
+        applyTheme(currentTheme); // Apply default theme
+        updateClock(); // Initial clock display
+        setInterval(updateClock, 1000); // Update every second
+
+    </script>
+
+</body>
+</html>
