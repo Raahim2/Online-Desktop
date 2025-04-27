@@ -274,5 +274,17 @@
       "Downloadable image of the current fractal view."
     ],
     "raw_output": "Project Name: Animated Fractal Explorer\nDescription: Explore the infinite complexity of fractals with an interactive visualization that responds to user input.\nFeatures:\n- Adjustable fractal parameters (e.g., zoom level, iteration depth).\n- Real-time rendering of the fractal on the canvas.\n- Smooth animation and transitions between fractal states.\n- Customizable color palettes and gradients.\n- Downloadable image of the current fractal view.\n"
+  },
+  {
+    "name": "Personalized Acronym Generator",
+    "description": "Create unique and memorable acronyms from any phrase or set of keywords, perfect for brainstorming project names, team slogans, or personalized abbreviations.",
+    "features": [
+      "Input field for the source phrase or keywords.",
+      "Real-time acronym generation and display.",
+      "Customization options for capitalization and punctuation.",
+      "Copy-to-clipboard functionality for easy sharing.",
+      "Option to save favorite acronyms to local storage."
+    ],
+    "raw_output": "Project Name: Personalized Acronym Generator\nDescription: Create unique and memorable acronyms from any phrase or set of keywords, perfect for brainstorming project names, team slogans, or personalized abbreviations.\nFeatures:\n- Input field for the source phrase or keywords.\n- Real-time acronym generation and display.\n- Customization options for capitalization and punctuation.\n- Copy-to-clipboard functionality for easy sharing.\n- Option to save favorite acronyms to local storage.\n"
   }
 ]
