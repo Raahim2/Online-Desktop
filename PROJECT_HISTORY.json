@@ -166,5 +166,17 @@
       "Option to copy the generated palette to the clipboard."
     ],
     "raw_output": "Project Name: Lyrically Inspired Color Palettes\nDescription: Generate unique color palettes based on the emotional tone of song lyrics entered by the user.\nFeatures:\n- Text input field for song lyrics.\n- JavaScript algorithm to analyze text sentiment (positive, negative, neutral).\n- Dynamically generated color palettes based on sentiment analysis.\n- Display of hex codes for each color in the generated palette.\n- Option to copy the generated palette to the clipboard.\n"
+  },
+  {
+    "name": "Story Dice Roller",
+    "description": "Generate random story prompts by visualizing the results of virtual dice rolls, each face displaying a different narrative element.",
+    "features": [
+      "Customizable dice sets with user-defined images or text prompts.",
+      "Click-to-roll interaction with smooth animation.",
+      "Option to save favorite dice combinations.",
+      "Display of roll history for inspiration tracking.",
+      "Clean and intuitive interface built with Tailwind CSS."
+    ],
+    "raw_output": "Project Name: Story Dice Roller\nDescription: Generate random story prompts by visualizing the results of virtual dice rolls, each face displaying a different narrative element.\nFeatures:\n- Customizable dice sets with user-defined images or text prompts.\n- Click-to-roll interaction with smooth animation.\n- Option to save favorite dice combinations.\n- Display of roll history for inspiration tracking.\n- Clean and intuitive interface built with Tailwind CSS.\n"
   }
 ]
