@@ -310,5 +310,17 @@
       "Save and load mood board creations using local storage."
     ],
     "raw_output": "Project Name: Mood Board Curator\nDescription: Craft personalized mood boards by dragging and dropping images from a searchable library of free-to-use stock photos.\nFeatures:\n- Integrated search and filtering of a curated set of royalty-free images (included within the project).\n- Drag-and-drop interface for arranging images on the board.\n- Customizable background colors and textures using Tailwind CSS.\n- Option to download the mood board as an image.\n- Save and load mood board creations using local storage.\n"
+  },
+  {
+    "name": "Interactive Constellation Creator",
+    "description": "Design and animate your own constellations by connecting stars on a night sky canvas, weaving celestial stories with a touch of interactivity.",
+    "features": [
+      "Click and drag to create connections between stars.",
+      "Customizable star sizes, colors, and twinkling animations.",
+      "Save and load constellation designs using local storage.",
+      "Option to generate random constellation patterns.",
+      "Adjustable background gradient to simulate different times of night."
+    ],
+    "raw_output": "Project Name: Interactive Constellation Creator\nDescription: Design and animate your own constellations by connecting stars on a night sky canvas, weaving celestial stories with a touch of interactivity.\nFeatures:\n- Click and drag to create connections between stars.\n- Customizable star sizes, colors, and twinkling animations.\n- Save and load constellation designs using local storage.\n- Option to generate random constellation patterns.\n- Adjustable background gradient to simulate different times of night.\n"
   }
 ]
