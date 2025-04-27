@@ -358,5 +358,17 @@
       "Mobile-friendly responsive design."
     ],
     "raw_output": "Project Name: Kinetic Scrolling Gallery\nDescription:  A visually captivating image gallery where scrolling triggers parallax effects and dynamic animations, creating a sense of depth and immersion.\nFeatures:\n- Parallax scrolling effect on background images.\n- Smooth image transitions and animations on scroll.\n- Customizable image captions and overlay effects.\n- Navigation dots to indicate scroll progress.\n- Mobile-friendly responsive design.\n"
+  },
+  {
+    "name": "Interactive Music Visualizer",
+    "description": "Create mesmerizing visual patterns that dance and react to your microphone input, transforming sound into a vibrant light show.",
+    "features": [
+      "Real-time audio visualization using the Web Audio API.",
+      "Customizable visualization styles and color palettes with Tailwind CSS.",
+      "Adjustable sensitivity and responsiveness to microphone input.",
+      "Simple controls for starting and stopping the visualization.",
+      "Full-screen mode for an immersive experience."
+    ],
+    "raw_output": "Project Name: Interactive Music Visualizer\nDescription: Create mesmerizing visual patterns that dance and react to your microphone input, transforming sound into a vibrant light show.\nFeatures:\n- Real-time audio visualization using the Web Audio API.\n- Customizable visualization styles and color palettes with Tailwind CSS.\n- Adjustable sensitivity and responsiveness to microphone input.\n- Simple controls for starting and stopping the visualization.\n- Full-screen mode for an immersive experience.\n"
   }
 ]
