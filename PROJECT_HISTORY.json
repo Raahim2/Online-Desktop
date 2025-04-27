@@ -322,5 +322,17 @@
       "Adjustable background gradient to simulate different times of night."
     ],
     "raw_output": "Project Name: Interactive Constellation Creator\nDescription: Design and animate your own constellations by connecting stars on a night sky canvas, weaving celestial stories with a touch of interactivity.\nFeatures:\n- Click and drag to create connections between stars.\n- Customizable star sizes, colors, and twinkling animations.\n- Save and load constellation designs using local storage.\n- Option to generate random constellation patterns.\n- Adjustable background gradient to simulate different times of night.\n"
+  },
+  {
+    "name": "Geometric Pattern Weaver",
+    "description": "Design intricate geometric patterns by manipulating shapes and colors on an interactive canvas, creating unique tessellations and artistic compositions.",
+    "features": [
+      "Drag-and-drop interface for positioning and rotating geometric shapes.",
+      "Customizable shape properties (color, size, opacity) using Tailwind CSS classes and JavaScript.",
+      "Preset shape libraries and color palettes for quick inspiration.",
+      "Download the generated pattern as an SVG image.",
+      "Interactive controls for adjusting canvas size and grid visibility."
+    ],
+    "raw_output": "Project Name: Geometric Pattern Weaver\nDescription: Design intricate geometric patterns by manipulating shapes and colors on an interactive canvas, creating unique tessellations and artistic compositions.\nFeatures:\n- Drag-and-drop interface for positioning and rotating geometric shapes.\n- Customizable shape properties (color, size, opacity) using Tailwind CSS classes and JavaScript.\n- Preset shape libraries and color palettes for quick inspiration.\n- Download the generated pattern as an SVG image.\n- Interactive controls for adjusting canvas size and grid visibility.\n"
   }
 ]
