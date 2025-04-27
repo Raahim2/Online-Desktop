@@ -262,5 +262,17 @@
       "Display of time remaining in days, hours, minutes, and seconds."
     ],
     "raw_output": "Project Name: Customizable Countdown Timer\nDescription: Create and personalize countdown timers for events, deadlines, or any special occasion, with visual and audio notifications.\nFeatures:\n- Input fields for setting the target date and time.\n- Customizable countdown display with Tailwind styling options.\n- Optional sound notification when the timer reaches zero.\n- Save and load timer configurations using local storage.\n- Display of time remaining in days, hours, minutes, and seconds.\n"
+  },
+  {
+    "name": "Animated Fractal Explorer",
+    "description": "Explore the infinite complexity of fractals with an interactive visualization that responds to user input.",
+    "features": [
+      "Adjustable fractal parameters (e.g., zoom level, iteration depth).",
+      "Real-time rendering of the fractal on the canvas.",
+      "Smooth animation and transitions between fractal states.",
+      "Customizable color palettes and gradients.",
+      "Downloadable image of the current fractal view."
+    ],
+    "raw_output": "Project Name: Animated Fractal Explorer\nDescription: Explore the infinite complexity of fractals with an interactive visualization that responds to user input.\nFeatures:\n- Adjustable fractal parameters (e.g., zoom level, iteration depth).\n- Real-time rendering of the fractal on the canvas.\n- Smooth animation and transitions between fractal states.\n- Customizable color palettes and gradients.\n- Downloadable image of the current fractal view.\n"
   }
 ]
