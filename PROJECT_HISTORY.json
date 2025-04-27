@@ -298,5 +298,17 @@
       "Sound effects for each toy interaction."
     ],
     "raw_output": "Project Name: Virtual Desk Toy\nDescription: A collection of interactive fidget toys designed to provide a moment of playful distraction right in your browser.\nFeatures:\n- A Newton's Cradle animation with adjustable ball count and momentum.\n- A virtual fidget spinner with customizable colors and spin speeds.\n- A simple sliding puzzle game with randomized tile arrangements.\n- A toggle switch for light and dark mode.\n- Sound effects for each toy interaction.\n"
+  },
+  {
+    "name": "Mood Board Curator",
+    "description": "Craft personalized mood boards by dragging and dropping images from a searchable library of free-to-use stock photos.",
+    "features": [
+      "Integrated search and filtering of a curated set of royalty-free images (included within the project).",
+      "Drag-and-drop interface for arranging images on the board.",
+      "Customizable background colors and textures using Tailwind CSS.",
+      "Option to download the mood board as an image.",
+      "Save and load mood board creations using local storage."
+    ],
+    "raw_output": "Project Name: Mood Board Curator\nDescription: Craft personalized mood boards by dragging and dropping images from a searchable library of free-to-use stock photos.\nFeatures:\n- Integrated search and filtering of a curated set of royalty-free images (included within the project).\n- Drag-and-drop interface for arranging images on the board.\n- Customizable background colors and textures using Tailwind CSS.\n- Option to download the mood board as an image.\n- Save and load mood board creations using local storage.\n"
   }
 ]
