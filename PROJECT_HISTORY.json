@@ -286,5 +286,17 @@
       "Option to save favorite acronyms to local storage."
     ],
     "raw_output": "Project Name: Personalized Acronym Generator\nDescription: Create unique and memorable acronyms from any phrase or set of keywords, perfect for brainstorming project names, team slogans, or personalized abbreviations.\nFeatures:\n- Input field for the source phrase or keywords.\n- Real-time acronym generation and display.\n- Customization options for capitalization and punctuation.\n- Copy-to-clipboard functionality for easy sharing.\n- Option to save favorite acronyms to local storage.\n"
+  },
+  {
+    "name": "Virtual Desk Toy",
+    "description": "A collection of interactive fidget toys designed to provide a moment of playful distraction right in your browser.",
+    "features": [
+      "A Newton's Cradle animation with adjustable ball count and momentum.",
+      "A virtual fidget spinner with customizable colors and spin speeds.",
+      "A simple sliding puzzle game with randomized tile arrangements.",
+      "A toggle switch for light and dark mode.",
+      "Sound effects for each toy interaction."
+    ],
+    "raw_output": "Project Name: Virtual Desk Toy\nDescription: A collection of interactive fidget toys designed to provide a moment of playful distraction right in your browser.\nFeatures:\n- A Newton's Cradle animation with adjustable ball count and momentum.\n- A virtual fidget spinner with customizable colors and spin speeds.\n- A simple sliding puzzle game with randomized tile arrangements.\n- A toggle switch for light and dark mode.\n- Sound effects for each toy interaction.\n"
   }
 ]
