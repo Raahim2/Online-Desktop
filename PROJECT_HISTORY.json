@@ -250,5 +250,17 @@
       "Option to apply different dithering algorithms for varied visual effects."
     ],
     "raw_output": "Project Name: Dynamic Mosaic Maker\nDescription: Create mesmerizing mosaic patterns from any uploaded image, transforming photos into pixelated artwork.\nFeatures:\n- Image upload and preview functionality.\n- Adjustable pixel size and color palette controls.\n- Downloadable mosaic image as a PNG or SVG.\n- Interactive highlighting of individual mosaic tiles on hover.\n- Option to apply different dithering algorithms for varied visual effects.\n"
+  },
+  {
+    "name": "Customizable Countdown Timer",
+    "description": "Create and personalize countdown timers for events, deadlines, or any special occasion, with visual and audio notifications.",
+    "features": [
+      "Input fields for setting the target date and time.",
+      "Customizable countdown display with Tailwind styling options.",
+      "Optional sound notification when the timer reaches zero.",
+      "Save and load timer configurations using local storage.",
+      "Display of time remaining in days, hours, minutes, and seconds."
+    ],
+    "raw_output": "Project Name: Customizable Countdown Timer\nDescription: Create and personalize countdown timers for events, deadlines, or any special occasion, with visual and audio notifications.\nFeatures:\n- Input fields for setting the target date and time.\n- Customizable countdown display with Tailwind styling options.\n- Optional sound notification when the timer reaches zero.\n- Save and load timer configurations using local storage.\n- Display of time remaining in days, hours, minutes, and seconds.\n"
   }
 ]
