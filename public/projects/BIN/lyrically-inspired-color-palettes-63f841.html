@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyrically Inspired Color Palettes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Simple transition for color swatches */
+        .color-swatch {
+            transition: transform 0.2s ease-in-out;
+        }
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+        /* Custom scrollbar for textarea (optional enhancement) */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Ensure body takes full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-blue-100 font-sans text-gray-800 flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600">
+                Lyrically Inspired Color Palettes
+            </h1>
+            <p class="text-gray-600 mt-1 text-sm md:text-base">Generate colors from the mood of your favorite songs.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12 flex-grow">
+        <section id="input-section" class="mb-12">
+            <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <label for="lyrics-input" class="block text-lg font-semibold mb-3 text-gray-700">Enter Song Lyrics:</label>
+                <textarea id="lyrics-input" rows="8"
+                          class="w-full p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y shadow-sm transition duration-150 ease-in-out"
+                          placeholder="Paste or type song lyrics here..."></textarea>
+                <button id="generate-button"
+                        class="mt-6 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Generate Palette
+                </button>
+                 <p id="error-message" class="text-red-500 text-sm mt-3 hidden"></p>
+            </div>
+        </section>
+
+        <section id="results-section" class="text-center hidden">
+            <h2 class="text-2xl md:text-3xl font-semibold mb-3 text-gray-700">Generated Palette</h2>
+            <p id="sentiment-display" class="text-lg text-gray-600 mb-6"></p>
+            <div id="palette-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6 max-w-3xl mx-auto mb-8">
+                <!-- Color swatches will be injected here -->
+            </div>
+            <button id="copy-button"
+                    class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-5 rounded-lg shadow transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Copy Palette (Hex Codes)
+            </button>
+            <span id="copy-feedback" class="ml-3 text-green-600 font-medium hidden">Copied!</span>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-auto">
+        <div class="container mx-auto px-4 text-sm">
+            &copy; 2023 Lyrically Inspired Palettes. A conceptual project.
+        </div>
+    </footer>
+
+    <script>
+        const lyricsInput = document.getElementById('lyrics-input');
+        const generateButton = document.getElementById('generate-button');
+        const resultsSection = document.getElementById('results-section');
+        const paletteContainer = document.getElementById('palette-container');
+        const sentimentDisplay = document.getElementById('sentiment-display');
+        const copyButton = document.getElementById('copy-button');
+        const copyFeedback = document.getElementById('copy-feedback');
+        const errorMessage = document.getElementById('error-message');
+
+        let currentPalette = []; // To store the hex codes for copying
+
+        // Simple keyword-based sentiment analysis
+        const positiveWords = ['love', 'happy', 'joy', 'bright', 'good', 'great', 'beautiful', 'sun', 'light', 'celebrate', 'dream', 'hope', 'laugh', 'smile', 'shine', 'peace', 'friend', 'kind', 'amazing', 'wonderful', 'paradise', 'heaven', 'magic', 'alive', 'vibrant'];
+        const negativeWords = ['sad', 'hate', 'dark', 'bad', 'cry', 'pain', 'fear', 'lost', 'broken', 'storm', 'night', 'lonely', 'angry', 'tear', 'sorrow', 'grief', 'empty', 'fall', 'hurt', 'alone', 'shadow', 'end', 'cold', 'misery', 'fight'];
+
+        function analyzeSentiment(text) {
+            if (!text || text.trim().length === 0) {
+                return 'neutral'; // Default to neutral if empty
+            }
+            const words = text.toLowerCase().match(/\b(\w+)\b/g) || [];
+            let score = 0;
+            let positiveCount = 0;
+            let negativeCount = 0;
+
+            words.forEach(word => {
+                if (positiveWords.includes(word)) {
+                    positiveCount++;
+                } else if (negativeWords.includes(word)) {
+                    negativeCount++;
+                }
+            });
+
+            score = positiveCount - negativeCount;
+            const wordCount = words.length;
+            const intensity = (positiveCount + negativeCount) / wordCount; // Basic intensity measure
+
+            // Adjust thresholds based on intensity or word count if desired
+            if (score > 1 && (positiveCount > negativeCount * 1.5 || intensity > 0.05)) {
+                return 'positive';
+            } else if (score < -1 && (negativeCount > positiveCount * 1.5 || intensity > 0.05)) {
+                return 'negative';
+            } else {
+                return 'neutral';
+            }
+        }
+
+        // Predefined color palettes based on sentiment
+        const palettes = {
+            positive: [
+                ['#FFD700', '#FF8C00', '#90EE90', '#ADD8E6', '#FFFFFF'], // Gold, Orange, LightGreen, LightBlue, White
+                ['#F08080', '#FFE4B5', '#98FB98', '#AFEEEE', '#FFFACD'], // LightCoral, Moccasin, PaleGreen, PaleTurquoise, LemonChiffon
+                ['#FF6347', '#FFDAB9', '#32CD32', '#87CEFA', '#FFF8DC'], // Tomato, PeachPuff, LimeGreen, LightSkyBlue, Cornsilk
+                ['#FFB6C1', '#FFFFE0', '#9ACD32', '#00CED1', '#F5F5F5'], // LightPink, LightYellow, YellowGreen, DarkTurquoise, WhiteSmoke
+            ],
+            negative: [
+                ['#2F4F4F', '#696969', '#483D8B', '#8B0000', '#778899'], // DarkSlateGray, DimGray, DarkSlateBlue, DarkRed, LightSlateGray
+                ['#191970', '#556B2F', '#708090', '#A0522D', '#C0C0C0'], // MidnightBlue, DarkOliveGreen, SlateGray, Sienna, Silver
+                ['#000080', '#8B4513', '#6A5ACD', '#B22222', '#A9A9A9'], // Navy, SaddleBrown, SlateBlue, Firebrick, DarkGray
+                ['#4B0082', '#808000', '#4682B4', '#DC143C', '#D3D3D3'], // Indigo, Olive, SteelBlue, Crimson, LightGray
+            ],
+            neutral: [
+                ['#D2B48C', '#F5F5DC', '#A9A9A9', '#B0E0E6', '#E6E6FA'], // Tan, Beige, DarkGray, PowderBlue, Lavender
+                ['#BC8F8F', '#FFEBCD', '#8FBC8F', '#ADD8E6', '#D3D3D3'], // RosyBrown, BlanchedAlmond, DarkSeaGreen, LightBlue, LightGray
+                ['#C0C0C0', '#F5F5F5', '#778899', '#B0C4DE', '#FFF5EE'], // Silver, WhiteSmoke, LightSlateGray, LightSteelBlue, SeaShell
+                ['#D8BFD8', '#FAF0E6', '#9370DB', '#AFEEEE', '#E0FFFF'], // Thistle, Linen, MediumPurple, PaleTurquoise, LightCyan
+            ]
+        };
+
+        function generatePalette(sentiment) {
+            const sentimentPalettes = palettes[sentiment];
+            // Select a random palette from the chosen sentiment category
+            const randomIndex = Math.floor(Math.random() * sentimentPalettes.length);
+            return sentimentPalettes[randomIndex];
+        }
+
+        function displayPalette(palette, sentiment) {
+            paletteContainer.innerHTML = ''; // Clear previous palette
+            currentPalette = palette; // Store for copying
+
+            sentimentDisplay.textContent = `Detected Sentiment: ${sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}`;
+
+            palette.forEach(hexCode => {
+                const swatchWrapper = document.createElement('div');
+                swatchWrapper.className = 'flex flex-col items-center';
+
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch w-24 h-24 md:w-32 md:h-32 rounded-lg shadow-md mb-2 border border-gray-200 cursor-pointer';
+                swatch.style.backgroundColor = hexCode;
+                swatch.title = `Click to copy ${hexCode}`; // Tooltip
+
+                // Add click-to-copy for individual swatches
+                swatch.addEventListener('click', () => {
+                    navigator.clipboard.writeText(hexCode).then(() => {
+                        // Simple visual feedback (e.g., temporary border change)
+                        swatch.style.outline = '2px solid #22c55e'; // Tailwind green-500
+                        setTimeout(() => {
+                            swatch.style.outline = 'none';
+                        }, 1000);
+                    }).catch(err => {
+                        console.error('Failed to copy color: ', err);
+                        // Optionally show an error message to the user
+                    });
+                });
+
+
+                const hexText = document.createElement('span');
+                hexText.className = 'text-sm font-mono text-gray-600';
+                hexText.textContent = hexCode;
+
+                swatchWrapper.appendChild(swatch);
+                swatchWrapper.appendChild(hexText);
+                paletteContainer.appendChild(swatchWrapper);
+            });
+
+            resultsSection.classList.remove('hidden');
+            copyButton.classList.remove('hidden');
+            copyFeedback.classList.add('hidden'); // Reset copy feedback
+            copyButton.textContent = 'Copy Palette (Hex Codes)'; // Reset button text
+        }
+
+        function showErrorMessage(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideErrorMessage() {
+            errorMessage.classList.add('hidden');
+        }
+
+        generateButton.addEventListener('click', () => {
+            hideErrorMessage();
+            const lyrics = lyricsInput.value;
+
+            if (!lyrics.trim()) {
+                showErrorMessage('Please enter some lyrics first.');
+                resultsSection.classList.add('hidden'); // Hide results if input is empty
+                return;
+            }
+
+             // Basic length check (optional)
+            if (lyrics.length < 10) {
+                 showErrorMessage('Please enter a bit more lyrics for better analysis.');
+                 // Optionally proceed anyway or return
+                 // return;
+            }
+
+
+            // Simulate processing delay (optional for UX)
+            generateButton.textContent = 'Analyzing...';
+            generateButton.disabled = true;
+
+            setTimeout(() => {
+                try {
+                    const sentiment = analyzeSentiment(lyrics);
+                    const palette = generatePalette(sentiment);
+                    displayPalette(palette, sentiment);
+                } catch (error) {
+                    console.error("Error during generation:", error);
+                    showErrorMessage("An error occurred while generating the palette.");
+                    resultsSection.classList.add('hidden');
+                } finally {
+                    // Restore button state
+                    generateButton.textContent = 'Generate Palette';
+                    generateButton.disabled = false;
+                    // Scroll to results smoothly
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 500); // 500ms delay simulation
+
+        });
+
+        copyButton.addEventListener('click', () => {
+            if (currentPalette.length > 0) {
+                const hexString = currentPalette.join(', ');
+                navigator.clipboard.writeText(hexString).then(() => {
+                    copyFeedback.classList.remove('hidden');
+                    copyButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyFeedback.classList.add('hidden');
+                        copyButton.textContent = 'Copy Palette (Hex Codes)';
+                    }, 2000); // Hide feedback after 2 seconds
+                }).catch(err => {
+                    console.error('Failed to copy palette: ', err);
+                    copyFeedback.textContent = 'Failed to copy!';
+                    copyFeedback.classList.remove('hidden', 'text-green-600');
+                    copyFeedback.classList.add('text-red-500');
+                     setTimeout(() => {
+                        copyFeedback.classList.add('hidden');
+                        copyFeedback.textContent = 'Copied!'; // Reset text
+                        copyFeedback.classList.remove('text-red-500');
+                        copyFeedback.classList.add('text-green-600');
+                        copyButton.textContent = 'Copy Palette (Hex Codes)';
+                    }, 2000);
+                });
+            }
+        });
+
+    </script>
+
+</body>
+</html>
