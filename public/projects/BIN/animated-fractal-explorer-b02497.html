@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Fractal Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal custom styles */
+        canvas {
+            display: block; /* Prevent extra space below canvas */
+            background-color: #000; /* Default background */
+        }
+        /* Style range inputs */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #4a5568; /* gray-700 */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #6366f1; /* indigo-500 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #6366f1; /* indigo-500 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Remove default border */
+        }
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #6366f1; /* Indigo */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 140px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -70px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans antialiased overflow-hidden">
+
+    <div class="flex flex-col md:flex-row h-screen">
+
+        <!-- Controls Sidebar -->
+        <aside id="controls-sidebar" class="w-full md:w-72 lg:w-80 p-4 md:p-6 bg-gray-800 shadow-xl overflow-y-auto flex-shrink-0 transition-all duration-300 ease-in-out">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-xl font-bold text-white">Fractal Explorer</h1>
+                <button id="toggle-sidebar-btn" class="md:hidden p-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Iterations -->
+                <div>
+                    <label for="iterations" class="block text-sm font-medium text-gray-300 mb-1">Max Iterations: <span id="iterations-value" class="font-semibold text-indigo-400">100</span></label>
+                    <input type="range" id="iterations" name="iterations" min="10" max="1000" value="100" step="10" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Zoom -->
+                 <div>
+                    <label for="zoom" class="block text-sm font-medium text-gray-300 mb-1">Zoom Level: <span id="zoom-value" class="font-semibold text-indigo-400">1.00x</span></label>
+                     <div class="flex items-center space-x-2">
+                         <button id="zoom-out-btn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 tooltip">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6" /></svg>
+                             <span class="tooltiptext">Zoom Out (Scroll Down)</span>
+                         </button>
+                         <input type="range" id="zoom" name="zoom" min="0.1" max="10000" value="1" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                         <button id="zoom-in-btn" class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 tooltip">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" /></svg>
+                             <span class="tooltiptext">Zoom In (Scroll Up)</span>
+                         </button>
+                     </div>
+                 </div>
+
+                <!-- Color Palette -->
+                <div>
+                    <label for="colorPalette" class="block text-sm font-medium text-gray-300 mb-1">Color Palette</label>
+                    <select id="colorPalette" name="colorPalette" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm text-white">
+                        <option value="electricBlue">Electric Blue</option>
+                        <option value="magma">Magma</option>
+                        <option value="viridis">Viridis</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="ultra" selected>Ultra</option>
+                        <option value="psych">Psychedelic</option>
+                        <option value="fire">Fire</option>
+                    </select>
+                </div>
+
+                <!-- Smooth Coloring -->
+                <div class="flex items-center">
+                    <input id="smoothColoring" name="smoothColoring" type="checkbox" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700">
+                    <label for="smoothColoring" class="ml-2 block text-sm text-gray-300">Smooth Coloring</label>
+                </div>
+
+                <!-- Reset & Download -->
+                <div class="grid grid-cols-2 gap-4 pt-4">
+                    <button id="reset-btn" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500">
+                        Reset View
+                    </button>
+                    <button id="download-btn" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500">
+                        Download PNG
+                    </button>
+                </div>
+
+                <!-- Info/Help -->
+                 <div class="text-xs text-gray-400 pt-4 border-t border-gray-700">
+                     <p class="font-semibold mb-1">Controls:</p>
+                     <ul class="list-disc list-inside space-y-1">
+                         <li><span class="font-medium">Scroll Wheel:</span> Zoom in/out</li>
+                         <li><span class="font-medium">Click & Drag:</span> Pan view</li>
+                         <li><span class="font-medium">Double Click:</span> Center & Zoom In</li>
+                     </ul>
+                 </div>
+            </div>
+        </aside>
+
+        <!-- Fractal Canvas Area -->
+        <main class="flex-grow flex items-center justify-center p-1 md:p-4 relative bg-gray-900">
+            <canvas id="fractalCanvas" class="rounded shadow-lg max-w-full max-h-full"></canvas>
+            <div id="loading-overlay" class="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-10">
+                <div class="loader"></div>
+                <span class="ml-4 text-lg font-medium text-white">Rendering...</span>
+            </div>
+             <button id="open-sidebar-btn" class="md:hidden absolute top-4 left-4 p-2 bg-gray-800 bg-opacity-75 rounded-md hover:bg-opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 z-20">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                 </svg>
+             </button>
+        </main>
+
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+        const iterationsInput = document.getElementById('iterations');
+        const iterationsValueSpan = document.getElementById('iterations-value');
+        const zoomInput = document.getElementById('zoom');
+        const zoomValueSpan = document.getElementById('zoom-value');
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        const colorPaletteSelect = document.getElementById('colorPalette');
+        const smoothColoringCheckbox = document.getElementById('smoothColoring');
+        const resetBtn = document.getElementById('reset-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const controlsSidebar = document.getElementById('controls-sidebar');
+        const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+        const openSidebarBtn = document.getElementById('open-sidebar-btn');
+
+        // --- State Variables ---
+        let maxIterations = parseInt(iterationsInput.value);
+        let centerX = -0.7;
+        let centerY = 0;
+        let scale = 4.0; // The width of the view in the complex plane
+        let zoomFactor = 1.0; // For display and slider control
+
+        let isDragging = false;
+        let dragStartX, dragStartY;
+        let currentX, currentY; // Keep track for panning calculations
+
+        let renderRequestId = null; // To debounce rendering
+        let isRendering = false;
+
+        // --- Palettes ---
+        // Simple linear interpolation for color generation
+        function lerpColor(a, b, amount) {
+            const ar = a >> 16, ag = a >> 8 & 0xff, ab = a & 0xff,
+                  br = b >> 16, bg = b >> 8 & 0xff, bb = b & 0xff,
+                  rr = ar + amount * (br - ar),
+                  rg = ag + amount * (bg - ag),
+                  rb = ab + amount * (bb - ab);
+            return (rr << 16) + (rg << 8) + (rb | 0);
+        }
+
+        // Generate palette function
+        function generatePalette(colors, steps) {
+            const palette = new Uint32Array(steps);
+            const colorsHex = colors.map(c => parseInt(c.slice(1), 16));
+            const segments = colorsHex.length - 1;
+            const stepsPerSegment = Math.floor(steps / segments);
+
+            for (let i = 0; i < segments; i++) {
+                const startColor = colorsHex[i];
+                const endColor = colorsHex[i + 1];
+                for (let j = 0; j < stepsPerSegment; j++) {
+                    const index = i * stepsPerSegment + j;
+                    if (index >= steps) break;
+                    const amount = j / stepsPerSegment;
+                    palette[index] = lerpColor(startColor, endColor, amount);
+                }
+            }
+             // Fill any remaining steps with the last color or interpolate last segment more finely
+            const lastFilledIndex = segments * stepsPerSegment;
+             if (lastFilledIndex < steps) {
+                const startColor = colorsHex[segments-1];
+                const endColor = colorsHex[segments];
+                for (let i = lastFilledIndex; i < steps; i++) {
+                    const amount = (i - (segments-1)*stepsPerSegment) / (steps - (segments-1)*stepsPerSegment);
+                     palette[i] = lerpColor(startColor, endColor, Math.min(1, amount)); // Clamp amount
+                }
+            }
+
+            return palette;
+        }
+
+
+        const palettes = {
+            electricBlue: ['#000000', '#03071e', '#0b21a1', '#2c72f0', '#89cff0', '#ffffff'],
+            magma: ['#000004', '#3b0f70', '#8c2981', '#de4968', '#fe9f6d', '#fcfdbf'],
+            viridis: ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'],
+            grayscale: ['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff'],
+            ultra: ['#000000', '#100030', '#300070', '#FFFF00', '#FFAA00', '#FFFFFF'],
+            psych: ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00', '#0000ff'],
+            fire: ['#000000', '#440000', '#880000', '#FF4400', '#FF8800', '#FFFF00', '#FFFFFF']
+        };
+
+        let currentPalette = generatePalette(palettes[colorPaletteSelect.value], maxIterations);
+
+        // --- Canvas Setup & Resizing ---
+        function resizeCanvas() {
+            const mainArea = canvas.parentElement;
+            const controlsWidth = controlsSidebar.offsetWidth;
+            const availableWidth = window.innerWidth - (window.innerWidth >= 768 ? controlsWidth : 0); // Subtract sidebar width on md+ screens
+            const availableHeight = window.innerHeight;
+
+            // Calculate aspect ratio based on current view
+            const aspectRatio = scale / (scale * (availableHeight / availableWidth));
+
+            // Aim for largest possible canvas within bounds, maintaining aspect ratio (approx)
+            let canvasWidth = Math.floor(mainArea.clientWidth - (window.innerWidth < 768 ? 10 : 32)); // Padding
+            let canvasHeight = Math.floor(mainArea.clientHeight - (window.innerWidth < 768 ? 10 : 32)); // Padding
+
+            // Adjust to maintain aspect ratio (width based on height)
+            const potentialWidth = canvasHeight * (canvas.width / canvas.height); // Use internal aspect ratio
+             if (potentialWidth <= canvasWidth) {
+                 canvasWidth = potentialWidth;
+             } else {
+                 // Adjust height based on width
+                 canvasHeight = canvasWidth * (canvas.height / canvas.width);
+             }
+
+             // Ensure positive dimensions
+             canvas.width = Math.max(100, Math.floor(canvasWidth));
+             canvas.height = Math.max(100, Math.floor(canvasHeight));
+
+
+            console.log(`Resized canvas to: ${canvas.width}x${canvas.height}`);
+            requestRender(); // Redraw after resize
+        }
+
+        // --- Fractal Calculation (Mandelbrot) ---
+        function mandelbrot(cx, cy, maxIter) {
+            let zx = 0;
+            let zy = 0;
+            let iter = 0;
+            let zx2 = 0;
+            let zy2 = 0;
+
+            while (zx2 + zy2 <= 4 && iter < maxIter) {
+                zy = 2 * zx * zy + cy;
+                zx = zx2 - zy2 + cx;
+                zx2 = zx * zx;
+                zy2 = zy * zy;
+                iter++;
+            }
+            return { iter, zx2, zy2 };
+        }
+
+        // --- Drawing Logic ---
+        function drawFractal() {
+            if (isRendering) return; // Prevent concurrent renders
+            isRendering = true;
+            loadingOverlay.classList.remove('hidden');
+
+            // Use setTimeout to allow UI update (show loader) before blocking thread
+            setTimeout(() => {
+                const width = canvas.width;
+                const height = canvas.height;
+                const imageData = ctx.createImageData(width, height);
+                const data = imageData.data;
+
+                const scaleX = scale / width;
+                const scaleY = scale * (height / width) / height; // Adjust scaleY based on aspect ratio
+                const offsetX = centerX - scale / 2;
+                const offsetY = centerY - scale * (height / width) / 2;
+
+                const useSmoothColoring = smoothColoringCheckbox.checked;
+                const palette = currentPalette;
+                const paletteSize = palette.length;
+
+                for (let px = 0; px < width; px++) {
+                    for (let py = 0; py < height; py++) {
+                        const cx = offsetX + px * scaleX;
+                        const cy = offsetY + py * scaleY;
+
+                        const { iter, zx2, zy2 } = mandelbrot(cx, cy, maxIterations);
+
+                        const index = (py * width + px) * 4;
+                        let color = 0; // Black for inside set
+
+                        if (iter < maxIterations) {
+                            if (useSmoothColoring) {
+                                // Smooth coloring algorithm (log log |Z|)
+                                const log_zn = Math.log(zx2 + zy2) / 2;
+                                const nu = Math.log(log_zn / Math.log(2)) / Math.log(2);
+                                const smoothIter = iter + 1 - nu;
+
+                                const color1Index = Math.floor(smoothIter) % paletteSize;
+                                const color2Index = (color1Index + 1) % paletteSize;
+                                const lerpAmount = smoothIter - Math.floor(smoothIter);
+
+                                const color1 = palette[color1Index];
+                                const color2 = palette[color2Index];
+
+                                color = lerpColor(color1, color2, lerpAmount);
+
+                            } else {
+                                // Basic discrete coloring
+                                color = palette[iter % paletteSize];
+                            }
+                        }
+
+                        data[index] = (color >> 16) & 0xff; // Red
+                        data[index + 1] = (color >> 8) & 0xff; // Green
+                        data[index + 2] = color & 0xff;       // Blue
+                        data[index + 3] = 255;                // Alpha
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+                loadingOverlay.classList.add('hidden');
+                isRendering = false;
+                console.log(`Render complete. Iterations: ${maxIterations}, Center: (${centerX.toFixed(4)}, ${centerY.toFixed(4)}), Scale: ${scale.toExponential(2)}`);
+
+            }, 10); // Small delay for loader
+        }
+
+        // Debounced rendering request
+        function requestRender() {
+            if (renderRequestId !== null) {
+                clearTimeout(renderRequestId);
+            }
+            renderRequestId = setTimeout(() => {
+                drawFractal();
+                renderRequestId = null;
+            }, 50); // Debounce time in ms
+        }
+
+        // --- Event Listeners ---
+
+        // Parameter Controls
+        iterationsInput.addEventListener('input', (e) => {
+            maxIterations = parseInt(e.target.value);
+            iterationsValueSpan.textContent = maxIterations;
+            // Regenerate palette if needed (size depends on iterations)
+            currentPalette = generatePalette(palettes[colorPaletteSelect.value], maxIterations);
+        });
+        iterationsInput.addEventListener('change', requestRender); // Render only when slider released
+
+        zoomInput.addEventListener('input', (e) => {
+            // Use logarithmic scale for zoom slider for better control at high zoom
+            const minLog = Math.log(0.1);
+            const maxLog = Math.log(10000);
+            const logValue = minLog + (maxLog - minLog) * (e.target.value / 10000); // Assuming slider max is 10000
+            zoomFactor = Math.exp(logValue);
+
+            // Update scale based on zoom factor (inverse relationship)
+            scale = 4.0 / zoomFactor;
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+        });
+         zoomInput.addEventListener('change', requestRender); // Render only when slider released
+
+
+        colorPaletteSelect.addEventListener('change', (e) => {
+            currentPalette = generatePalette(palettes[e.target.value], maxIterations);
+            requestRender();
+        });
+
+        smoothColoringCheckbox.addEventListener('change', requestRender);
+
+        resetBtn.addEventListener('click', () => {
+            centerX = -0.7;
+            centerY = 0;
+            scale = 4.0;
+            zoomFactor = 1.0;
+            maxIterations = 100;
+            iterationsInput.value = maxIterations;
+            iterationsValueSpan.textContent = maxIterations;
+            zoomInput.value = 1; // Reset slider visually (might need adjustment based on log scale)
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+            colorPaletteSelect.value = 'ultra'; // Default palette
+            currentPalette = generatePalette(palettes.ultra, maxIterations);
+            smoothColoringCheckbox.checked = true;
+            resizeCanvas(); // Recalculate size and trigger render
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `fractal_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Canvas Interaction: Zoom (Scroll)
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Convert mouse coords to complex plane coords
+            const mouseCX = centerX + (mouseX / canvas.width - 0.5) * scale;
+            const mouseCY = centerY + (mouseY / canvas.height - 0.5) * scale * (canvas.height / canvas.width);
+
+            const zoomAmount = e.deltaY < 0 ? 1.25 : 0.8; // Zoom factor per scroll step
+            scale /= zoomAmount;
+            zoomFactor *= zoomAmount; // Update zoom factor for display/slider
+
+            // Adjust center towards mouse pointer
+            centerX = mouseCX - (mouseX / canvas.width - 0.5) * scale;
+            centerY = mouseCY - (mouseY / canvas.height - 0.5) * scale * (canvas.height / canvas.width);
+
+            // Update slider (approximate, due to log scale)
+            const minLog = Math.log(0.1);
+            const maxLog = Math.log(10000);
+            const logZoom = Math.log(zoomFactor);
+            const sliderValue = 10000 * (logZoom - minLog) / (maxLog - minLog);
+            zoomInput.value = Math.max(0.1, Math.min(10000, sliderValue)); // Clamp value
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+
+            requestRender();
+        });
+
+        // Canvas Interaction: Pan (Drag)
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            currentX = centerX; // Store center at drag start
+            currentY = centerY;
+            canvas.style.cursor = 'grabbing';
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+
+            // Convert pixel delta to complex plane delta
+            const deltaCX = (dx / canvas.width) * scale;
+            const deltaCY = (dy / canvas.height) * scale * (canvas.height / canvas.width);
+
+            // Update center based on initial center + delta
+            centerX = currentX - deltaCX;
+            centerY = currentY - deltaCY;
+
+            requestRender(); // Render frequently during drag for responsiveness
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                canvas.style.cursor = 'grab';
+                // Final high-quality render might be triggered here if needed
+                // requestRender(); // Already called in mousemove
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            if (isDragging) {
+                isDragging = false;
+                canvas.style.cursor = 'grab';
+                 // Final high-quality render might be triggered here if needed
+                 // requestRender(); // Already called in mousemove
+            }
+        });
+
+        // Canvas Interaction: Double Click Zoom
+        canvas.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Convert mouse coords to complex plane coords - this becomes the new center
+            const newCenterX = centerX + (mouseX / canvas.width - 0.5) * scale;
+            const newCenterY = centerY + (mouseY / canvas.height - 0.5) * scale * (canvas.height / canvas.width);
+
+            centerX = newCenterX;
+            centerY = newCenterY;
+
+            // Zoom in
+            const zoomAmount = 2.0; // Zoom factor for double click
+            scale /= zoomAmount;
+            zoomFactor *= zoomAmount;
+
+             // Update slider (approximate)
+            const minLog = Math.log(0.1);
+            const maxLog = Math.log(10000);
+            const logZoom = Math.log(zoomFactor);
+            const sliderValue = 10000 * (logZoom - minLog) / (maxLog - minLog);
+            zoomInput.value = Math.max(0.1, Math.min(10000, sliderValue));
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+
+            requestRender();
+        });
+
+        // Zoom buttons
+        zoomInBtn.addEventListener('click', () => {
+            const zoomAmount = 1.5;
+            scale /= zoomAmount;
+            zoomFactor *= zoomAmount;
+            const minLog = Math.log(0.1);
+            const maxLog = Math.log(10000);
+            const logZoom = Math.log(zoomFactor);
+            const sliderValue = 10000 * (logZoom - minLog) / (maxLog - minLog);
+            zoomInput.value = Math.max(0.1, Math.min(10000, sliderValue));
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+            requestRender();
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            const zoomAmount = 1.5;
+            scale *= zoomAmount;
+            zoomFactor /= zoomAmount;
+             const minLog = Math.log(0.1);
+            const maxLog = Math.log(10000);
+            const logZoom = Math.log(zoomFactor);
+            const sliderValue = 10000 * (logZoom - minLog) / (maxLog - minLog);
+            zoomInput.value = Math.max(0.1, Math.min(10000, sliderValue));
+            zoomValueSpan.textContent = `${zoomFactor.toFixed(2)}x`;
+            requestRender();
+        });
+
+
+        // Sidebar Toggle (Mobile)
+        toggleSidebarBtn.addEventListener('click', () => {
+            controlsSidebar.classList.add('-translate-x-full');
+            controlsSidebar.classList.add('opacity-0');
+            setTimeout(() => controlsSidebar.classList.add('hidden'), 300); // Hide after transition
+            openSidebarBtn.classList.remove('hidden'); // Show the open button
+        });
+
+        openSidebarBtn.addEventListener('click', () => {
+            controlsSidebar.classList.remove('hidden');
+            // Use timeout to allow display:block before starting transition
+            setTimeout(() => {
+                controlsSidebar.classList.remove('-translate-x-full');
+                controlsSidebar.classList.remove('opacity-0');
+            }, 10);
+            openSidebarBtn.classList.add('hidden'); // Hide the open button
+        });
+
+        // Initial Setup
+        window.addEventListener('resize', resizeCanvas);
+
+        // Set initial canvas cursor
+        canvas.style.cursor = 'grab';
+
+        // Set initial state for mobile sidebar
+        if (window.innerWidth < 768) {
+             controlsSidebar.classList.add('-translate-x-full', 'opacity-0', 'hidden', 'absolute', 'z-30', 'h-full');
+             openSidebarBtn.classList.remove('hidden');
+        } else {
+            openSidebarBtn.classList.add('hidden');
+        }
+
+        // Initial draw
+        resizeCanvas(); // Set initial size and trigger first render
+
+    </script>
+
+</body>
+</html>
