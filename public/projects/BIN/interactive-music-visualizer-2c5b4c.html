@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Music Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better control if needed, but prioritize Tailwind */
+        body {
+            overscroll-behavior: none; /* Prevent pull-to-refresh */
+        }
+        canvas {
+            display: block; /* Remove extra space below canvas */
+            width: 100%;
+            height: 100%;
+        }
+        /* Style range input */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #4a5568; /* gray-700 */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #a0aec0; /* gray-500 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #a0aec0; /* gray-500 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Remove default border */
+        }
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent; /* make scrollbar transparent */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans flex flex-col h-screen overflow-hidden">
+
+    <main id="visualizer-container" class="flex-grow relative flex items-center justify-center">
+        <canvas id="visualizerCanvas"></canvas>
+        <div id="permission-prompt" class="absolute inset-0 bg-gray-900 bg-opacity-90 flex flex-col items-center justify-center text-center p-8 z-20">
+            <h2 class="text-2xl font-bold mb-4">Microphone Access Required</h2>
+            <p class="mb-6 text-gray-400">This visualizer needs access to your microphone to react to sound. Please grant permission when prompted.</p>
+            <button id="start-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 ease-in-out">
+                Start Visualization
+            </button>
+            <p id="error-message" class="text-red-500 mt-4 hidden"></p>
+        </div>
+    </main>
+
+    <section id="controls" class="bg-gray-800 bg-opacity-80 backdrop-blur-sm p-4 shadow-lg fixed bottom-0 left-0 right-0 z-10 transition-transform duration-300 translate-y-full">
+        <div class="container mx-auto max-w-4xl">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 items-center">
+
+                <!-- Start/Stop -->
+                <div class="flex justify-center md:justify-start col-span-2 sm:col-span-1">
+                    <button id="toggle-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-md transition duration-150 ease-in-out w-full sm:w-auto flex items-center justify-center space-x-2" disabled>
+                        <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1H8zm5 0a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1h-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span id="toggle-text">Start</span>
+                    </button>
+                </div>
+
+                <!-- Sensitivity -->
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="sensitivity" class="block text-sm font-medium text-gray-300 mb-1 text-center sm:text-left">Sensitivity</label>
+                    <input type="range" id="sensitivity" name="sensitivity" min="0" max="100" value="70" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm accent-indigo-500">
+                    <span id="sensitivity-value" class="text-xs text-gray-400 block text-center sm:text-left mt-1">70%</span>
+                </div>
+
+                <!-- Style -->
+                <div class="col-span-1">
+                    <label for="style-select" class="block text-sm font-medium text-gray-300 mb-1 text-center sm:text-left">Style</label>
+                    <select id="style-select" name="style" class="bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2 appearance-none">
+                        <option value="bars">Bars</option>
+                        <option value="bars_circular">Circular Bars</option>
+                        <option value="waveform">Waveform</option>
+                        <option value="dots">Dots</option>
+                    </select>
+                </div>
+
+                <!-- Color Palette -->
+                <div class="col-span-1">
+                    <label for="color-select" class="block text-sm font-medium text-gray-300 mb-1 text-center sm:text-left">Color</label>
+                    <select id="color-select" name="color" class="bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2 appearance-none">
+                        <option value="rainbow">Rainbow</option>
+                        <option value="ocean">Ocean</option>
+                        <option value="sunset">Sunset</option>
+                        <option value="forest">Forest</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="neon">Neon</option>
+                    </select>
+                </div>
+
+                <!-- Fullscreen -->
+                <div class="flex justify-center md:justify-end col-span-2 sm:col-span-1">
+                    <button id="fullscreen-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v2.5a.5.5 0 001 0V3.5a.5.5 0 01.5-.5h2.5a.5.5 0 000-1H4.5zM15.5 2a.5.5 0 00-.5.5v2.5a.5.5 0 001 0V3.5a.5.5 0 01.5.5h2.5a.5.5 0 000-1H16.5a1.5 1.5 0 00-1.5-1.5zm-11 11.5a.5.5 0 000 1h2.5a.5.5 0 01.5.5v2.5a.5.5 0 001 0V16.5a1.5 1.5 0 00-1.5-1.5H4.5zm11 0a.5.5 0 00-.5.5v2.5a.5.5 0 01-.5.5H13.5a.5.5 0 000 1h2.5a1.5 1.5 0 001.5-1.5V13.5a.5.5 0 00-.5-.5z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Full</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('start-button');
+        const permissionPrompt = document.getElementById('permission-prompt');
+        const errorMessage = document.getElementById('error-message');
+        const toggleButton = document.getElementById('toggle-button');
+        const toggleText = document.getElementById('toggle-text');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const sensitivitySlider = document.getElementById('sensitivity');
+        const sensitivityValue = document.getElementById('sensitivity-value');
+        const styleSelect = document.getElementById('style-select');
+        const colorSelect = document.getElementById('color-select');
+        const fullscreenButton = document.getElementById('fullscreen-button');
+        const controlsPanel = document.getElementById('controls');
+        const visualizerContainer = document.getElementById('visualizer-container');
+
+        let audioContext;
+        let analyser;
+        let source;
+        let dataArray;
+        let bufferLength;
+        let animationFrameId;
+        let isRunning = false;
+        let currentStream = null;
+
+        // Visualization settings
+        let sensitivity = 0.7; // Corresponds to slider value 70
+        let visualizationStyle = 'bars';
+        let colorPalette = 'rainbow';
+
+        const palettes = {
+            rainbow: (i, total) => `hsl(${(i / total) * 360}, 100%, 60%)`,
+            ocean: (i, total, intensity) => `hsl(${200 + (intensity * 40)}, ${60 + (intensity * 40)}%, ${30 + (intensity * 40)}%)`,
+            sunset: (i, total, intensity) => `hsl(${10 + (intensity * 50)}, ${80 + (intensity * 20)}%, ${40 + (intensity * 30)}%)`,
+            forest: (i, total, intensity) => `hsl(${90 + (intensity * 40)}, ${40 + (intensity * 30)}%, ${25 + (intensity * 35)}%)`,
+            grayscale: (i, total, intensity) => `hsl(0, 0%, ${20 + (intensity * 80)}%)`,
+            neon: (i, total, intensity) => `hsl(${(i / total * 100 + 280) % 360}, ${90 + intensity * 10}%, ${50 + intensity * 25}%)`
+        };
+
+        function resizeCanvas() {
+            canvas.width = visualizerContainer.clientWidth * window.devicePixelRatio;
+            canvas.height = visualizerContainer.clientHeight * window.devicePixelRatio;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Initial size
+
+        async function getMicrophoneAccess() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                currentStream = stream;
+                permissionPrompt.classList.add('hidden');
+                controlsPanel.classList.remove('translate-y-full'); // Show controls
+                setupAudioNodes(stream);
+                toggleButton.disabled = false;
+                toggleVisualization(); // Start automatically after permission
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                errorMessage.textContent = `Error: ${err.message}. Please ensure microphone access is allowed in your browser settings.`;
+                errorMessage.classList.remove('hidden');
+                startButton.disabled = true; // Disable if permission denied
+            }
+        }
+
+        function setupAudioNodes(stream) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+
+            // Adjust analyser settings based on initial sensitivity
+            analyser.fftSize = 2048; // Power of 2, affects detail vs performance
+            analyser.smoothingTimeConstant = 1 - sensitivity; // Range 0 to 1. Higher means smoother, less responsive.
+
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            // We don't connect analyser to destination to avoid feedback loop
+
+            bufferLength = analyser.frequencyBinCount; // half of fftSize
+            dataArray = new Uint8Array(bufferLength);
+        }
+
+        function drawVisualization() {
+            if (!isRunning || !analyser) return;
+
+            animationFrameId = requestAnimationFrame(drawVisualization);
+
+            // Get data based on style (frequency for bars/dots, time domain for waveform)
+            if (visualizationStyle === 'waveform') {
+                analyser.getByteTimeDomainData(dataArray);
+            } else {
+                analyser.getByteFrequencyData(dataArray); // Frequency data for bars
+            }
+
+            ctx.fillStyle = 'rgba(31, 41, 55, 0.1)'; // bg-gray-800 with low opacity for trails effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const colorFunc = palettes[colorPalette] || palettes.rainbow;
+
+            switch (visualizationStyle) {
+                case 'bars':
+                    drawBars(colorFunc);
+                    break;
+                case 'bars_circular':
+                    drawCircularBars(colorFunc);
+                    break;
+                case 'waveform':
+                    drawWaveform(colorFunc);
+                    break;
+                case 'dots':
+                    drawDots(colorFunc);
+                    break;
+                default:
+                    drawBars(colorFunc);
+            }
+        }
+
+        function drawBars(colorFunc) {
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height * 1.5; // Scale height
+                const intensity = dataArray[i] / 255; // Normalized intensity 0-1
+
+                ctx.fillStyle = colorFunc(i, bufferLength, intensity);
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                x += barWidth + 1; // Add 1 for spacing
+            }
+        }
+
+        function drawCircularBars(colorFunc) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) * 0.2; // Base radius
+            const maxBarHeight = Math.min(canvas.width, canvas.height) * 0.3; // Max extension
+            const barWidth = (Math.PI * 2 * radius) / (bufferLength / 2); // Distribute bars around circumference
+
+            ctx.lineWidth = barWidth * 0.8; // Slightly thinner than the gap
+
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * maxBarHeight;
+                const intensity = dataArray[i] / 255;
+                const angle = (i / bufferLength) * Math.PI * 2; // Angle for each bar
+
+                const x1 = centerX + Math.cos(angle) * radius;
+                const y1 = centerY + Math.sin(angle) * radius;
+                const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+                const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+
+                ctx.strokeStyle = colorFunc(i, bufferLength, intensity);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+        }
+
+        function drawWaveform(colorFunc) {
+            ctx.lineWidth = 3 * window.devicePixelRatio; // Thicker line for waveform
+            ctx.strokeStyle = colorFunc(0, 1, 0.8); // Use a base color, maybe vary slightly
+            ctx.beginPath();
+
+            const sliceWidth = canvas.width / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0; // Value between 0 and 2
+                const y = v * canvas.height / 2;
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            ctx.lineTo(canvas.width, canvas.height / 2); // End line at center height
+            ctx.stroke();
+        }
+
+         function drawDots(colorFunc) {
+            const maxDotSize = 15 * window.devicePixelRatio;
+            const gridX = Math.floor(canvas.width / (maxDotSize * 2)); // Number of dots horizontally
+            const gridY = Math.floor(canvas.height / (maxDotSize * 2)); // Number of dots vertically
+            const stepX = canvas.width / gridX;
+            const stepY = canvas.height / gridY;
+            const dataPoints = Math.min(bufferLength, gridX * gridY); // Use a subset of data
+
+            let dataIndex = 0;
+            for (let y = 0; y < gridY; y++) {
+                for (let x = 0; x < gridX; x++) {
+                    if (dataIndex >= dataPoints) break;
+
+                    const intensity = dataArray[dataIndex] / 255; // Normalized intensity 0-1
+                    const dotSize = intensity * maxDotSize;
+                    const posX = stepX * (x + 0.5);
+                    const posY = stepY * (y + 0.5);
+
+                    if (dotSize > 1) { // Only draw if size is significant
+                        ctx.fillStyle = colorFunc(dataIndex, dataPoints, intensity);
+                        ctx.beginPath();
+                        ctx.arc(posX, posY, dotSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    dataIndex++;
+                }
+                 if (dataIndex >= dataPoints) break;
+            }
+        }
+
+
+        function toggleVisualization() {
+            if (!audioContext) return; // Don't toggle if context isn't ready
+
+            if (isRunning) {
+                // Stop
+                audioContext.suspend().then(() => {
+                    cancelAnimationFrame(animationFrameId);
+                    isRunning = false;
+                    toggleText.textContent = 'Resume';
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    toggleButton.classList.replace('bg-red-600', 'bg-green-600');
+                    toggleButton.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
+                });
+            } else {
+                // Start/Resume
+                audioContext.resume().then(() => {
+                    isRunning = true;
+                    toggleText.textContent = 'Pause';
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    toggleButton.classList.replace('bg-green-600', 'bg-red-600');
+                    toggleButton.classList.replace('hover:bg-green-700', 'hover:bg-red-700');
+                    drawVisualization();
+                });
+            }
+        }
+
+        function updateSensitivity() {
+            sensitivity = parseFloat(sensitivitySlider.value) / 100;
+            sensitivityValue.textContent = `${sensitivitySlider.value}%`;
+            if (analyser) {
+                // SmoothingTimeConstant is inverse: 0 = max responsiveness, 1 = max smoothing
+                analyser.smoothingTimeConstant = Math.max(0, Math.min(1, 1 - sensitivity));
+            }
+        }
+
+        function enterFullscreen() {
+            if (visualizerContainer.requestFullscreen) {
+                visualizerContainer.requestFullscreen();
+            } else if (visualizerContainer.webkitRequestFullscreen) { /* Safari */
+                visualizerContainer.webkitRequestFullscreen();
+            } else if (visualizerContainer.msRequestFullscreen) { /* IE11 */
+                visualizerContainer.msRequestFullscreen();
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', getMicrophoneAccess);
+        toggleButton.addEventListener('click', toggleVisualization);
+        sensitivitySlider.addEventListener('input', updateSensitivity);
+        styleSelect.addEventListener('change', (e) => visualizationStyle = e.target.value);
+        colorSelect.addEventListener('change', (e) => colorPalette = e.target.value);
+        fullscreenButton.addEventListener('click', enterFullscreen);
+
+        // Handle fullscreen changes (e.g., exiting with Esc key)
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // Exited fullscreen, ensure canvas resizes correctly if needed
+                setTimeout(resizeCanvas, 100); // Delay slightly for layout reflow
+            } else {
+                 setTimeout(resizeCanvas, 100); // Ensure correct size in fullscreen
+            }
+        });
+
+        // Initial setup
+        updateSensitivity(); // Set initial sensitivity display and analyser value
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+            cancelAnimationFrame(animationFrameId);
+        });
+
+    </script>
+
+</body>
+</html>
