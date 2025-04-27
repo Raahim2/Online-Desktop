@@ -226,5 +226,17 @@
       "Responsive design for various screen sizes."
     ],
     "raw_output": "Project Name: CSS-Only Digital Clock\nDescription: A stylish, customizable digital clock built entirely with CSS and minimal JavaScript for time updates.\nFeatures:\n- Customizable clock face colors and styles using Tailwind classes.\n- Toggle between 12-hour and 24-hour time formats.\n- Optional display of seconds.\n- Smooth, animated transitions between digits.\n- Responsive design for various screen sizes.\n"
+  },
+  {
+    "name": "Interactive Origami Simulator",
+    "description": "Fold and unfold digital origami creations with realistic paper-like physics, exploring the art of paper folding in a new dimension.",
+    "features": [
+      "Click-and-drag controls to simulate folding along pre-defined creases.",
+      "Visual feedback with dynamic shadows and paper textures.",
+      "Selection of different origami models with varying complexity.",
+      "Reset button to revert to the unfolded state.",
+      "Option to slow down or speed up the folding animation."
+    ],
+    "raw_output": "Project Name: Interactive Origami Simulator\nDescription: Fold and unfold digital origami creations with realistic paper-like physics, exploring the art of paper folding in a new dimension.\nFeatures:\n- Click-and-drag controls to simulate folding along pre-defined creases.\n- Visual feedback with dynamic shadows and paper textures.\n- Selection of different origami models with varying complexity.\n- Reset button to revert to the unfolded state.\n- Option to slow down or speed up the folding animation.\n"
   }
 ]
