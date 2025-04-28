@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Countdown Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal custom styles if needed, prefer Tailwind utilities */
+        body {
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .timer-segment {
+            min-width: 80px; /* Ensure segments have minimum width */
+        }
+        /* Add subtle animation for timer digits if desired */
+        /* @keyframes tick { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } } */
+        /* .timer-digit { animation: tick 1s infinite alternate; } */
+
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield; /* Firefox */
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-gradient-to-br from-slate-100 to-slate-300 text-slate-800 font-sans transition-colors duration-500 flex items-center justify-center min-h-screen p-4">
+
+    <main class="bg-white/80 backdrop-blur-md shadow-xl rounded-lg p-6 md:p-10 w-full max-w-3xl">
+
+        <h1 id="app-title" class="text-3xl md:text-4xl font-bold text-center mb-8 text-slate-700">Customizable Countdown Timer</h1>
+
+        <!-- Configuration Section -->
+        <section id="config-section" class="space-y-6">
+            <div>
+                <label for="event-name" class="block text-sm font-medium text-slate-600 mb-1">Event Name (Optional)</label>
+                <input type="text" id="event-name" placeholder="e.g., New Year's Eve" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="target-date" class="block text-sm font-medium text-slate-600 mb-1">Target Date</label>
+                    <input type="date" id="target-date" required class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label for="target-time" class="block text-sm font-medium text-slate-600 mb-1">Target Time</label>
+                    <input type="time" id="target-time" required class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+            </div>
+
+            <div>
+                <label for="completion-message" class="block text-sm font-medium text-slate-600 mb-1">Message on Completion</label>
+                <input type="text" id="completion-message" placeholder="e.g., Happy New Year!" value="Countdown Finished!" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div>
+                    <label for="bg-color" class="block text-sm font-medium text-slate-600 mb-1">Background Style</label>
+                    <select id="bg-color" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition bg-white">
+                        <option value="bg-gradient-to-br from-slate-100 to-slate-300" selected>Default Slate</option>
+                        <option value="bg-gradient-to-br from-blue-100 to-blue-300">Cool Blue</option>
+                        <option value="bg-gradient-to-br from-green-100 to-green-300">Calm Green</option>
+                        <option value="bg-gradient-to-br from-purple-100 to-purple-300">Mystic Purple</option>
+                        <option value="bg-gradient-to-br from-red-100 to-red-300">Warm Red</option>
+                        <option value="bg-gradient-to-br from-yellow-100 to-yellow-300">Sunny Yellow</option>
+                        <option value="bg-gradient-to-br from-gray-800 to-gray-900 text-white">Dark Mode</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="font-style" class="block text-sm font-medium text-slate-600 mb-1">Font Style</label>
+                    <select id="font-style" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition bg-white">
+                        <option value="font-sans" selected>Sans Serif (Default)</option>
+                        <option value="font-serif">Serif</option>
+                        <option value="font-mono">Monospace</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-center pt-4">
+                <button id="start-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                    Start Countdown
+                </button>
+            </div>
+             <p id="error-message" class="text-red-500 text-center text-sm mt-2 hidden">Please select a future date and time.</p>
+        </section>
+
+        <!-- Countdown Display Section -->
+        <section id="countdown-section" class="hidden text-center mt-8">
+            <h2 id="display-event-name" class="text-2xl md:text-3xl font-semibold text-slate-700 mb-6"></h2>
+            <div id="timer-display" class="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-slate-800">
+                <div class="timer-segment text-center bg-white/50 p-4 rounded-lg shadow-inner min-w-[80px] md:min-w-[100px]">
+                    <span id="days" class="block text-4xl md:text-6xl font-bold timer-digit">00</span>
+                    <span class="block text-xs md:text-sm uppercase tracking-wider text-slate-600">Days</span>
+                </div>
+                <div class="timer-segment text-center bg-white/50 p-4 rounded-lg shadow-inner min-w-[80px] md:min-w-[100px]">
+                    <span id="hours" class="block text-4xl md:text-6xl font-bold timer-digit">00</span>
+                    <span class="block text-xs md:text-sm uppercase tracking-wider text-slate-600">Hours</span>
+                </div>
+                <div class="timer-segment text-center bg-white/50 p-4 rounded-lg shadow-inner min-w-[80px] md:min-w-[100px]">
+                    <span id="minutes" class="block text-4xl md:text-6xl font-bold timer-digit">00</span>
+                    <span class="block text-xs md:text-sm uppercase tracking-wider text-slate-600">Minutes</span>
+                </div>
+                <div class="timer-segment text-center bg-white/50 p-4 rounded-lg shadow-inner min-w-[80px] md:min-w-[100px]">
+                    <span id="seconds" class="block text-4xl md:text-6xl font-bold timer-digit text-indigo-600">00</span>
+                    <span class="block text-xs md:text-sm uppercase tracking-wider text-slate-600">Seconds</span>
+                </div>
+            </div>
+            <div id="completion-display" class="hidden mt-8 text-3xl md:text-4xl font-bold text-green-600">
+                <!-- Completion message appears here -->
+            </div>
+             <button id="reset-button" class="mt-8 bg-slate-500 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 transition duration-300 ease-in-out">
+                Create New Timer
+            </button>
+        </section>
+
+        <!-- Audio Element -->
+        <audio id="notification-sound" src="https://cdn.pixabay.com/audio/2021/08/04/audio_12b0c7443c.mp3" preload="auto"></audio>
+         <!-- Using a free sound from Pixabay as an example -->
+
+    </main>
+
+    <script>
+        const configSection = document.getElementById('config-section');
+        const countdownSection = document.getElementById('countdown-section');
+        const startButton = document.getElementById('start-button');
+        const resetButton = document.getElementById('reset-button');
+        const dateInput = document.getElementById('target-date');
+        const timeInput = document.getElementById('target-time');
+        const messageInput = document.getElementById('completion-message');
+        const eventNameInput = document.getElementById('event-name');
+        const displayEventName = document.getElementById('display-event-name');
+        const errorMessage = document.getElementById('error-message');
+
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const completionDisplay = document.getElementById('completion-display');
+
+        const bgColorSelect = document.getElementById('bg-color');
+        const fontStyleSelect = document.getElementById('font-style');
+        const appBody = document.getElementById('app-body');
+        const appTitle = document.getElementById('app-title'); // Get title element for font change
+        const timerDisplay = document.getElementById('timer-display'); // Get timer display for font change
+
+        const notificationSound = document.getElementById('notification-sound');
+
+        let countdownInterval;
+        let targetDate;
+
+        // Set min date for date input to today
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance <= 0) {
+                clearInterval(countdownInterval);
+                daysEl.textContent = '00';
+                hoursEl.textContent = '00';
+                minutesEl.textContent = '00';
+                secondsEl.textContent = '00';
+                completionDisplay.textContent = messageInput.value || "Countdown Finished!";
+                completionDisplay.classList.remove('hidden');
+                timerDisplay.classList.add('hidden'); // Hide timer digits
+                notificationSound.play().catch(e => console.error("Audio play failed:", e)); // Play sound
+                resetButton.classList.remove('hidden'); // Show reset button immediately
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            daysEl.textContent = String(days).padStart(2, '0');
+            hoursEl.textContent = String(hours).padStart(2, '0');
+            minutesEl.textContent = String(minutes).padStart(2, '0');
+            secondsEl.textContent = String(seconds).padStart(2, '0');
+        }
+
+        function applyStyles() {
+            // Apply background
+            const selectedBgClasses = bgColorSelect.value.split(' ');
+            // Remove previous bg/text classes carefully
+            const classesToRemove = Array.from(appBody.classList).filter(cls => cls.startsWith('bg-') || cls.startsWith('from-') || cls.startsWith('to-') || cls.startsWith('text-'));
+            appBody.classList.remove(...classesToRemove);
+            appBody.classList.add(...selectedBgClasses);
+
+            // Adjust text color for dark mode
+            if (bgColorSelect.value.includes('text-white')) {
+                 appBody.classList.add('text-slate-200'); // Default text for dark
+                 appTitle.classList.remove('text-slate-700');
+                 appTitle.classList.add('text-slate-100');
+                 displayEventName.classList.remove('text-slate-700');
+                 displayEventName.classList.add('text-slate-100');
+                 Array.from(timerDisplay.querySelectorAll('.text-slate-600')).forEach(el => {
+                    el.classList.remove('text-slate-600');
+                    el.classList.add('text-slate-400');
+                 });
+                 Array.from(timerDisplay.querySelectorAll('.text-slate-800')).forEach(el => {
+                    el.classList.remove('text-slate-800');
+                    el.classList.add('text-slate-100');
+                 });
+                 secondsEl.classList.remove('text-indigo-600');
+                 secondsEl.classList.add('text-indigo-400'); // Adjust seconds color for dark
+                 completionDisplay.classList.remove('text-green-600');
+                 completionDisplay.classList.add('text-green-400'); // Adjust completion color for dark
+            } else {
+                 appBody.classList.add('text-slate-800'); // Default text for light
+                 appTitle.classList.remove('text-slate-100');
+                 appTitle.classList.add('text-slate-700');
+                 displayEventName.classList.remove('text-slate-100');
+                 displayEventName.classList.add('text-slate-700');
+                 Array.from(timerDisplay.querySelectorAll('.text-slate-400')).forEach(el => {
+                    el.classList.remove('text-slate-400');
+                    el.classList.add('text-slate-600');
+                 });
+                  Array.from(timerDisplay.querySelectorAll('.text-slate-100')).forEach(el => {
+                    el.classList.remove('text-slate-100');
+                    el.classList.add('text-slate-800');
+                 });
+                 secondsEl.classList.remove('text-indigo-400');
+                 secondsEl.classList.add('text-indigo-600'); // Reset seconds color
+                 completionDisplay.classList.remove('text-green-400');
+                 completionDisplay.classList.add('text-green-600'); // Reset completion color
+            }
+
+
+            // Apply font
+            const selectedFontClass = fontStyleSelect.value;
+            appBody.classList.remove('font-sans', 'font-serif', 'font-mono');
+            appBody.classList.add(selectedFontClass);
+        }
+
+
+        startButton.addEventListener('click', () => {
+            const dateStr = dateInput.value;
+            const timeStr = timeInput.value;
+
+            if (!dateStr || !timeStr) {
+                errorMessage.textContent = 'Please select both date and time.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            targetDate = new Date(`${dateStr}T${timeStr}`);
+
+            if (isNaN(targetDate.getTime()) || targetDate <= new Date()) {
+                 errorMessage.textContent = 'Please select a future date and time.';
+                 errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            errorMessage.classList.add('hidden'); // Hide error message if validation passes
+            applyStyles(); // Apply selected styles
+
+            // Set event name display
+            const eventName = eventNameInput.value.trim();
+            displayEventName.textContent = eventName ? `Countdown to ${eventName}` : 'Countdown Timer';
+
+
+            configSection.classList.add('hidden');
+            countdownSection.classList.remove('hidden');
+            timerDisplay.classList.remove('hidden'); // Ensure timer digits are visible
+            completionDisplay.classList.add('hidden'); // Hide completion message initially
+            resetButton.classList.add('hidden'); // Hide reset button initially
+
+            updateCountdown(); // Initial call to display immediately
+            countdownInterval = setInterval(updateCountdown, 1000);
+        });
+
+        resetButton.addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            countdownSection.classList.add('hidden');
+            configSection.classList.remove('hidden');
+            completionDisplay.classList.add('hidden'); // Hide completion message
+            timerDisplay.classList.remove('hidden'); // Ensure timer digits are shown for next time
+
+            // Optionally reset form fields
+            // dateInput.value = '';
+            // timeInput.value = '';
+            // messageInput.value = 'Countdown Finished!';
+            // eventNameInput.value = '';
+            // bgColorSelect.selectedIndex = 0;
+            // fontStyleSelect.selectedIndex = 0;
+            // applyStyles(); // Re-apply default styles if form is reset
+        });
+
+        // Apply styles dynamically on selection change (optional preview)
+        // bgColorSelect.addEventListener('change', applyStyles);
+        // fontStyleSelect.addEventListener('change', applyStyles);
+
+        // Apply initial default styles on load
+        applyStyles();
+
+    </script>
+
+</body>
+</html>
