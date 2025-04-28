@@ -598,5 +598,17 @@
       "Adjustable number of sides on the die."
     ],
     "raw_output": "Project Name: Decision Dice\nDescription:  A visual decision-making tool that allows users to create custom dice with their own options and roll for a randomized outcome.\nFeatures:\n- Input fields to add custom facets to the die.\n- 3D dice rolling animation using CSS transforms and JavaScript.\n- Display of the rolled outcome prominently on the screen.\n- Option to save and load dice configurations locally.\n- Adjustable number of sides on the die.\n"
+  },
+  {
+    "name": "Gradient Topography Generator",
+    "description": "Craft unique, undulating landscapes with customizable color gradients and adjustable terrain heights.",
+    "features": [
+      "Interactive sliders to control terrain height and smoothness.",
+      "Customizable color gradients for the landscape and background.",
+      "Downloadable SVG of the generated topography.",
+      "Adjustable canvas size.",
+      "Random terrain generation button."
+    ],
+    "raw_output": "Project Name: Gradient Topography Generator\nDescription: Craft unique, undulating landscapes with customizable color gradients and adjustable terrain heights.\nFeatures:\n- Interactive sliders to control terrain height and smoothness.\n- Customizable color gradients for the landscape and background.\n- Downloadable SVG of the generated topography.\n- Adjustable canvas size.\n- Random terrain generation button.\n"
   }
 ]
