@@ -502,5 +502,17 @@
       "Shuffle button to randomize card order."
     ],
     "raw_output": "Project Name: Flippable Flashcards\nDescription: Create and study digital flashcards with a simple, intuitive flip animation and customizable content.\nFeatures:\n- Input fields for front and back card content.\n- Click or tap to flip the card, revealing the other side.\n- Customizable card colors and font styles using Tailwind CSS.\n- Option to save and load sets of flashcards locally.\n- Shuffle button to randomize card order.\n"
+  },
+  {
+    "name": "Element Builder",
+    "description": "An interactive periodic table where clicking elements reveals detailed information and dynamic visualizations of their atomic structure.",
+    "features": [
+      "Interactive periodic table layout using Tailwind CSS grid.",
+      "Element information display on click (atomic number, weight, symbol).",
+      "Dynamically rendered atomic structure visualization using JavaScript and HTML canvas.",
+      "Searchable element list for quick access.",
+      "Tooltips with additional element details on hover."
+    ],
+    "raw_output": "Project Name: Element Builder\nDescription: An interactive periodic table where clicking elements reveals detailed information and dynamic visualizations of their atomic structure.\nFeatures:\n- Interactive periodic table layout using Tailwind CSS grid.\n- Element information display on click (atomic number, weight, symbol).\n- Dynamically rendered atomic structure visualization using JavaScript and HTML canvas.\n- Searchable element list for quick access.\n- Tooltips with additional element details on hover.\n"
   }
 ]
