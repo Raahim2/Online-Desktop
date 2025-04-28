@@ -610,5 +610,17 @@
       "Random terrain generation button."
     ],
     "raw_output": "Project Name: Gradient Topography Generator\nDescription: Craft unique, undulating landscapes with customizable color gradients and adjustable terrain heights.\nFeatures:\n- Interactive sliders to control terrain height and smoothness.\n- Customizable color gradients for the landscape and background.\n- Downloadable SVG of the generated topography.\n- Adjustable canvas size.\n- Random terrain generation button.\n"
+  },
+  {
+    "name": "Mood Ring Generator",
+    "description": "Create and personalize digital mood rings that shift colors based on mouse movements, reflecting a spectrum of emotions.",
+    "features": [
+      "Interactive color gradient shifts on mouse hover and movement.",
+      "Customizable color palettes using Tailwind CSS color utilities.",
+      "Option to save and share generated mood ring images.",
+      "Display of current color's associated mood keyword.",
+      "Adjustable sensitivity to mouse interaction."
+    ],
+    "raw_output": "Project Name: Mood Ring Generator\nDescription: Create and personalize digital mood rings that shift colors based on mouse movements, reflecting a spectrum of emotions.\nFeatures:\n- Interactive color gradient shifts on mouse hover and movement.\n- Customizable color palettes using Tailwind CSS color utilities.\n- Option to save and share generated mood ring images.\n- Display of current color's associated mood keyword.\n- Adjustable sensitivity to mouse interaction.\n"
   }
 ]
