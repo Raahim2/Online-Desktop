@@ -454,5 +454,17 @@
       "Option to animate the shapes and patterns."
     ],
     "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns, directly in your browser.\nFeatures:\n- Customizable parameters for shape generation (number, size, type).\n- Dynamic color palettes and gradient options using Tailwind CSS.\n- Downloadable SVG or PNG of the generated artwork.\n- Interactive controls for regenerating and tweaking the art.\n- Option to animate the shapes and patterns.\n"
+  },
+  {
+    "name": "Procedural Maze Generator",
+    "description": "Generate and navigate randomly created mazes of varying sizes and complexities right in your browser.",
+    "features": [
+      "Adjustable maze dimensions and algorithm.",
+      "Interactive navigation using arrow keys or on-screen controls.",
+      "Visual feedback for current position and path taken.",
+      "Timer to track completion time.",
+      "Option to generate new mazes with different seeds."
+    ],
+    "raw_output": "Project Name: Procedural Maze Generator\nDescription: Generate and navigate randomly created mazes of varying sizes and complexities right in your browser.\nFeatures:\n- Adjustable maze dimensions and algorithm.\n- Interactive navigation using arrow keys or on-screen controls.\n- Visual feedback for current position and path taken.\n- Timer to track completion time.\n- Option to generate new mazes with different seeds.\n"
   }
 ]
