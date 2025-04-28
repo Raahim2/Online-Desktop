@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene Sunset Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styles (optional, for better aesthetics) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Style range inputs */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        /* Simple pulsing animation for sunbeams */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+        }
+        .animate-sunbeam {
+            animation: pulse 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+
+        <!-- Sunset Display Area -->
+        <main class="w-full lg:w-2/3 bg-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+            <div id="sunset-container" class="w-full max-w-4xl aspect-video shadow-lg rounded-lg overflow-hidden">
+                <svg id="sunset-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                        <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop id="skyColorTop" offset="0%" stop-color="#FFB74D" />
+                            <stop id="skyColorBottom" offset="100%" stop-color="#E65100" />
+                        </linearGradient>
+                        <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        <!-- Sunbeam definition (example) -->
+                        <linearGradient id="sunbeamGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="rgba(255, 255, 150, 0.5)" />
+                            <stop offset="100%" stop-color="rgba(255, 255, 150, 0)" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Sky -->
+                    <rect id="skyRect" x="0" y="0" width="800" height="450" fill="url(#skyGradient)" />
+
+                    <!-- Sunbeams (Animated) -->
+                    <g id="sunbeams" style="transform-origin: center center;">
+                        <!-- Beams will be added dynamically here if animation is on -->
+                    </g>
+
+                    <!-- Sun -->
+                    <circle id="sun" cx="400" cy="200" r="30" fill="#FFEB3B" filter="url(#sunGlow)" />
+
+                    <!-- Landscape -->
+                    <rect id="landscapeRect" x="0" y="350" width="800" height="100" fill="#388E3C" />
+
+                    <!-- Clouds (Example - Static for now, can be animated) -->
+                     <g id="clouds" opacity="0.7">
+                        <!-- Cloud 1 -->
+                        <ellipse cx="150" cy="100" rx="60" ry="20" fill="white" opacity="0.8"/>
+                        <ellipse cx="180" cy="90" rx="50" ry="18" fill="white" opacity="0.7"/>
+                        <ellipse cx="130" cy="110" rx="40" ry="15" fill="white" opacity="0.9"/>
+                        <!-- Cloud 2 -->
+                        <ellipse cx="650" cy="150" rx="70" ry="25" fill="white" opacity="0.75"/>
+                        <ellipse cx="680" cy="140" rx="60" ry="22" fill="white" opacity="0.65"/>
+                        <ellipse cx="630" cy="160" rx="50" ry="18" fill="white" opacity="0.85"/>
+                    </g>
+                </svg>
+            </div>
+        </main>
+
+        <!-- Controls Panel -->
+        <aside class="w-full lg:w-1/3 bg-white p-6 shadow-xl overflow-y-auto">
+            <div class="space-y-8">
+                <header class="mb-6 pb-4 border-b border-gray-200">
+                    <h1 class="text-3xl font-bold text-gray-800">Serene Sunset Generator</h1>
+                    <p class="text-gray-600 mt-1">Customize your tranquil sunset scene.</p>
+                </header>
+
+                <!-- Sun Controls -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Sun</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="sun-y" class="block text-sm font-medium text-gray-600 mb-1">Vertical Position (<span id="sun-y-value">50</span>%)</label>
+                            <input type="range" id="sun-y" min="10" max="90" value="50" class="w-full">
+                        </div>
+                        <div>
+                            <label for="sun-x" class="block text-sm font-medium text-gray-600 mb-1">Horizontal Position (<span id="sun-x-value">50</span>%)</label>
+                            <input type="range" id="sun-x" min="10" max="90" value="50" class="w-full">
+                        </div>
+                        <div>
+                            <label for="sun-size" class="block text-sm font-medium text-gray-600 mb-1">Size (<span id="sun-size-value">30</span>)</label>
+                            <input type="range" id="sun-size" min="10" max="80" value="30" class="w-full">
+                        </div>
+                         <div>
+                            <label for="sun-color" class="block text-sm font-medium text-gray-600 mb-1">Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="sun-color" value="#FFEB3B" class="h-10 w-16 p-1 border border-gray-300 rounded cursor-pointer">
+                                <span id="sun-color-hex" class="text-sm text-gray-500 font-mono">#FFEB3B</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sky Controls -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Sky</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="sky-palette" class="block text-sm font-medium text-gray-600 mb-1">Preset Palette</label>
+                            <select id="sky-palette" class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="classic">Classic Sunset</option>
+                                <option value="twilight">Twilight</option>
+                                <option value="ocean">Ocean Breeze</option>
+                                <option value="fiery">Fiery Sky</option>
+                                <option value="pastel">Pastel Dream</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div id="custom-sky-colors" class="space-y-3 hidden">
+                             <label class="block text-sm font-medium text-gray-600">Custom Colors</label>
+                             <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="sky-color-top" class="block text-xs font-medium text-gray-500 mb-1">Top Color</label>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="color" id="sky-color-top" value="#FFB74D" class="h-10 w-16 p-1 border border-gray-300 rounded cursor-pointer">
+                                        <span id="sky-color-top-hex" class="text-sm text-gray-500 font-mono">#FFB74D</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="sky-color-bottom" class="block text-xs font-medium text-gray-500 mb-1">Bottom Color</label>
+                                     <div class="flex items-center space-x-2">
+                                        <input type="color" id="sky-color-bottom" value="#E65100" class="h-10 w-16 p-1 border border-gray-300 rounded cursor-pointer">
+                                        <span id="sky-color-bottom-hex" class="text-sm text-gray-500 font-mono">#E65100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Landscape Controls -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Landscape</h2>
+                     <div class="space-y-4">
+                         <div>
+                            <label for="landscape-palette" class="block text-sm font-medium text-gray-600 mb-1">Preset Palette</label>
+                            <select id="landscape-palette" class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="green_hills">Green Hills</option>
+                                <option value="dark_mountains">Dark Mountains</option>
+                                <option value="sandy_beach">Sandy Beach</option>
+                                <option value="deep_ocean">Deep Ocean</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div id="custom-landscape-color" class="space-y-3 hidden">
+                            <label class="block text-sm font-medium text-gray-600">Custom Color</label>
+                            <div>
+                                <label for="landscape-color" class="block text-xs font-medium text-gray-500 mb-1">Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="landscape-color" value="#388E3C" class="h-10 w-16 p-1 border border-gray-300 rounded cursor-pointer">
+                                    <span id="landscape-color-hex" class="text-sm text-gray-500 font-mono">#388E3C</span>
+                                </div>
+                            </div>
+                        </div>
+                         <div>
+                            <label for="landscape-height" class="block text-sm font-medium text-gray-600 mb-1">Height (<span id="landscape-height-value">100</span>)</label>
+                            <input type="range" id="landscape-height" min="20" max="200" value="100" class="w-full">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Animation Controls -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Animation</h2>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="animate-sunbeams" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="animate-sunbeams" class="text-sm font-medium text-gray-700">Animate Sunbeams</label>
+                    </div>
+                     <div class="flex items-center space-x-3 mt-2">
+                        <input type="checkbox" id="animate-clouds" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="animate-clouds" class="text-sm font-medium text-gray-700">Animate Clouds</label>
+                    </div>
+                </section>
+
+                <!-- Download -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Export</h2>
+                    <button id="download-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Download Sunset (PNG)
+                    </button>
+                    <p id="download-message" class="text-xs text-red-500 mt-2 hidden">Generating image, please wait...</p>
+                </section>
+
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const svg = document.getElementById('sunset-svg');
+            const svgContainer = document.getElementById('sunset-container');
+            const sun = document.getElementById('sun');
+            const skyRect = document.getElementById('skyRect');
+            const skyColorTop = document.getElementById('skyColorTop');
+            const skyColorBottom = document.getElementById('skyColorBottom');
+            const landscapeRect = document.getElementById('landscapeRect');
+            const sunbeamsGroup = document.getElementById('sunbeams');
+            const cloudsGroup = document.getElementById('clouds');
+
+            const sunYInput = document.getElementById('sun-y');
+            const sunXInput = document.getElementById('sun-x');
+            const sunSizeInput = document.getElementById('sun-size');
+            const sunColorInput = document.getElementById('sun-color');
+            const sunYValue = document.getElementById('sun-y-value');
+            const sunXValue = document.getElementById('sun-x-value');
+            const sunSizeValue = document.getElementById('sun-size-value');
+            const sunColorHex = document.getElementById('sun-color-hex');
+
+            const skyPaletteSelect = document.getElementById('sky-palette');
+            const customSkyColorsDiv = document.getElementById('custom-sky-colors');
+            const skyColorTopInput = document.getElementById('sky-color-top');
+            const skyColorBottomInput = document.getElementById('sky-color-bottom');
+            const skyColorTopHex = document.getElementById('sky-color-top-hex');
+            const skyColorBottomHex = document.getElementById('sky-color-bottom-hex');
+
+            const landscapePaletteSelect = document.getElementById('landscape-palette');
+            const customLandscapeColorDiv = document.getElementById('custom-landscape-color');
+            const landscapeColorInput = document.getElementById('landscape-color');
+            const landscapeColorHex = document.getElementById('landscape-color-hex');
+            const landscapeHeightInput = document.getElementById('landscape-height');
+            const landscapeHeightValue = document.getElementById('landscape-height-value');
+
+            const animateSunbeamsCheckbox = document.getElementById('animate-sunbeams');
+            const animateCloudsCheckbox = document.getElementById('animate-clouds');
+
+            const downloadBtn = document.getElementById('download-btn');
+            const downloadMessage = document.getElementById('download-message');
+
+            // --- Constants & State ---
+            const SVG_WIDTH = 800;
+            const SVG_HEIGHT = 450;
+            let animationFrameId = null;
+            let cloudAnimationState = { offset: 0, direction: 0.1 };
+
+            const palettes = {
+                sky: {
+                    classic: { top: '#FFB74D', bottom: '#E65100' },
+                    twilight: { top: '#4A148C', bottom: '#B71C1C' },
+                    ocean: { top: '#0288D1', bottom: '#FF8A65' },
+                    fiery: { top: '#ff7e5f', bottom: '#feb47b' },
+                    pastel: { top: '#a1c4fd', bottom: '#c2e9fb' }
+                },
+                landscape: {
+                    green_hills: '#388E3C',
+                    dark_mountains: '#263238',
+                    sandy_beach: '#FBC02D',
+                    deep_ocean: '#0D47A1'
+                }
+            };
+
+            // --- Functions ---
+
+            function updateSunPosition() {
+                const yPercent = sunYInput.value;
+                const xPercent = sunXInput.value;
+                // Calculate position based on SVG viewbox dimensions
+                const sunY = (yPercent / 100) * (SVG_HEIGHT - landscapeRect.getAttribute('height')); // Position relative to visible sky
+                const sunX = (xPercent / 100) * SVG_WIDTH;
+                sun.setAttribute('cy', sunY);
+                sun.setAttribute('cx', sunX);
+                sunYValue.textContent = yPercent;
+                sunXValue.textContent = xPercent;
+                updateSunbeams(); // Update beams when sun moves
+            }
+
+            function updateSunSize() {
+                const size = sunSizeInput.value;
+                sun.setAttribute('r', size);
+                sunSizeValue.textContent = size;
+                updateSunbeams(); // Update beams when sun size changes
+            }
+
+            function updateSunColor() {
+                const color = sunColorInput.value;
+                sun.setAttribute('fill', color);
+                sunColorHex.textContent = color.toUpperCase();
+            }
+
+            function updateSkyColors(topColor, bottomColor) {
+                skyColorTop.setAttribute('stop-color', topColor);
+                skyColorBottom.setAttribute('stop-color', bottomColor);
+                skyColorTopInput.value = topColor;
+                skyColorBottomInput.value = bottomColor;
+                skyColorTopHex.textContent = topColor.toUpperCase();
+                skyColorBottomHex.textContent = bottomColor.toUpperCase();
+            }
+
+            function handleSkyPaletteChange() {
+                const selectedPalette = skyPaletteSelect.value;
+                if (selectedPalette === 'custom') {
+                    customSkyColorsDiv.classList.remove('hidden');
+                    // Trigger update based on current custom input values
+                    updateSkyColors(skyColorTopInput.value, skyColorBottomInput.value);
+                } else {
+                    customSkyColorsDiv.classList.add('hidden');
+                    const palette = palettes.sky[selectedPalette];
+                    updateSkyColors(palette.top, palette.bottom);
+                }
+            }
+
+             function updateLandscapeColor(color) {
+                landscapeRect.setAttribute('fill', color);
+                landscapeColorInput.value = color;
+                landscapeColorHex.textContent = color.toUpperCase();
+            }
+
+            function handleLandscapePaletteChange() {
+                const selectedPalette = landscapePaletteSelect.value;
+                 if (selectedPalette === 'custom') {
+                    customLandscapeColorDiv.classList.remove('hidden');
+                    updateLandscapeColor(landscapeColorInput.value);
+                } else {
+                    customLandscapeColorDiv.classList.add('hidden');
+                    const color = palettes.landscape[selectedPalette];
+                    updateLandscapeColor(color);
+                }
+            }
+
+            function updateLandscapeHeight() {
+                const height = landscapeHeightInput.value;
+                landscapeRect.setAttribute('y', SVG_HEIGHT - height);
+                landscapeRect.setAttribute('height', height);
+                landscapeHeightValue.textContent = height;
+                // Adjust sun position calculation range if needed (or just visually clip)
+                updateSunPosition(); // Recalculate sun position relative to new landscape height
+            }
+
+            function createSunbeam(angle, length, width) {
+                const sunX = parseFloat(sun.getAttribute('cx'));
+                const sunY = parseFloat(sun.getAttribute('cy'));
+
+                const beam = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                // Simple triangle beam for now
+                const angleRad = angle * Math.PI / 180;
+                const x1 = sunX + Math.cos(angleRad - width/2 * Math.PI / 180) * length;
+                const y1 = sunY + Math.sin(angleRad - width/2 * Math.PI / 180) * length;
+                const x2 = sunX + Math.cos(angleRad + width/2 * Math.PI / 180) * length;
+                const y2 = sunY + Math.sin(angleRad + width/2 * Math.PI / 180) * length;
+
+                beam.setAttribute('points', `${sunX},${sunY} ${x1},${y1} ${x2},${y2}`);
+                beam.setAttribute('fill', 'url(#sunbeamGradient)');
+                beam.setAttribute('opacity', '0.6'); // Start opacity
+                beam.classList.add('sunbeam-element'); // Add class for easy removal/selection
+                if (animateSunbeamsCheckbox.checked) {
+                   beam.classList.add('animate-sunbeam'); // Add animation class
+                }
+                return beam;
+            }
+
+            function updateSunbeams() {
+                // Clear existing beams
+                sunbeamsGroup.innerHTML = '';
+
+                if (!animateSunbeamsCheckbox.checked && sunbeamsGroup.children.length === 0) return; // Don't draw if animation off unless forced
+
+                const sunX = parseFloat(sun.getAttribute('cx'));
+                const sunY = parseFloat(sun.getAttribute('cy'));
+                const sunR = parseFloat(sun.getAttribute('r'));
+                const numBeams = 12; // More beams
+                const beamLength = SVG_WIDTH * 0.8; // Longer beams
+                const beamWidth = 10; // Beam angle width
+
+                sunbeamsGroup.setAttribute('transform', `translate(${sunX} ${sunY}) rotate(0) translate(${-sunX} ${-sunY})`); // Set transform origin for rotation
+
+                for (let i = 0; i < numBeams; i++) {
+                    const angle = (360 / numBeams) * i;
+                    const beam = createSunbeam(angle, beamLength, beamWidth);
+                    sunbeamsGroup.appendChild(beam);
+                }
+            }
+
+            function animateScene() {
+                const now = Date.now();
+
+                // Animate Sunbeams (subtle rotation/pulsing)
+                if (animateSunbeamsCheckbox.checked) {
+                    if (sunbeamsGroup.children.length === 0) {
+                         updateSunbeams(); // Create beams if needed
+                    }
+                    const rotationSpeed = 0.05; // Degrees per frame
+                    const currentTransform = sunbeamsGroup.getAttribute('transform') || '';
+                    const rotateMatch = currentTransform.match(/rotate\(([\-\d\.]+)\)/);
+                    let currentAngle = rotateMatch ? parseFloat(rotateMatch[1]) : 0;
+                    currentAngle += rotationSpeed;
+                    const sunX = parseFloat(sun.getAttribute('cx'));
+                    const sunY = parseFloat(sun.getAttribute('cy'));
+                    sunbeamsGroup.setAttribute('transform', `translate(${sunX} ${sunY}) rotate(${currentAngle}) translate(${-sunX} ${-sunY})`);
+
+                    // Pulsing is handled by CSS animation '.animate-sunbeam'
+                } else {
+                    // Remove beams if animation is turned off
+                    if (sunbeamsGroup.children.length > 0) {
+                       sunbeamsGroup.innerHTML = ''; // Clear beams
+                    }
+                }
+
+                // Animate Clouds (simple horizontal drift)
+                if (animateCloudsCheckbox.checked) {
+                    const cloudSpeed = 0.1;
+                    cloudAnimationState.offset += cloudAnimationState.direction * cloudSpeed;
+                    // Reverse direction at edges (simple boundary check)
+                    if (cloudAnimationState.offset > 50 || cloudAnimationState.offset < -50) {
+                        cloudAnimationState.direction *= -1;
+                    }
+                    cloudsGroup.setAttribute('transform', `translate(${cloudAnimationState.offset}, 0)`);
+                    cloudsGroup.style.display = ''; // Ensure visible
+                } else {
+                     cloudsGroup.setAttribute('transform', 'translate(0, 0)'); // Reset position
+                     // Optionally hide clouds completely when not animated:
+                     // cloudsGroup.style.display = 'none';
+                }
+
+
+                animationFrameId = requestAnimationFrame(animateScene);
+            }
+
+            function stopAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                 // Clear beams immediately when stopping animation toggle
+                if (!animateSunbeamsCheckbox.checked) {
+                   sunbeamsGroup.innerHTML = '';
+                }
+                 // Reset cloud position when stopping animation toggle
+                if (!animateCloudsCheckbox.checked) {
+                    cloudsGroup.setAttribute('transform', 'translate(0, 0)');
+                }
+            }
+
+            function startOrStopAnimation() {
+                stopAnimation(); // Clear previous animation frame
+                if (animateSunbeamsCheckbox.checked || animateCloudsCheckbox.checked) {
+                    if (animateSunbeamsCheckbox.checked) updateSunbeams(); // Draw initial beams if needed
+                    animateScene(); // Start animation loop
+                }
+            }
+
+
+            function downloadSVGAsPNG() {
+                downloadMessage.classList.remove('hidden');
+                downloadBtn.disabled = true;
+
+                // Temporarily stop animation for clean capture
+                const wasAnimating = !!animationFrameId;
+                stopAnimation();
+                 // Ensure beams/clouds are in their static state if toggles are on
+                if (animateSunbeamsCheckbox.checked) updateSunbeams();
+                if (animateCloudsCheckbox.checked) cloudsGroup.setAttribute('transform', 'translate(0, 0)');
+
+
+                const svgString = new XMLSerializer().serializeToString(svg);
+                const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // Use container dimensions for potentially better scaling, or fixed SVG dimensions
+                    const scale = 2; // Increase scale for higher resolution output
+                    canvas.width = svg.viewBox.baseVal.width * scale;
+                    canvas.height = svg.viewBox.baseVal.height * scale;
+
+                    const ctx = canvas.getContext('2d');
+                    // Optional: Fill background if SVG is transparent
+                    // ctx.fillStyle = '#ffffff'; // Or use sky bottom color?
+                    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url); // Clean up blob URL
+
+                    // Trigger download
+                    const pngUrl = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = 'serene-sunset.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    downloadMessage.classList.add('hidden');
+                    downloadBtn.disabled = false;
+
+                    // Restart animation if it was running before download
+                    if (wasAnimating) {
+                        startOrStopAnimation();
+                    }
+                };
+                img.onerror = (e) => {
+                    console.error("Error loading SVG image for download:", e);
+                    alert("Error generating image. Could not load SVG data.");
+                    URL.revokeObjectURL(url);
+                    downloadMessage.classList.add('hidden');
+                    downloadBtn.disabled = false;
+                    // Restart animation if it was running before download
+                    if (wasAnimating) {
+                         startOrStopAnimation();
+                    }
+                };
+                img.src = url;
+            }
+
+            // --- Event Listeners ---
+            sunYInput.addEventListener('input', updateSunPosition);
+            sunXInput.addEventListener('input', updateSunPosition);
+            sunSizeInput.addEventListener('input', updateSunSize);
+            sunColorInput.addEventListener('input', updateSunColor);
+
+            skyPaletteSelect.addEventListener('change', handleSkyPaletteChange);
+            skyColorTopInput.addEventListener('input', () => {
+                updateSkyColors(skyColorTopInput.value, skyColorBottomInput.value);
+                skyPaletteSelect.value = 'custom'; // Switch palette to custom
+            });
+            skyColorBottomInput.addEventListener('input', () => {
+                updateSkyColors(skyColorTopInput.value, skyColorBottomInput.value);
+                 skyPaletteSelect.value = 'custom'; // Switch palette to custom
+            });
+
+            landscapePaletteSelect.addEventListener('change', handleLandscapePaletteChange);
+             landscapeColorInput.addEventListener('input', () => {
+                updateLandscapeColor(landscapeColorInput.value);
+                landscapePaletteSelect.value = 'custom'; // Switch palette to custom
+            });
+            landscapeHeightInput.addEventListener('input', updateLandscapeHeight);
+
+            animateSunbeamsCheckbox.addEventListener('change', () => {
+                 if (!animateSunbeamsCheckbox.checked) {
+                    sunbeamsGroup.innerHTML = ''; // Clear beams immediately
+                 }
+                 startOrStopAnimation();
+            });
+            animateCloudsCheckbox.addEventListener('change', startOrStopAnimation);
+
+            downloadBtn.addEventListener('click', downloadSVGAsPNG);
+
+            // --- Initial Setup ---
+            updateSunPosition();
+            updateSunSize();
+            updateSunColor();
+            handleSkyPaletteChange(); // Set initial sky colors based on default selection
+            handleLandscapePaletteChange(); // Set initial landscape color
+            updateLandscapeHeight();
+            startOrStopAnimation(); // Start animation if checkboxes are initially checked (they aren't)
+
+        });
+    </script>
+
+</body>
+</html>
