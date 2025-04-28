@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Anagram Solver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Simple transition for result items */
+        .anagram-item {
+            transition: background-color 0.2s ease-in-out;
+        }
+        /* Highlight style */
+        .highlight {
+            background-color: #fef08a; /* Tailwind yellow-200 */
+            font-weight: 600; /* Tailwind semibold */
+            border-radius: 0.125rem; /* Tailwind rounded-sm */
+            padding: 0 0.125rem;
+        }
+        /* Subtle animation for copy feedback */
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .copy-feedback {
+            animation: fadeOut 1s ease-out forwards;
+        }
+        /* Custom scrollbar for results (optional but nice) */
+        .results-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; /* Tailwind slate-100 */
+            border-radius: 10px;
+        }
+        .results-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Tailwind slate-400 */
+            border-radius: 10px;
+        }
+        .results-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Tailwind slate-500 */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 via-white to-cyan-50 min-h-screen flex flex-col items-center justify-center p-4 font-sans text-slate-800">
+
+    <main class="bg-white shadow-xl rounded-lg p-6 md:p-10 w-full max-w-3xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-700 mb-2">Personalized Anagram Solver</h1>
+            <p class="text-md md:text-lg text-slate-600">Unleash your inner wordsmith by discovering hidden anagrams within any word or phrase you enter.</p>
+        </header>
+
+        <section class="mb-8">
+            <label for="wordInput" class="block text-sm font-medium text-slate-700 mb-2">Enter Word or Phrase:</label>
+            <input type="text" id="wordInput" placeholder="e.g., listen" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 transition duration-150 ease-in-out text-lg" autocomplete="off">
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 items-end">
+            <div>
+                <label for="highlightInput" class="block text-sm font-medium text-slate-700 mb-2">Highlight Letters:</label>
+                <input type="text" id="highlightInput" placeholder="e.g., en" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 transition duration-150 ease-in-out">
+            </div>
+            <div>
+                <label for="sortOptions" class="block text-sm font-medium text-slate-700 mb-2">Sort Results:</label>
+                <select id="sortOptions" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 transition duration-150 ease-in-out bg-white">
+                    <option value="asc">Alphabetical (A-Z)</option>
+                    <option value="desc">Reverse Alphabetical (Z-A)</option>
+                    <option value="len_asc">Length (Shortest First)</option>
+                    <option value="len_desc">Length (Longest First)</option>
+                </select>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-xl font-semibold text-slate-700 mb-4 flex justify-between items-center">
+                <span>Anagram Results</span>
+                <span id="anagramCount" class="text-sm font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-full">0 found</span>
+            </h2>
+            <div id="resultsArea" class="results-scrollbar border border-slate-200 rounded-md bg-slate-50 h-64 overflow-y-auto p-4 relative">
+                <div id="placeholder" class="absolute inset-0 flex items-center justify-center text-slate-400">
+                    Enter text above to see anagrams...
+                </div>
+                <div id="loadingIndicator" class="absolute inset-0 flex items-center justify-center text-sky-600 bg-white bg-opacity-75 hidden">
+                    <svg class="animate-spin h-8 w-8 text-sky-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="ml-3">Generating...</span>
+                </div>
+                <ul id="anagramList" class="space-y-2">
+                    <!-- Anagrams will be injected here -->
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center mt-8 text-sm text-slate-500">
+        &copy; <span id="currentYear"></span> Personalized Anagram Solver. Built with HTML, Tailwind CSS, and JavaScript.
+    </footer>
+
+    <script>
+        const wordInput = document.getElementById('wordInput');
+        const highlightInput = document.getElementById('highlightInput');
+        const sortOptions = document.getElementById('sortOptions');
+        const resultsArea = document.getElementById('resultsArea');
+        const anagramList = document.getElementById('anagramList');
+        const anagramCount = document.getElementById('anagramCount');
+        const placeholder = document.getElementById('placeholder');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        let currentAnagrams = [];
+        let highlightTerm = '';
+        let sortMethod = 'asc';
+        let debounceTimer;
+
+        // --- Debounce Function ---
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        // --- Anagram Generation (Permutations) ---
+        function generatePermutations(str) {
+            if (str.length <= 1) {
+                return [str];
+            }
+
+            const results = new Set(); // Use Set to store unique permutations
+            const chars = str.split('');
+
+            function permute(arr, memo = []) {
+                if (arr.length === 0) {
+                    results.add(memo.join(''));
+                    return;
+                }
+                for (let i = 0; i < arr.length; i++) {
+                    const curr = arr.slice();
+                    const next = curr.splice(i, 1);
+                    permute(curr, memo.concat(next));
+                }
+            }
+
+            permute(chars);
+            // Note: In a real anagram solver, you'd filter these against a dictionary.
+            // For this example, we return all permutations.
+            return Array.from(results);
+        }
+
+        // --- Highlighting Function ---
+        function applyHighlight(text, term) {
+            if (!term) {
+                return text; // No highlighting needed
+            }
+            // Escape special regex characters in the term
+            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedTerm})`, 'gi');
+            return text.replace(regex, `<span class="highlight">$1</span>`);
+        }
+
+        // --- Sorting Function ---
+        function sortAnagrams(anagrams, method) {
+            return [...anagrams].sort((a, b) => {
+                switch (method) {
+                    case 'asc':
+                        return a.localeCompare(b);
+                    case 'desc':
+                        return b.localeCompare(a);
+                    case 'len_asc':
+                        return a.length - b.length || a.localeCompare(b); // Sort by length, then alphabetically
+                    case 'len_desc':
+                        return b.length - a.length || a.localeCompare(b); // Sort by length (desc), then alphabetically
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        // --- Display Function ---
+        function displayAnagrams() {
+            anagramList.innerHTML = ''; // Clear previous results
+
+            if (currentAnagrams.length === 0 && wordInput.value.trim() !== '') {
+                 placeholder.textContent = 'No anagrams found for this input.';
+                 placeholder.classList.remove('hidden');
+                 anagramCount.textContent = `0 found`;
+                 return;
+            } else if (currentAnagrams.length === 0) {
+                 placeholder.textContent = 'Enter text above to see anagrams...';
+                 placeholder.classList.remove('hidden');
+                 anagramCount.textContent = `0 found`;
+                 return;
+            }
+
+            placeholder.classList.add('hidden'); // Hide placeholder
+            anagramCount.textContent = `${currentAnagrams.length} found`;
+
+            const sortedAnagrams = sortAnagrams(currentAnagrams, sortMethod);
+
+            const fragment = document.createDocumentFragment();
+            sortedAnagrams.forEach(anagram => {
+                const li = document.createElement('li');
+                li.className = 'anagram-item flex justify-between items-center bg-white p-2 rounded shadow-sm hover:bg-sky-50';
+
+                const textSpan = document.createElement('span');
+                textSpan.innerHTML = applyHighlight(anagram, highlightTerm); // Apply highlighting
+                textSpan.className = 'flex-grow mr-3 break-all'; // Allow long words to wrap
+
+                const copyButton = document.createElement('button');
+                copyButton.textContent = 'Copy';
+                copyButton.className = 'copy-btn text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold py-1 px-2 rounded transition duration-150 ease-in-out flex-shrink-0 relative';
+                copyButton.dataset.text = anagram; // Store original text for copying
+
+                li.appendChild(textSpan);
+                li.appendChild(copyButton);
+                fragment.appendChild(li);
+            });
+            anagramList.appendChild(fragment);
+        }
+
+        // --- Main Update Function ---
+        function updateResults() {
+            const inputText = wordInput.value.trim().toLowerCase().replace(/[^a-z]/g, ''); // Keep only letters
+
+            if (!inputText) {
+                currentAnagrams = [];
+                displayAnagrams();
+                return;
+            }
+
+            loadingIndicator.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            anagramList.innerHTML = ''; // Clear list while loading
+            anagramCount.textContent = `0 found`;
+
+
+            // Use setTimeout to allow the loading indicator to render before heavy computation
+            setTimeout(() => {
+                try {
+                    // Generate permutations (simulating anagram finding)
+                    currentAnagrams = generatePermutations(inputText);
+                    // Remove the original input itself if present (optional)
+                    const inputIndex = currentAnagrams.indexOf(inputText);
+                    if (inputIndex > -1 && currentAnagrams.length > 1) {
+                       // currentAnagrams.splice(inputIndex, 1); // Keep original if it's the only result
+                    }
+                } catch (error) {
+                    console.error("Error generating permutations:", error);
+                    currentAnagrams = [];
+                    placeholder.textContent = 'Error generating results.';
+                    placeholder.classList.remove('hidden');
+                } finally {
+                    // Update display regardless of success or failure
+                    displayAnagrams();
+                    loadingIndicator.classList.add('hidden');
+                }
+            }, 50); // Small delay for UI update
+        }
+
+        // --- Event Listeners ---
+        wordInput.addEventListener('input', debounce(updateResults, 400)); // Debounce input
+
+        highlightInput.addEventListener('input', () => {
+            highlightTerm = highlightInput.value.trim();
+            // Re-display without regenerating, just applying highlight
+            displayAnagrams();
+        });
+
+        sortOptions.addEventListener('change', (e) => {
+            sortMethod = e.target.value;
+            // Re-display without regenerating, just sorting
+            displayAnagrams();
+        });
+
+        // --- Copy to Clipboard (Event Delegation) ---
+        resultsArea.addEventListener('click', (e) => {
+            if (e.target.classList.contains('copy-btn')) {
+                const button = e.target;
+                const textToCopy = button.dataset.text;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Visual feedback
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.classList.add('bg-green-500', 'hover:bg-green-600');
+                    button.classList.remove('bg-sky-500', 'hover:bg-sky-600');
+
+                    // Add temporary feedback span
+                    const feedbackSpan = document.createElement('span');
+                    feedbackSpan.textContent = 'Copied!';
+                    feedbackSpan.className = 'copy-feedback absolute -top-6 right-0 text-xs bg-black text-white px-2 py-1 rounded';
+                    button.appendChild(feedbackSpan);
+
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        button.classList.add('bg-sky-500', 'hover:bg-sky-600');
+                        button.removeChild(feedbackSpan);
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    // Optional: Show error feedback
+                    const originalText = button.textContent;
+                    button.textContent = 'Error';
+                     setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1500);
+                });
+            }
+        });
+
+        // Initial display state
+        displayAnagrams();
+
+    </script>
+
+</body>
+</html>
