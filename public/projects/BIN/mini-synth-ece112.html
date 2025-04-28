@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Synth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Minimal custom styles if needed, prefer Tailwind */
+        .key {
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.1s ease, transform 0.05s ease;
+            user-select: none; /* Prevent text selection on rapid clicks */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .key.white {
+            background-color: white;
+            color: #333;
+            height: 180px; /* Default height */
+            width: 12.5%; /* 8 white keys */
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        .key.black {
+            background-color: #333;
+            color: white;
+            height: 110px; /* Shorter height */
+            width: 8%;  /* Narrower width */
+            position: absolute;
+            margin-left: -4%; /* Overlap previous white key */
+            z-index: 10;
+            border-radius: 0 0 3px 3px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+        }
+        .key.active, .key:active {
+            background-color: #60a5fa; /* Tailwind blue-400 */
+            transform: scale(0.98);
+        }
+        .key.black.active, .key.black:active {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            transform: scale(0.98);
+        }
+
+        /* Positioning black keys */
+        .key.black[data-key="w"], /* C# */
+        .key.black[data-key="e"], /* D# */
+        .key.black[data-key="t"], /* F# */
+        .key.black[data-key="y"], /* G# */
+        .key.black[data-key="u"]  /* A# */
+         { margin-left: -4%; }
+
+        .key.black[data-key="w"] { left: calc(12.5% * 1); }
+        .key.black[data-key="e"] { left: calc(12.5% * 2); }
+        .key.black[data-key="t"] { left: calc(12.5% * 4); }
+        .key.black[data-key="y"] { left: calc(12.5% * 5); }
+        .key.black[data-key="u"] { left: calc(12.5% * 6); }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .key.white { height: 150px; }
+            .key.black { height: 90px; width: 9%; margin-left: -4.5%; }
+            .key.black[data-key="w"] { left: calc(12.5% * 1); }
+            .key.black[data-key="e"] { left: calc(12.5% * 2); }
+            .key.black[data-key="t"] { left: calc(12.5% * 4); }
+            .key.black[data-key="y"] { left: calc(12.5% * 5); }
+            .key.black[data-key="u"] { left: calc(12.5% * 6); }
+        }
+         @media (max-width: 480px) {
+            .key.white { height: 120px; font-size: 0.75rem; }
+            .key.black { height: 70px; width: 10%; margin-left: -5%; font-size: 0.65rem; }
+            .key.black[data-key="w"] { left: calc(12.5% * 1); }
+            .key.black[data-key="e"] { left: calc(12.5% * 2); }
+            .key.black[data-key="t"] { left: calc(12.5% * 4); }
+            .key.black[data-key="y"] { left: calc(12.5% * 5); }
+            .key.black[data-key="u"] { left: calc(12.5% * 6); }
+            .key .key-label { display: none; } /* Hide labels on very small screens */
+         }
+
+        /* Hide scrollbar for range input */
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          background: #3b82f6; /* blue-500 */
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          background: #3b82f6; /* blue-500 */
+          border-radius: 50%;
+          cursor: pointer;
+          border: none;
+        }
+        input[type=range] {
+          cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex flex-col items-center justify-center p-4 font-sans antialiased">
+
+    <main class="bg-white rounded-lg shadow-xl p-6 md:p-8 w-full max-w-4xl">
+
+        <header class="text-center mb-6 md:mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Mini-Synth</h1>
+            <p class="text-gray-500 mt-1">A simple browser synthesizer</p>
+        </header>
+
+        <section class="controls mb-6 md:mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- Oscillator Type -->
+            <div class="oscillator-type flex flex-col items-center md:items-start">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Oscillator Waveform</label>
+                <div class="flex space-x-4" id="waveform-selector">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="waveform" value="sine" class="form-radio text-blue-500 focus:ring-blue-400" checked>
+                        <span class="ml-2 text-gray-700">Sine</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="waveform" value="square" class="form-radio text-blue-500 focus:ring-blue-400">
+                        <span class="ml-2 text-gray-700">Square</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="waveform" value="sawtooth" class="form-radio text-blue-500 focus:ring-blue-400">
+                        <span class="ml-2 text-gray-700">Sawtooth</span>
+                    </label>
+                     <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="waveform" value="triangle" class="form-radio text-blue-500 focus:ring-blue-400">
+                        <span class="ml-2 text-gray-700">Triangle</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Volume Control -->
+            <div class="volume-control flex flex-col items-center md:items-end">
+                <label for="volume" class="block text-sm font-medium text-gray-700 mb-2">Volume</label>
+                <input type="range" id="volume" name="volume" min="0" max="1" step="0.01" value="0.5"
+                       class="w-48 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+            </div>
+        </section>
+
+        <section class="keyboard-section relative mb-4">
+            <div id="keyboard" class="relative flex w-full bg-gray-400 p-1 rounded-md shadow-inner">
+                <!-- White Keys -->
+                <div data-key="a" data-note="C4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">A</span>C4</div>
+                <div data-key="s" data-note="D4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">S</span>D4</div>
+                <div data-key="d" data-note="E4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">D</span>E4</div>
+                <div data-key="f" data-note="F4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">F</span>F4</div>
+                <div data-key="g" data-note="G4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">G</span>G4</div>
+                <div data-key="h" data-note="A4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">H</span>A4</div>
+                <div data-key="j" data-note="B4" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">J</span>B4</div>
+                <div data-key="k" data-note="C5" class="key white flex flex-col justify-end items-center p-2"><span class="key-label text-xs">K</span>C5</div>
+                <!-- Black Keys -->
+                <div data-key="w" data-note="C#4" class="key black flex flex-col justify-end items-center p-1"><span class="key-label text-xs">W</span>C#4</div>
+                <div data-key="e" data-note="D#4" class="key black flex flex-col justify-end items-center p-1"><span class="key-label text-xs">E</span>D#4</div>
+                <div data-key="t" data-note="F#4" class="key black flex flex-col justify-end items-center p-1"><span class="key-label text-xs">T</span>F#4</div>
+                <div data-key="y" data-note="G#4" class="key black flex flex-col justify-end items-center p-1"><span class="key-label text-xs">Y</span>G#4</div>
+                <div data-key="u" data-note="A#4" class="key black flex flex-col justify-end items-center p-1"><span class="key-label text-xs">U</span>A#4</div>
+            </div>
+        </section>
+
+        <footer class="text-center text-gray-500 text-sm mt-6 md:mt-8">
+            <p>Click the piano keys or use your computer keyboard (A, S, D, F, G, H, J, K for white keys; W, E, T, Y, U for black keys) to play notes.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        const NOTE_MAP = {
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63,
+            'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00,
+            'A#4': 466.16, 'B4': 493.88, 'C5': 523.25
+        };
+
+        const KEY_TO_NOTE = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+            'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+            'u': 'A#4', 'j': 'B4', 'k': 'C5'
+        };
+
+        let audioContext;
+        let masterGainNode;
+        let currentWaveform = 'sine';
+        const activeOscillators = {}; // Store active oscillators by note
+
+        const keyboardElement = document.getElementById('keyboard');
+        const volumeControl = document.getElementById('volume');
+        const waveformSelector = document.getElementById('waveform-selector');
+
+        // --- Initialize Audio ---
+        function initAudio() {
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                masterGainNode = audioContext.createGain();
+                masterGainNode.connect(audioContext.destination);
+                masterGainNode.gain.setValueAtTime(parseFloat(volumeControl.value), audioContext.currentTime);
+                console.log("AudioContext initialized.");
+            } catch (e) {
+                alert('Web Audio API is not supported in this browser');
+                console.error("Error initializing AudioContext:", e);
+            }
+        }
+
+        // --- Resume AudioContext on User Interaction ---
+        function resumeAudioContext() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log("AudioContext resumed successfully.");
+                }).catch(e => console.error("Error resuming AudioContext:", e));
+            }
+        }
+
+        // --- Play Note ---
+        function playNote(note) {
+            if (!audioContext || !NOTE_MAP[note] || activeOscillators[note]) return; // Don't play if context missing, note invalid, or already playing
+
+            resumeAudioContext(); // Ensure context is running
+
+            const oscillator = audioContext.createOscillator();
+            const noteGainNode = audioContext.createGain(); // Individual gain for smooth stop
+
+            oscillator.type = currentWaveform;
+            oscillator.frequency.setValueAtTime(NOTE_MAP[note], audioContext.currentTime);
+
+            // Connect nodes: oscillator -> noteGain -> masterGain -> destination
+            oscillator.connect(noteGainNode);
+            noteGainNode.connect(masterGainNode);
+
+            // Start with zero gain and ramp up quickly to avoid clicks
+            noteGainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            noteGainNode.gain.linearRampToValueAtTime(1.0, audioContext.currentTime + 0.01); // Quick fade-in
+
+            oscillator.start(audioContext.currentTime);
+            activeOscillators[note] = { oscillator, gainNode: noteGainNode };
+
+            // Visual feedback
+            const keyElement = keyboardElement.querySelector(`[data-note="${note}"]`);
+            if (keyElement) {
+                keyElement.classList.add('active');
+            }
+        }
+
+        // --- Stop Note ---
+        function stopNote(note) {
+            if (!audioContext || !activeOscillators[note]) return;
+
+            const { oscillator, gainNode } = activeOscillators[note];
+            const releaseTime = 0.1; // Short release time
+
+            // Ramp down gain smoothly
+            gainNode.gain.cancelScheduledValues(audioContext.currentTime); // Cancel previous ramps if any
+            gainNode.gain.setValueAtTime(gainNode.gain.value, audioContext.currentTime); // Start from current value
+            gainNode.gain.linearRampToValueAtTime(0.0001, audioContext.currentTime + releaseTime); // Ramp down to near zero
+
+            // Stop oscillator after gain ramp
+            oscillator.stop(audioContext.currentTime + releaseTime);
+
+            // Clean up after stop
+            oscillator.onended = () => {
+                oscillator.disconnect();
+                gainNode.disconnect();
+            };
+
+            delete activeOscillators[note];
+
+            // Remove visual feedback
+            const keyElement = keyboardElement.querySelector(`[data-note="${note}"]`);
+            if (keyElement) {
+                keyElement.classList.remove('active');
+            }
+        }
+
+        // --- Event Listeners ---
+
+        // Volume Control
+        volumeControl.addEventListener('input', (event) => {
+            if (masterGainNode) {
+                const volumeValue = parseFloat(event.target.value);
+                 // Use setTargetAtTime for smoother volume changes
+                masterGainNode.gain.setTargetAtTime(volumeValue, audioContext.currentTime, 0.01);
+            }
+        });
+
+        // Waveform Selector
+        waveformSelector.addEventListener('change', (event) => {
+            if (event.target.name === 'waveform') {
+                currentWaveform = event.target.value;
+                // Optionally update currently playing oscillators? Or just new ones?
+                // For simplicity, only new notes will use the updated waveform.
+            }
+        });
+
+        // Visual Keyboard Interaction (Mouse)
+        keyboardElement.addEventListener('mousedown', (event) => {
+            if (event.target.classList.contains('key')) {
+                const note = event.target.dataset.note;
+                if (note) {
+                    initAudioIfNeeded(); // Initialize audio on first interaction
+                    playNote(note);
+                }
+            }
+        });
+
+        keyboardElement.addEventListener('mouseup', (event) => {
+            if (event.target.classList.contains('key')) {
+                const note = event.target.dataset.note;
+                if (note) {
+                    stopNote(note);
+                }
+            }
+        });
+
+        // Prevent note sticking if mouse leaves key while pressed down
+        keyboardElement.addEventListener('mouseleave', (event) => {
+             if (event.target.classList.contains('key')) {
+                const note = event.target.dataset.note;
+                // Check if the note is actually playing before stopping
+                if (note && activeOscillators[note]) {
+                    stopNote(note);
+                }
+            }
+        }, true); // Use capture phase to catch event even if mouse moves fast
+
+        // Visual Keyboard Interaction (Touch)
+         keyboardElement.addEventListener('touchstart', (event) => {
+            if (event.target.classList.contains('key')) {
+                event.preventDefault(); // Prevent mouse event emulation and scrolling
+                const note = event.target.dataset.note;
+                if (note) {
+                    initAudioIfNeeded();
+                    playNote(note);
+                }
+            }
+        }, { passive: false }); // Need passive: false to call preventDefault
+
+        keyboardElement.addEventListener('touchend', (event) => {
+             if (event.target.classList.contains('key')) {
+                 event.preventDefault();
+                 const note = event.target.dataset.note;
+                 if (note) {
+                     stopNote(note);
+                 }
+             }
+         });
+
+        // Computer Keyboard Interaction
+        const currentlyPressedKeys = new Set(); // Track keys currently held down
+
+        window.addEventListener('keydown', (event) => {
+            // Ignore if modifier keys are pressed or if key is already down
+            if (event.metaKey || event.ctrlKey || event.altKey || currentlyPressedKeys.has(event.key.toLowerCase())) {
+                return;
+            }
+
+            const note = KEY_TO_NOTE[event.key.toLowerCase()];
+            if (note) {
+                event.preventDefault(); // Prevent default browser actions for keys like space, etc.
+                initAudioIfNeeded();
+                playNote(note);
+                currentlyPressedKeys.add(event.key.toLowerCase()); // Mark key as pressed
+            }
+        });
+
+        window.addEventListener('keyup', (event) => {
+            const note = KEY_TO_NOTE[event.key.toLowerCase()];
+            if (note) {
+                event.preventDefault();
+                stopNote(note);
+                currentlyPressedKeys.delete(event.key.toLowerCase()); // Mark key as released
+            }
+        });
+
+        // Helper to initialize audio only once and on first user interaction
+        let audioInitialized = false;
+        function initAudioIfNeeded() {
+            if (!audioInitialized) {
+                initAudio();
+                // Add a general interaction listener to resume context if needed,
+                // covering cases where keyboard is used before clicking.
+                document.body.addEventListener('click', resumeAudioContext, { once: true });
+                document.body.addEventListener('touchstart', resumeAudioContext, { once: true });
+                window.addEventListener('keydown', resumeAudioContext, { once: true });
+                audioInitialized = true;
+            }
+             // Always try to resume, as context might suspend automatically
+            resumeAudioContext();
+        }
+
+        // Initial setup message if needed (optional)
+        // console.log("Mini-Synth ready. Click or press keys to play.");
+
+    </script>
+
+</body>
+</html>
