@@ -586,5 +586,17 @@
       "Option to toggle grid lines for precise drawing."
     ],
     "raw_output": "Project Name: Kaleidoscope Canvas\nDescription: Create mesmerizing, symmetrical patterns by drawing on one segment of a canvas that's mirrored across multiple axes.\nFeatures:\n- Interactive drawing area with customizable brush size and color.\n- Adjustable symmetry settings (mirror axes and count).\n- Downloadable image of the generated kaleidoscope pattern.\n- Clear canvas button to start a new design.\n- Option to toggle grid lines for precise drawing.\n"
+  },
+  {
+    "name": "Decision Dice",
+    "description": "A visual decision-making tool that allows users to create custom dice with their own options and roll for a randomized outcome.",
+    "features": [
+      "Input fields to add custom facets to the die.",
+      "3D dice rolling animation using CSS transforms and JavaScript.",
+      "Display of the rolled outcome prominently on the screen.",
+      "Option to save and load dice configurations locally.",
+      "Adjustable number of sides on the die."
+    ],
+    "raw_output": "Project Name: Decision Dice\nDescription:  A visual decision-making tool that allows users to create custom dice with their own options and roll for a randomized outcome.\nFeatures:\n- Input fields to add custom facets to the die.\n- 3D dice rolling animation using CSS transforms and JavaScript.\n- Display of the rolled outcome prominently on the screen.\n- Option to save and load dice configurations locally.\n- Adjustable number of sides on the die.\n"
   }
 ]
