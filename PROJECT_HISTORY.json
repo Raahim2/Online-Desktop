@@ -562,5 +562,17 @@
       "Hover effect on each bit to display its decimal value."
     ],
     "raw_output": "Project Name: Binary Clock\nDescription: Tell time in a uniquely geeky way with a dynamic binary clock visualized using colored squares.\nFeatures:\n- Real-time binary representation of the current time.\n- Customizable color scheme for active and inactive bits using Tailwind CSS.\n- Option to display a traditional digital clock alongside the binary visualization.\n- Toggle between 12-hour and 24-hour time formats.\n- Hover effect on each bit to display its decimal value.\n"
+  },
+  {
+    "name": "Customizable Countdown Timer",
+    "description": "Create and personalize countdown timers for any event, with adjustable durations and custom messages.",
+    "features": [
+      "Input fields for setting target date and time.",
+      "Real-time countdown display with days, hours, minutes, and seconds.",
+      "Customizable message displayed upon timer completion.",
+      "Option to choose background colors and font styles using Tailwind CSS.",
+      "Sound notification when the timer reaches zero."
+    ],
+    "raw_output": "Project Name: Customizable Countdown Timer\nDescription: Create and personalize countdown timers for any event, with adjustable durations and custom messages.\nFeatures:\n- Input fields for setting target date and time.\n- Real-time countdown display with days, hours, minutes, and seconds.\n- Customizable message displayed upon timer completion.\n- Option to choose background colors and font styles using Tailwind CSS.\n- Sound notification when the timer reaches zero.\n"
   }
 ]
