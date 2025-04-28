@@ -574,5 +574,17 @@
       "Sound notification when the timer reaches zero."
     ],
     "raw_output": "Project Name: Customizable Countdown Timer\nDescription: Create and personalize countdown timers for any event, with adjustable durations and custom messages.\nFeatures:\n- Input fields for setting target date and time.\n- Real-time countdown display with days, hours, minutes, and seconds.\n- Customizable message displayed upon timer completion.\n- Option to choose background colors and font styles using Tailwind CSS.\n- Sound notification when the timer reaches zero.\n"
+  },
+  {
+    "name": "Kaleidoscope Canvas",
+    "description": "Create mesmerizing, symmetrical patterns by drawing on one segment of a canvas that's mirrored across multiple axes.",
+    "features": [
+      "Interactive drawing area with customizable brush size and color.",
+      "Adjustable symmetry settings (mirror axes and count).",
+      "Downloadable image of the generated kaleidoscope pattern.",
+      "Clear canvas button to start a new design.",
+      "Option to toggle grid lines for precise drawing."
+    ],
+    "raw_output": "Project Name: Kaleidoscope Canvas\nDescription: Create mesmerizing, symmetrical patterns by drawing on one segment of a canvas that's mirrored across multiple axes.\nFeatures:\n- Interactive drawing area with customizable brush size and color.\n- Adjustable symmetry settings (mirror axes and count).\n- Downloadable image of the generated kaleidoscope pattern.\n- Clear canvas button to start a new design.\n- Option to toggle grid lines for precise drawing.\n"
   }
 ]
