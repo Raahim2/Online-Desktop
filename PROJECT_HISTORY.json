@@ -382,5 +382,17 @@
       "Downloadable animated GIF of the spinning text."
     ],
     "raw_output": "Project Name: Typographic Spinner\nDescription: Create dynamic, spinning text animations with customizable fonts, colors, and speeds, transforming ordinary words into eye-catching visuals.\nFeatures:\n- Input field for custom text.\n- Controls for font selection, size, and color using Tailwind CSS classes.\n- Adjustable rotation speed and direction.\n- Option to add a subtle background gradient.\n- Downloadable animated GIF of the spinning text.\n"
+  },
+  {
+    "name": "Gradient Puzzle",
+    "description": "A visually stimulating puzzle game where users rearrange tiles to recreate a vibrant gradient image.",
+    "features": [
+      "Drag-and-drop tile interaction.",
+      "Customizable gradient generation with color pickers.",
+      "Adjustable puzzle difficulty (grid size).",
+      "Shuffle button to randomize tile positions.",
+      "Visual feedback on correct tile placement."
+    ],
+    "raw_output": "Project Name: Gradient Puzzle\nDescription: A visually stimulating puzzle game where users rearrange tiles to recreate a vibrant gradient image.\nFeatures:\n- Drag-and-drop tile interaction.\n- Customizable gradient generation with color pickers.\n- Adjustable puzzle difficulty (grid size).\n- Shuffle button to randomize tile positions.\n- Visual feedback on correct tile placement.\n"
   }
 ]
