@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Topography Generator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        /* Custom styles if needed, e.g., for specific SVG effects */
+        body {
+            font-family: 'Inter', sans-serif; /* Requires importing Inter or using a system font stack */
+        }
+        /* Style range inputs for better cross-browser consistency */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Reset default */
+        }
+        /* Style color inputs */
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 4px;
+            overflow: hidden; /* Clip the inner part */
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #ccc; /* Add a subtle border */
+             border-radius: 4px;
+        }
+         input[type="color"]::-moz-color-swatch {
+             border: 1px solid #ccc;
+             border-radius: 4px;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased font-['Inter']">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">Gradient Topography Generator</h1>
+            <p class="text-md md:text-lg text-gray-600 max-w-2xl mx-auto">Craft unique, undulating landscapes with customizable color gradients and adjustable terrain heights.</p>
+        </header>
+
+        <main class="flex flex-col md:flex-row gap-8 lg:gap-12">
+
+            <!-- Controls Panel -->
+            <aside class="w-full md:w-1/3 lg:w-1/4 bg-white p-6 rounded-lg shadow-lg space-y-6">
+                <h2 class="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Controls</h2>
+
+                <!-- Terrain Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-700">Terrain</h3>
+                    <div>
+                        <label for="heightSlider" class="block text-sm font-medium text-gray-600 mb-1">Height (<span id="heightValue">50</span>)</label>
+                        <input type="range" id="heightSlider" min="1" max="100" value="50" class="w-full cursor-pointer">
+                    </div>
+                    <div>
+                        <label for="smoothnessSlider" class="block text-sm font-medium text-gray-600 mb-1">Smoothness (<span id="smoothnessValue">5</span>)</label>
+                        <input type="range" id="smoothnessSlider" min="1" max="20" value="5" class="w-full cursor-pointer">
+                    </div>
+                     <div>
+                        <label for="layersSlider" class="block text-sm font-medium text-gray-600 mb-1">Layers (<span id="layersValue">10</span>)</label>
+                        <input type="range" id="layersSlider" min="2" max="30" value="10" class="w-full cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Color Settings -->
+                <div class="space-y-4 border-t pt-4">
+                     <h3 class="text-lg font-medium text-gray-700">Colors</h3>
+                    <div class="flex items-center justify-between">
+                        <label for="gradientStartColor" class="text-sm font-medium text-gray-600">Gradient Start</label>
+                        <input type="color" id="gradientStartColor" value="#6366F1" class="border border-gray-300 rounded">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label for="gradientEndColor" class="text-sm font-medium text-gray-600">Gradient End</label>
+                        <input type="color" id="gradientEndColor" value="#EC4899" class="border border-gray-300 rounded">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label for="backgroundColor" class="text-sm font-medium text-gray-600">Background</label>
+                        <input type="color" id="backgroundColor" value="#F3F4F6" class="border border-gray-300 rounded">
+                    </div>
+                </div>
+
+                <!-- Canvas Settings -->
+                <div class="space-y-4 border-t pt-4">
+                    <h3 class="text-lg font-medium text-gray-700">Canvas</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="canvasWidth" class="block text-sm font-medium text-gray-600 mb-1">Width (px)</label>
+                            <input type="number" id="canvasWidth" value="800" min="100" step="10" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="canvasHeight" class="block text-sm font-medium text-gray-600 mb-1">Height (px)</label>
+                            <input type="number" id="canvasHeight" value="600" min="100" step="10" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+                    </div>
+                     <button id="updateCanvasSizeBtn" class="w-full text-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                        Update Size
+                    </button>
+                </div>
+
+                 <!-- Actions -->
+                <div class="space-y-3 border-t pt-4">
+                     <h3 class="text-lg font-medium text-gray-700">Actions</h3>
+                    <button id="randomizeBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201-4.752L3.01 3.01a.75.75 0 011.06-1.06L6.076 4.05a5.503 5.503 0 018.38 1.576l.946.945a.75.75 0 11-1.06 1.06l-.946-.945a4.002 4.002 0 00-5.983-1.14l-.23.178a.75.75 0 11-.884-1.208 5.502 5.502 0 018.023 1.57l.01.012zm-5.69 1.141a.75.75 0 01.884 1.209 4 4 0 005.983 1.14l.946.945a.75.75 0 11-1.06 1.06l-.946-.945a5.503 5.503 0 01-8.38-1.576l-2.096 2.096a.75.75 0 11-1.06-1.06l2.096-2.096a5.5 5.5 0 019.201 4.752l3.099 3.099a.75.75 0 11-1.06 1.06l-3.099-3.099a5.503 5.503 0 01-8.023-1.57l-.01-.012a.75.75 0 011.06-1.06l.23-.178z" clip-rule="evenodd" />
+                        </svg>
+                        Randomize
+                    </button>
+                    <button id="downloadBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center gap-2">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.7a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd" />
+                        </svg>
+                        Download SVG
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- Canvas Area -->
+            <section class="w-full md:w-2/3 lg:w-3/4 flex-grow flex items-center justify-center bg-white p-4 rounded-lg shadow-lg overflow-hidden">
+                 <div id="svgContainer" class="w-full h-full flex items-center justify-center">
+                    <svg id="topographySvg" xmlns="http://www.w3.org/2000/svg" version="1.1" class="max-w-full max-h-full">
+                        <defs>
+                            <linearGradient id="landscapeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" id="gradientStop1" stop-color="#6366F1"/>
+                                <stop offset="100%" id="gradientStop2" stop-color="#EC4899"/>
+                            </linearGradient>
+                        </defs>
+                        <rect id="backgroundRect" width="100%" height="100%" fill="#F3F4F6"/>
+                        <g id="landscapePaths"></g>
+                    </svg>
+                 </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        const heightSlider = document.getElementById('heightSlider');
+        const smoothnessSlider = document.getElementById('smoothnessSlider');
+        const layersSlider = document.getElementById('layersSlider');
+        const gradientStartColor = document.getElementById('gradientStartColor');
+        const gradientEndColor = document.getElementById('gradientEndColor');
+        const backgroundColor = document.getElementById('backgroundColor');
+        const canvasWidthInput = document.getElementById('canvasWidth');
+        const canvasHeightInput = document.getElementById('canvasHeight');
+        const updateCanvasSizeBtn = document.getElementById('updateCanvasSizeBtn');
+        const randomizeBtn = document.getElementById('randomizeBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const svgContainer = document.getElementById('svgContainer');
+        const svg = document.getElementById('topographySvg');
+        const backgroundRect = document.getElementById('backgroundRect');
+        const landscapePathsGroup = document.getElementById('landscapePaths');
+        const gradientStop1 = document.getElementById('gradientStop1');
+        const gradientStop2 = document.getElementById('gradientStop2');
+
+        const heightValueSpan = document.getElementById('heightValue');
+        const smoothnessValueSpan = document.getElementById('smoothnessValue');
+        const layersValueSpan = document.getElementById('layersValue');
+
+        let canvasWidth = parseInt(canvasWidthInput.value);
+        let canvasHeight = parseInt(canvasHeightInput.value);
+
+        // --- Simple Pseudo-Random Number Generator (PRNG) ---
+        // Using a simple one for deterministic random results if needed,
+        // otherwise Math.random() is fine.
+        let seed = Date.now();
+        function seededRandom() {
+            seed = (seed * 9301 + 49297) % 233280;
+            return seed / 233280;
+        }
+
+        // --- Terrain Generation Logic ---
+        function generateTerrain() {
+            const heightFactor = parseInt(heightSlider.value) / 100; // Normalize 0-1
+            const smoothness = parseInt(smoothnessSlider.value); // Lower = more points = less smooth
+            const numLayers = parseInt(layersSlider.value);
+
+            // Clear previous paths
+            landscapePathsGroup.innerHTML = '';
+
+            // Update SVG size and background
+            svg.setAttribute('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`);
+            svg.setAttribute('width', canvasWidth);
+            svg.setAttribute('height', canvasHeight);
+            backgroundRect.setAttribute('fill', backgroundColor.value);
+
+            // Update gradient colors
+            gradientStop1.setAttribute('stop-color', gradientStartColor.value);
+            gradientStop2.setAttribute('stop-color', gradientEndColor.value);
+
+            // Generate layers
+            const layerHeight = canvasHeight / numLayers;
+            const pointsPerLayer = Math.max(5, 50 - smoothness * 2); // More points for less smoothness
+
+            for (let i = 0; i < numLayers; i++) {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let d = `M 0 ${canvasHeight}`; // Start at bottom-left
+
+                const yOffset = canvasHeight - (i * layerHeight * 0.8); // Base Y for this layer (overlap layers slightly)
+                const layerAmplitude = (canvasHeight * 0.5 * heightFactor) / (i * 0.5 + 1); // Decrease amplitude for upper layers
+
+                let points = [];
+                for (let j = 0; j <= pointsPerLayer; j++) {
+                    const x = (canvasWidth / pointsPerLayer) * j;
+                    // Simple random variation - replace with noise function for better results
+                    const randomY = (seededRandom() - 0.5) * layerAmplitude;
+                    const y = yOffset + randomY;
+                    points.push({ x, y });
+                }
+
+                // Create a smooth path (simplified using lines for now, could use curves)
+                // Start point for the visible line
+                 d += ` L ${points[0].x} ${Math.min(canvasHeight, Math.max(0, points[0].y))}`;
+
+                 for (let j = 1; j < points.length; j++) {
+                     // Basic smoothing: average with neighbors (could be improved)
+                     const prevY = points[j-1].y;
+                     const currY = points[j].y;
+                     const nextY = (j + 1 < points.length) ? points[j+1].y : currY;
+                     const smoothedY = (prevY + currY + nextY) / 3;
+
+                     // Clamp Y to canvas bounds
+                     const finalY = Math.min(canvasHeight, Math.max(0, smoothedY));
+
+                     // Add line segment
+                     d += ` L ${points[j].x} ${finalY}`;
+                 }
+
+
+                // Close the path at the bottom
+                d += ` L ${canvasWidth} ${canvasHeight} Z`;
+
+                path.setAttribute('d', d);
+                path.setAttribute('fill', `url(#landscapeGradient)`);
+                // Add subtle stroke or effects if desired
+                // path.setAttribute('stroke', 'rgba(0,0,0,0.1)');
+                // path.setAttribute('stroke-width', '0.5');
+                landscapePathsGroup.appendChild(path);
+            }
+             // Reset seed for next generation if needed for consistency
+             // seed = Date.now();
+        }
+
+        // --- Update UI ---
+        function updateSliderValue(slider, span) {
+            span.textContent = slider.value;
+        }
+
+        // --- Event Listeners ---
+        heightSlider.addEventListener('input', () => {
+            updateSliderValue(heightSlider, heightValueSpan);
+            generateTerrain();
+        });
+        smoothnessSlider.addEventListener('input', () => {
+             updateSliderValue(smoothnessSlider, smoothnessValueSpan);
+             generateTerrain();
+        });
+         layersSlider.addEventListener('input', () => {
+             updateSliderValue(layersSlider, layersValueSpan);
+             generateTerrain();
+        });
+
+        gradientStartColor.addEventListener('input', generateTerrain);
+        gradientEndColor.addEventListener('input', generateTerrain);
+        backgroundColor.addEventListener('input', generateTerrain);
+
+        updateCanvasSizeBtn.addEventListener('click', () => {
+            const newWidth = parseInt(canvasWidthInput.value);
+            const newHeight = parseInt(canvasHeightInput.value);
+            if (!isNaN(newWidth) && !isNaN(newHeight) && newWidth > 0 && newHeight > 0) {
+                canvasWidth = newWidth;
+                canvasHeight = newHeight;
+                generateTerrain();
+            } else {
+                alert("Please enter valid positive numbers for width and height.");
+                // Optionally reset inputs to current valid values
+                canvasWidthInput.value = canvasWidth;
+                canvasHeightInput.value = canvasHeight;
+            }
+        });
+
+        randomizeBtn.addEventListener('click', () => {
+            // Randomize sliders
+            heightSlider.value = Math.floor(seededRandom() * 100) + 1;
+            smoothnessSlider.value = Math.floor(seededRandom() * 20) + 1;
+            layersSlider.value = Math.floor(seededRandom() * 28) + 2; // Min 2 layers
+
+            // Randomize colors (simple random hex)
+            const randomHex = () => '#' + Math.floor(seededRandom()*16777215).toString(16).padStart(6, '0');
+            gradientStartColor.value = randomHex();
+            gradientEndColor.value = randomHex();
+            backgroundColor.value = randomHex();
+
+            // Update UI display for sliders
+            updateSliderValue(heightSlider, heightValueSpan);
+            updateSliderValue(smoothnessSlider, smoothnessValueSpan);
+            updateSliderValue(layersSlider, layersValueSpan);
+
+            // Regenerate
+            generateTerrain();
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gradient-topography.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // --- Initial Setup ---
+        updateSliderValue(heightSlider, heightValueSpan);
+        updateSliderValue(smoothnessSlider, smoothnessValueSpan);
+        updateSliderValue(layersSlider, layersValueSpan);
+        generateTerrain(); // Generate initial view
+
+    </script>
+
+</body>
+</html>
