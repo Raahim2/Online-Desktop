@@ -370,5 +370,17 @@
       "Full-screen mode for an immersive experience."
     ],
     "raw_output": "Project Name: Interactive Music Visualizer\nDescription: Create mesmerizing visual patterns that dance and react to your microphone input, transforming sound into a vibrant light show.\nFeatures:\n- Real-time audio visualization using the Web Audio API.\n- Customizable visualization styles and color palettes with Tailwind CSS.\n- Adjustable sensitivity and responsiveness to microphone input.\n- Simple controls for starting and stopping the visualization.\n- Full-screen mode for an immersive experience.\n"
+  },
+  {
+    "name": "Typographic Spinner",
+    "description": "Create dynamic, spinning text animations with customizable fonts, colors, and speeds, transforming ordinary words into eye-catching visuals.",
+    "features": [
+      "Input field for custom text.",
+      "Controls for font selection, size, and color using Tailwind CSS classes.",
+      "Adjustable rotation speed and direction.",
+      "Option to add a subtle background gradient.",
+      "Downloadable animated GIF of the spinning text."
+    ],
+    "raw_output": "Project Name: Typographic Spinner\nDescription: Create dynamic, spinning text animations with customizable fonts, colors, and speeds, transforming ordinary words into eye-catching visuals.\nFeatures:\n- Input field for custom text.\n- Controls for font selection, size, and color using Tailwind CSS classes.\n- Adjustable rotation speed and direction.\n- Option to add a subtle background gradient.\n- Downloadable animated GIF of the spinning text.\n"
   }
 ]
