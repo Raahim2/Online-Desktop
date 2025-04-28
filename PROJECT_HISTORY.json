@@ -478,5 +478,17 @@
       "Option to save creations locally."
     ],
     "raw_output": "Project Name: Lyrically\nDescription: Craft personalized poems or song lyrics with a unique, interactive rhyming dictionary built right into the page.\nFeatures:\n- Input field for entering words to find rhymes.\n- Real-time display of rhyming words, categorized by syllable count and near rhymes.\n- Text area for composing, with highlighting of rhyming words within the text.\n- Customizable font styles and background colors using Tailwind CSS.\n- Option to save creations locally.\n"
+  },
+  {
+    "name": "Color Palette Alchemist",
+    "description": "Dynamically generate and explore beautiful color palettes based on user interaction with a color wheel and adjustable harmony rules.",
+    "features": [
+      "Interactive color wheel for base color selection.",
+      "Adjustable harmony rules (e.g., complementary, analogous, triadic).",
+      "Real-time display of generated color palette with hex codes.",
+      "Copy-to-clipboard functionality for individual hex codes.",
+      "Option to save generated palettes to local storage."
+    ],
+    "raw_output": "Project Name: Color Palette Alchemist\nDescription: Dynamically generate and explore beautiful color palettes based on user interaction with a color wheel and adjustable harmony rules.\nFeatures:\n- Interactive color wheel for base color selection.\n- Adjustable harmony rules (e.g., complementary, analogous, triadic).\n- Real-time display of generated color palette with hex codes.\n- Copy-to-clipboard functionality for individual hex codes.\n- Option to save generated palettes to local storage.\n"
   }
 ]
