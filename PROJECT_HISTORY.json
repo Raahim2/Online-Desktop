@@ -490,5 +490,17 @@
       "Option to save generated palettes to local storage."
     ],
     "raw_output": "Project Name: Color Palette Alchemist\nDescription: Dynamically generate and explore beautiful color palettes based on user interaction with a color wheel and adjustable harmony rules.\nFeatures:\n- Interactive color wheel for base color selection.\n- Adjustable harmony rules (e.g., complementary, analogous, triadic).\n- Real-time display of generated color palette with hex codes.\n- Copy-to-clipboard functionality for individual hex codes.\n- Option to save generated palettes to local storage.\n"
+  },
+  {
+    "name": "Flippable Flashcards",
+    "description": "Create and study digital flashcards with a simple, intuitive flip animation and customizable content.",
+    "features": [
+      "Input fields for front and back card content.",
+      "Click or tap to flip the card, revealing the other side.",
+      "Customizable card colors and font styles using Tailwind CSS.",
+      "Option to save and load sets of flashcards locally.",
+      "Shuffle button to randomize card order."
+    ],
+    "raw_output": "Project Name: Flippable Flashcards\nDescription: Create and study digital flashcards with a simple, intuitive flip animation and customizable content.\nFeatures:\n- Input fields for front and back card content.\n- Click or tap to flip the card, revealing the other side.\n- Customizable card colors and font styles using Tailwind CSS.\n- Option to save and load sets of flashcards locally.\n- Shuffle button to randomize card order.\n"
   }
 ]
