@@ -394,5 +394,17 @@
       "Visual feedback on correct tile placement."
     ],
     "raw_output": "Project Name: Gradient Puzzle\nDescription: A visually stimulating puzzle game where users rearrange tiles to recreate a vibrant gradient image.\nFeatures:\n- Drag-and-drop tile interaction.\n- Customizable gradient generation with color pickers.\n- Adjustable puzzle difficulty (grid size).\n- Shuffle button to randomize tile positions.\n- Visual feedback on correct tile placement.\n"
+  },
+  {
+    "name": "Mini-Synth",
+    "description": "A browser-based, minimalist synthesizer for creating simple melodies and exploring basic sound design.",
+    "features": [
+      "Clickable keyboard keys to trigger different notes.",
+      "Adjustable oscillator wave shape (sine, square, sawtooth).",
+      "Simple volume control slider.",
+      "Option to play notes with the computer keyboard.",
+      "Visual feedback of active notes."
+    ],
+    "raw_output": "Project Name: Mini-Synth\nDescription: A browser-based, minimalist synthesizer for creating simple melodies and exploring basic sound design.\nFeatures:\n- Clickable keyboard keys to trigger different notes.\n- Adjustable oscillator wave shape (sine, square, sawtooth).\n- Simple volume control slider.\n- Option to play notes with the computer keyboard.\n- Visual feedback of active notes.\n"
   }
 ]
