@@ -538,5 +538,17 @@
       "Preset shape options for quick exploration."
     ],
     "raw_output": "Project Name: Tessellation Playground\nDescription: Create mesmerizing tessellating patterns with interactive controls for shape, color, and repetition.\nFeatures:\n- Drag-and-drop interface to adjust shape position and rotation.\n- Customizable shape properties (color, size, symmetry) using Tailwind CSS and JavaScript.\n- Real-time tessellation rendering on the canvas.\n- Downloadable SVG of the created pattern.\n- Preset shape options for quick exploration.\n"
+  },
+  {
+    "name": "Virtual Paper Fortune Teller",
+    "description": "Relive childhood nostalgia with a digital fortune teller, customizable with your own fortunes and colors.",
+    "features": [
+      "Interactive folding and unfolding of the fortune teller using click events.",
+      "Customizable color schemes using Tailwind CSS classes.",
+      "Input fields for personalized fortunes.",
+      "Random fortune selection on final reveal.",
+      "Mobile-friendly responsive design."
+    ],
+    "raw_output": "Project Name: Virtual Paper Fortune Teller\nDescription: Relive childhood nostalgia with a digital fortune teller, customizable with your own fortunes and colors.\nFeatures:\n- Interactive folding and unfolding of the fortune teller using click events.\n- Customizable color schemes using Tailwind CSS classes.\n- Input fields for personalized fortunes.\n- Random fortune selection on final reveal.\n- Mobile-friendly responsive design.\n"
   }
 ]
