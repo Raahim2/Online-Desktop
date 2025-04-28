@@ -418,5 +418,17 @@
       "Color palette hex code display."
     ],
     "raw_output": "Project Name: Serene Sunset Generator\nDescription: Create calming, customizable sunset scenes with dynamic color gradients and subtle animations, bringing a touch of tranquility to your browser.\nFeatures:\n- Adjustable sun position and size.\n- Customizable sky and landscape color palettes.\n- Subtle animation of clouds and sunbeams.\n- Downloadable image of the generated sunset.\n- Color palette hex code display.\n"
+  },
+  {
+    "name": "Interactive Story Weaver",
+    "description": "Craft branching narratives by connecting story segments with visual links, creating dynamic and explorable stories.",
+    "features": [
+      "Drag-and-drop interface for creating and connecting story blocks.",
+      "Text input fields within each block for writing story segments.",
+      "Visual connectors between blocks to represent narrative flow.",
+      "Clickable navigation between connected story segments.",
+      "Option to save and load story creations locally."
+    ],
+    "raw_output": "Project Name: Interactive Story Weaver\nDescription: Craft branching narratives by connecting story segments with visual links, creating dynamic and explorable stories.\nFeatures:\n- Drag-and-drop interface for creating and connecting story blocks.\n- Text input fields within each block for writing story segments.\n- Visual connectors between blocks to represent narrative flow.\n- Clickable navigation between connected story segments.\n- Option to save and load story creations locally.\n"
   }
 ]
