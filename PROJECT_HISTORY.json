@@ -514,5 +514,17 @@
       "Tooltips with additional element details on hover."
     ],
     "raw_output": "Project Name: Element Builder\nDescription: An interactive periodic table where clicking elements reveals detailed information and dynamic visualizations of their atomic structure.\nFeatures:\n- Interactive periodic table layout using Tailwind CSS grid.\n- Element information display on click (atomic number, weight, symbol).\n- Dynamically rendered atomic structure visualization using JavaScript and HTML canvas.\n- Searchable element list for quick access.\n- Tooltips with additional element details on hover.\n"
+  },
+  {
+    "name": "Pixel Art Canvas",
+    "description": "Create and share pixel art masterpieces with a simple, browser-based drawing tool.",
+    "features": [
+      "Customizable grid size and color palette.",
+      "Click-and-drag drawing functionality.",
+      "Downloadable PNG of created artwork.",
+      "\"Undo\" and \"Clear\" functions.",
+      "Simple color picker tool."
+    ],
+    "raw_output": "Project Name: Pixel Art Canvas\nDescription: Create and share pixel art masterpieces with a simple, browser-based drawing tool.\nFeatures:\n- Customizable grid size and color palette.\n- Click-and-drag drawing functionality.\n- Downloadable PNG of created artwork.\n- \"Undo\" and \"Clear\" functions.\n- Simple color picker tool.\n"
   }
 ]
