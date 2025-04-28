@@ -550,5 +550,17 @@
       "Mobile-friendly responsive design."
     ],
     "raw_output": "Project Name: Virtual Paper Fortune Teller\nDescription: Relive childhood nostalgia with a digital fortune teller, customizable with your own fortunes and colors.\nFeatures:\n- Interactive folding and unfolding of the fortune teller using click events.\n- Customizable color schemes using Tailwind CSS classes.\n- Input fields for personalized fortunes.\n- Random fortune selection on final reveal.\n- Mobile-friendly responsive design.\n"
+  },
+  {
+    "name": "Binary Clock",
+    "description": "Tell time in a uniquely geeky way with a dynamic binary clock visualized using colored squares.",
+    "features": [
+      "Real-time binary representation of the current time.",
+      "Customizable color scheme for active and inactive bits using Tailwind CSS.",
+      "Option to display a traditional digital clock alongside the binary visualization.",
+      "Toggle between 12-hour and 24-hour time formats.",
+      "Hover effect on each bit to display its decimal value."
+    ],
+    "raw_output": "Project Name: Binary Clock\nDescription: Tell time in a uniquely geeky way with a dynamic binary clock visualized using colored squares.\nFeatures:\n- Real-time binary representation of the current time.\n- Customizable color scheme for active and inactive bits using Tailwind CSS.\n- Option to display a traditional digital clock alongside the binary visualization.\n- Toggle between 12-hour and 24-hour time formats.\n- Hover effect on each bit to display its decimal value.\n"
   }
 ]
