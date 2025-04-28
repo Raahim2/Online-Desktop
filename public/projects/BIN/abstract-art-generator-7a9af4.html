@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Art Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles if needed, but prefer Tailwind utilities */
+        body {
+            font-family: 'Inter', sans-serif; /* Requires importing Inter or using a Tailwind default */
+        }
+        /* Style range inputs */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Remove default border */
+        }
+        /* Basic animation placeholder */
+        @keyframes basicRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-basic-rotate {
+            animation: basicRotate 10s linear infinite;
+        }
+        @keyframes basicPulse {
+           0%, 100% { opacity: 1; transform: scale(1); }
+           50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .animate-basic-pulse {
+            animation: basicPulse 5s ease-in-out infinite;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white dark:bg-gray-800 shadow-md py-4 px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400">Abstract Art Generator</h1>
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 sm:mt-0">Create unique browser-based abstract art.</p>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8">
+
+        <!-- Control Panel -->
+        <aside class="w-full lg:w-1/3 xl:w-1/4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-5 lg:sticky lg:top-8 lg:self-start">
+            <h2 class="text-xl font-semibold mb-6 border-b border-gray-300 dark:border-gray-600 pb-3">Controls</h2>
+
+            <div class="space-y-6">
+                <!-- Shape Controls -->
+                <section>
+                    <h3 class="text-lg font-medium mb-3 text-indigo-700 dark:text-indigo-400">Shapes</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="shapeCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Number of Shapes (<span id="shapeCountValue">50</span>)</label>
+                            <input type="range" id="shapeCount" name="shapeCount" min="5" max="200" value="50" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="shapeSize" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Size (<span id="shapeSizeValue">30</span>%)</label>
+                            <input type="range" id="shapeSize" name="shapeSize" min="5" max="50" value="30" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="shapeType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shape Type</label>
+                            <select id="shapeType" name="shapeType" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="mixed">Mixed</option>
+                                <option value="circles">Circles</option>
+                                <option value="rectangles">Rectangles</option>
+                                <option value="lines">Lines</option>
+                                <option value="triangles">Triangles (Complex)</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Color Controls -->
+                <section>
+                    <h3 class="text-lg font-medium mb-3 text-indigo-700 dark:text-indigo-400">Colors</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="colorPalette" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Palette</label>
+                            <select id="colorPalette" name="colorPalette" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="random_vibrant">Random Vibrant</option>
+                                <option value="random_pastel">Random Pastel</option>
+                                <option value="blues">Blues</option>
+                                <option value="greens">Greens</option>
+                                <option value="sunset">Sunset</option>
+                                <option value="grayscale">Grayscale</option>
+                                <option value="custom">Custom (Future)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="useGradients" name="useGradients" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:focus:ring-offset-gray-800">
+                            <label for="useGradients" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Use Gradients</label>
+                        </div>
+                         <div>
+                            <label for="backgroundType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background</label>
+                            <select id="backgroundType" name="backgroundType" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="solid_light">Solid Light</option>
+                                <option value="solid_dark">Solid Dark</option>
+                                <option value="gradient_subtle">Subtle Gradient</option>
+                                <option value="transparent">Transparent</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Animation Controls -->
+                <section>
+                    <h3 class="text-lg font-medium mb-3 text-indigo-700 dark:text-indigo-400">Animation</h3>
+                    <div class="flex items-center">
+                        <input id="animateShapes" name="animateShapes" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:focus:ring-offset-gray-800">
+                        <label for="animateShapes" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Animate Elements</label>
+                    </div>
+                     <div class="mt-3">
+                        <label for="animationStyle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Animation Style</label>
+                        <select id="animationStyle" name="animationStyle" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50" disabled>
+                            <option value="gentle_drift">Gentle Drift</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="rotate">Rotate</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Actions -->
+                <section>
+                    <h3 class="text-lg font-medium mb-3 text-indigo-700 dark:text-indigo-400">Actions</h3>
+                    <div class="space-y-3">
+                        <button id="regenerateButton" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-150 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                            </svg>
+                            Regenerate
+                        </button>
+                        <button id="downloadSVGButton" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-150 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Download SVG
+                        </button>
+                        <button id="downloadPNGButton" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-150 ease-in-out">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Download PNG
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </aside>
+
+        <!-- Art Display Area -->
+        <section class="w-full lg:w-2/3 xl:w-3/4 flex-grow flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden">
+            <div id="artContainer" class="w-full h-full aspect-square max-w-full max-h-full border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                <svg id="artCanvas" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet" class="block">
+                    <!-- Placeholder Content / Generated Art -->
+                    <rect width="100%" height="100%" fill="url(#placeholderGradient)" />
+                    <defs>
+                        <linearGradient id="placeholderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" /> <!-- Purple-500 -->
+                            <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" /> <!-- Pink-500 -->
+                        </linearGradient>
+                    </defs>
+                    <circle cx="200" cy="200" r="80" fill="#34d399" opacity="0.7" /> <!-- Emerald-400 -->
+                    <rect x="450" y="300" width="150" height="100" fill="#f59e0b" opacity="0.8" transform="rotate(15, 525, 350)" /> <!-- Amber-500 -->
+                    <line x1="50" y1="500" x2="750" y2="600" stroke="#60a5fa" stroke-width="5" opacity="0.6" /> <!-- Blue-400 -->
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="#6b7280" class="dark:fill-gray-400">Click Regenerate to Start</text>
+                </svg>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-4 mt-8 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+        © <span id="currentYear"></span> Abstract Art Generator. All rights reserved.
+    </footer>
+
+    <script>
+        // --- Configuration & State ---
+        let config = {
+            shapeCount: 50,
+            shapeSize: 30,
+            shapeType: 'mixed',
+            colorPalette: 'random_vibrant',
+            useGradients: false,
+            backgroundType: 'solid_light',
+            animateShapes: false,
+            animationStyle: 'gentle_drift'
+        };
+
+        const palettes = {
+            random_vibrant: () => `hsl(${Math.random() * 360}, ${70 + Math.random() * 30}%, ${50 + Math.random() * 20}%)`,
+            random_pastel: () => `hsl(${Math.random() * 360}, ${50 + Math.random() * 30}%, ${80 + Math.random() * 10}%)`,
+            blues: () => `hsl(${190 + Math.random() * 60}, ${60 + Math.random() * 40}%, ${50 + Math.random() * 30}%)`,
+            greens: () => `hsl(${80 + Math.random() * 60}, ${50 + Math.random() * 40}%, ${45 + Math.random() * 30}%)`,
+            sunset: () => {
+                const hue = Math.random() < 0.6 ? (Math.random() * 40) : (330 + Math.random() * 30); // Oranges/Reds/Pinks
+                return `hsl(${hue % 360}, ${70 + Math.random() * 30}%, ${55 + Math.random() * 20}%)`;
+            },
+            grayscale: () => {
+                const lightness = 10 + Math.random() * 80;
+                return `hsl(0, 0%, ${lightness}%)`;
+            }
+            // custom: () => '#cccccc' // Placeholder
+        };
+
+        // --- DOM Elements ---
+        const artCanvas = document.getElementById('artCanvas');
+        const artContainer = document.getElementById('artContainer');
+        const shapeCountInput = document.getElementById('shapeCount');
+        const shapeCountValueSpan = document.getElementById('shapeCountValue');
+        const shapeSizeInput = document.getElementById('shapeSize');
+        const shapeSizeValueSpan = document.getElementById('shapeSizeValue');
+        const shapeTypeSelect = document.getElementById('shapeType');
+        const colorPaletteSelect = document.getElementById('colorPalette');
+        const useGradientsCheckbox = document.getElementById('useGradients');
+        const backgroundTypeSelect = document.getElementById('backgroundType');
+        const animateCheckbox = document.getElementById('animateShapes');
+        const animationStyleSelect = document.getElementById('animationStyle');
+        const regenerateButton = document.getElementById('regenerateButton');
+        const downloadSVGButton = document.getElementById('downloadSVGButton');
+        const downloadPNGButton = document.getElementById('downloadPNGButton');
+        const currentYearSpan = document.getElementById('currentYear');
+
+        // --- Utility Functions ---
+        const random = (min, max) => Math.random() * (max - min) + min;
+        const randomInt = (min, max) => Math.floor(random(min, max + 1));
+
+        // --- Core Generation Logic ---
+        function generateArt() {
+            console.log("Generating art with config:", config);
+            artCanvas.innerHTML = ''; // Clear previous art
+
+            const viewBoxWidth = 800;
+            const viewBoxHeight = 800;
+            let defs = '<defs>';
+            let gradientCount = 0;
+
+            // 1. Set Background
+            const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            bgRect.setAttribute('width', '100%');
+            bgRect.setAttribute('height', '100%');
+            switch (config.backgroundType) {
+                case 'solid_dark':
+                    bgRect.setAttribute('fill', '#1f2937'); // gray-800
+                    artContainer.classList.remove('bg-gray-50', 'dark:bg-gray-900');
+                    artContainer.classList.add('bg-gray-800');
+                    break;
+                case 'gradient_subtle':
+                    const gradId = `bgGradient${gradientCount++}`;
+                    const c1 = palettes.random_pastel();
+                    const c2 = palettes.random_pastel();
+                    defs += `<linearGradient id="${gradId}" x1="0%" y1="${random(0,100)}%" x2="100%" y2="${random(0,100)}%">
+                               <stop offset="0%" stop-color="${c1}" stop-opacity="0.8" />
+                               <stop offset="100%" stop-color="${c2}" stop-opacity="0.8" />
+                             </linearGradient>`;
+                    bgRect.setAttribute('fill', `url(#${gradId})`);
+                    artContainer.classList.add('bg-gray-50', 'dark:bg-gray-900'); // Keep default container bg
+                    break;
+                 case 'transparent':
+                    bgRect.setAttribute('fill', 'transparent');
+                    artContainer.classList.remove('bg-gray-50', 'dark:bg-gray-900');
+                    artContainer.classList.add('bg-transparent'); // Or maybe a checkerboard pattern via CSS?
+                    break;
+                case 'solid_light':
+                default:
+                    bgRect.setAttribute('fill', '#f9fafb'); // gray-50
+                     artContainer.classList.remove('bg-gray-800');
+                    artContainer.classList.add('bg-gray-50', 'dark:bg-gray-900'); // Reset
+                    break;
+            }
+            artCanvas.appendChild(bgRect);
+
+
+            // 2. Generate Shapes
+            const getColor = palettes[config.colorPalette] || palettes.random_vibrant;
+            const maxSize = (Math.min(viewBoxWidth, viewBoxHeight) * config.shapeSize) / 100;
+
+            for (let i = 0; i < config.shapeCount; i++) {
+                let shape;
+                const currentShapeType = config.shapeType === 'mixed'
+                    ? ['circles', 'rectangles', 'lines'][randomInt(0, 2)]
+                    : config.shapeType;
+
+                const x = random(0, viewBoxWidth);
+                const y = random(0, viewBoxHeight);
+                const size = random(5, maxSize);
+                const opacity = random(0.3, 0.9);
+                const rotation = random(0, 360);
+                const color1 = getColor();
+                let fill = color1;
+
+                // Handle Gradients
+                if (config.useGradients && Math.random() > 0.3) { // Apply gradient randomly
+                    const color2 = getColor();
+                    const gradId = `shapeGradient${gradientCount++}`;
+                    const gradType = Math.random() > 0.5 ? 'linearGradient' : 'radialGradient';
+                    if (gradType === 'linearGradient') {
+                         defs += `<linearGradient id="${gradId}" x1="${random(0,100)}%" y1="${random(0,100)}%" x2="${random(0,100)}%" y2="${random(0,100)}%">
+                                   <stop offset="0%" stop-color="${color1}" />
+                                   <stop offset="100%" stop-color="${color2}" />
+                                 </linearGradient>`;
+                    } else {
+                         defs += `<radialGradient id="${gradId}" cx="${random(25,75)}%" cy="${random(25,75)}%" r="${random(50,100)}%">
+                                   <stop offset="0%" stop-color="${color1}" />
+                                   <stop offset="100%" stop-color="${color2}" />
+                                 </radialGradient>`;
+                    }
+                    fill = `url(#${gradId})`;
+                }
+
+                switch (currentShapeType) {
+                    case 'circles':
+                        shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        shape.setAttribute('cx', x);
+                        shape.setAttribute('cy', y);
+                        shape.setAttribute('r', size / 2);
+                        shape.setAttribute('fill', fill);
+                        shape.setAttribute('opacity', opacity);
+                        break;
+                    case 'rectangles':
+                        shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                        shape.setAttribute('x', x - size / 2);
+                        shape.setAttribute('y', y - size / 2);
+                        shape.setAttribute('width', size * random(0.5, 1.5));
+                        shape.setAttribute('height', size * random(0.5, 1.5));
+                        shape.setAttribute('fill', fill);
+                        shape.setAttribute('opacity', opacity);
+                        shape.setAttribute('transform', `rotate(${rotation}, ${x}, ${y})`);
+                        break;
+                    case 'lines':
+                        shape = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        const length = size * random(1, 5);
+                        const angleRad = rotation * (Math.PI / 180);
+                        shape.setAttribute('x1', x);
+                        shape.setAttribute('y1', y);
+                        shape.setAttribute('x2', x + Math.cos(angleRad) * length);
+                        shape.setAttribute('y2', y + Math.sin(angleRad) * length);
+                        shape.setAttribute('stroke', color1); // Lines use stroke
+                        shape.setAttribute('stroke-width', random(1, maxSize / 10));
+                        shape.setAttribute('opacity', opacity);
+                        break;
+                    // case 'triangles': // More complex: requires polygon element
+                    //     shape = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                    //     // Calculate 3 points for the triangle based on x, y, size, rotation
+                    //     // e.g., points = `${x},${y-size/2} ${x-size/2},${y+size/2} ${x+size/2},${y+size/2}`;
+                    //     // shape.setAttribute('points', points);
+                    //     // shape.setAttribute('fill', fill);
+                    //     // shape.setAttribute('opacity', opacity);
+                    //     // shape.setAttribute('transform', `rotate(${rotation}, ${x}, ${y})`);
+                    //     break; // Skip triangles for now
+                }
+
+                if (shape) {
+                    // Apply animation if enabled
+                    if (config.animateShapes) {
+                        let animClass = '';
+                        switch(config.animationStyle) {
+                            case 'pulse': animClass = 'animate-basic-pulse'; break;
+                            case 'rotate': animClass = 'animate-basic-rotate'; break;
+                            case 'gentle_drift': // Requires more complex @keyframes or JS animation
+                            default:
+                                // Apply a slight random delay/duration variation for drift
+                                shape.style.animation = `basicPulse ${random(5, 15)}s ease-in-out infinite alternate, basicRotate ${random(10, 30)}s linear infinite alternate`;
+                                shape.style.transformOrigin = 'center center'; // Ensure rotation is centered
+                                break;
+                        }
+                        if(animClass) shape.classList.add(animClass);
+                        // Add slight random animation delays/durations for less uniformity
+                        shape.style.animationDelay = `${random(0, 2)}s`;
+                        // shape.style.animationDuration = `${random(8, 15)}s`; // Overrides CSS duration
+                    }
+                    artCanvas.appendChild(shape);
+                }
+            }
+
+            // 3. Add Defs
+            defs += '</defs>';
+            artCanvas.insertAdjacentHTML('afterbegin', defs); // Insert defs at the beginning
+        }
+
+        // --- Event Listeners ---
+        function updateConfigFromUI() {
+            config.shapeCount = parseInt(shapeCountInput.value, 10);
+            config.shapeSize = parseInt(shapeSizeInput.value, 10);
+            config.shapeType = shapeTypeSelect.value;
+            config.colorPalette = colorPaletteSelect.value;
+            config.useGradients = useGradientsCheckbox.checked;
+            config.backgroundType = backgroundTypeSelect.value;
+            config.animateShapes = animateCheckbox.checked;
+            config.animationStyle = animationStyleSelect.value;
+
+            // Update displayed values
+            shapeCountValueSpan.textContent = config.shapeCount;
+            shapeSizeValueSpan.textContent = config.shapeSize;
+
+            // Enable/disable animation style dropdown
+            animationStyleSelect.disabled = !config.animateShapes;
+            if (!config.animateShapes) {
+                animationStyleSelect.classList.add('disabled:opacity-50');
+            } else {
+                animationStyleSelect.classList.remove('disabled:opacity-50');
+            }
+        }
+
+        shapeCountInput.addEventListener('input', () => {
+            shapeCountValueSpan.textContent = shapeCountInput.value;
+            // Optionally regenerate on slider change (can be slow)
+            // updateConfigFromUI();
+            // generateArt();
+        });
+         shapeSizeInput.addEventListener('input', () => {
+            shapeSizeValueSpan.textContent = shapeSizeInput.value;
+         });
+
+        // Update config when any control changes
+        [shapeCountInput, shapeSizeInput, shapeTypeSelect, colorPaletteSelect, useGradientsCheckbox, backgroundTypeSelect, animateCheckbox, animationStyleSelect].forEach(el => {
+            el.addEventListener('change', () => {
+                updateConfigFromUI();
+                 // Regenerate only on button click or major changes, not every slider move
+                 // generateArt();
+            });
+        });
+
+        regenerateButton.addEventListener('click', () => {
+            updateConfigFromUI(); // Ensure latest values are used
+            generateArt();
+        });
+
+        // --- Download Functionality ---
+        function serializeSVG() {
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(artCanvas);
+
+            // Add XML declaration and potentially inline styles if needed for broader compatibility
+            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+                 source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+            }
+            // Add doctype for good measure
+            source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+            // Create a blob object
+            const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            return svgBlob;
+        }
+
+        downloadSVGButton.addEventListener('click', () => {
+            const svgBlob = serializeSVG();
+            const url = URL.createObjectURL(svgBlob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.download = "abstract-art.svg";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
+        });
+
+        downloadPNGButton.addEventListener('click', () => {
+            const svgBlob = serializeSVG();
+            const url = URL.createObjectURL(svgBlob);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            // Get the explicit size of the SVG for rendering
+            const svgRect = artCanvas.getBoundingClientRect();
+            const scale = 2; // Increase scale for higher resolution PNG
+            canvas.width = svgRect.width * scale;
+            canvas.height = svgRect.height * scale;
+
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url); // Revoke the blob URL once the image is loaded
+
+                // Trigger PNG download
+                const pngUrl = canvas.toDataURL("image/png");
+                const downloadLink = document.createElement("a");
+                downloadLink.href = pngUrl;
+                downloadLink.download = "abstract-art.png";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+
+            img.onerror = function(e) {
+                console.error("Error loading SVG into image for PNG conversion:", e);
+                URL.revokeObjectURL(url);
+                alert("Error generating PNG. SVG might contain unsupported features or external resources.");
+            }
+
+            img.src = url; // Load the SVG blob URL into the Image object
+        });
+
+
+        // --- Initial Setup ---
+        currentYearSpan.textContent = new Date().getFullYear();
+        updateConfigFromUI(); // Set initial values
+        // generateArt(); // Optional: generate art on initial load
+
+    </script>
+
+</body>
+</html>
