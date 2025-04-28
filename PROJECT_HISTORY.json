@@ -430,5 +430,17 @@
       "Option to save and load story creations locally."
     ],
     "raw_output": "Project Name: Interactive Story Weaver\nDescription: Craft branching narratives by connecting story segments with visual links, creating dynamic and explorable stories.\nFeatures:\n- Drag-and-drop interface for creating and connecting story blocks.\n- Text input fields within each block for writing story segments.\n- Visual connectors between blocks to represent narrative flow.\n- Clickable navigation between connected story segments.\n- Option to save and load story creations locally.\n"
+  },
+  {
+    "name": "Personalized Anagram Solver",
+    "description": "Unleash your inner wordsmith by discovering hidden anagrams within any word or phrase you enter.",
+    "features": [
+      "Input field for entering words or phrases.",
+      "Real-time anagram generation and display.",
+      "Filtering and sorting options for anagram results.",
+      "Copy-to-clipboard functionality for easily sharing discovered anagrams.",
+      "Option to highlight specific letter combinations within the anagrams."
+    ],
+    "raw_output": "Project Name: Personalized Anagram Solver\nDescription:  Unleash your inner wordsmith by discovering hidden anagrams within any word or phrase you enter.\nFeatures:\n- Input field for entering words or phrases.\n- Real-time anagram generation and display.\n- Filtering and sorting options for anagram results.\n- Copy-to-clipboard functionality for easily sharing discovered anagrams.\n- Option to highlight specific letter combinations within the anagrams.\n"
   }
 ]
