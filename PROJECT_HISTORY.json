@@ -442,5 +442,17 @@
       "Option to highlight specific letter combinations within the anagrams."
     ],
     "raw_output": "Project Name: Personalized Anagram Solver\nDescription:  Unleash your inner wordsmith by discovering hidden anagrams within any word or phrase you enter.\nFeatures:\n- Input field for entering words or phrases.\n- Real-time anagram generation and display.\n- Filtering and sorting options for anagram results.\n- Copy-to-clipboard functionality for easily sharing discovered anagrams.\n- Option to highlight specific letter combinations within the anagrams.\n"
+  },
+  {
+    "name": "Abstract Art Generator",
+    "description": "Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns, directly in your browser.",
+    "features": [
+      "Customizable parameters for shape generation (number, size, type).",
+      "Dynamic color palettes and gradient options using Tailwind CSS.",
+      "Downloadable SVG or PNG of the generated artwork.",
+      "Interactive controls for regenerating and tweaking the art.",
+      "Option to animate the shapes and patterns."
+    ],
+    "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns, directly in your browser.\nFeatures:\n- Customizable parameters for shape generation (number, size, type).\n- Dynamic color palettes and gradient options using Tailwind CSS.\n- Downloadable SVG or PNG of the generated artwork.\n- Interactive controls for regenerating and tweaking the art.\n- Option to animate the shapes and patterns.\n"
   }
 ]
