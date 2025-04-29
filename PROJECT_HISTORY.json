@@ -670,5 +670,17 @@
       "Adjustable line styles and colors."
     ],
     "raw_output": "Project Name: Geometric Constellation Creator\nDescription: Design and explore unique constellations by connecting points on a starfield, revealing emergent patterns and celestial art.\nFeatures:\n- Click and drag to create points and connecting lines.\n- Customizable star density and appearance using Tailwind CSS.\n- Downloadable SVG of the created constellation.\n- Undo/Redo functionality for refining designs.\n- Adjustable line styles and colors.\n"
+  },
+  {
+    "name": "Kinetic Typography Playground",
+    "description": "Explore the dynamic interplay of text and motion by creating animated typographic compositions with adjustable parameters.",
+    "features": [
+      "Input field for custom text.",
+      "Controls for font, size, color, and animation style using Tailwind CSS and JavaScript.",
+      "Adjustable animation speed and direction.",
+      "Preset animation options for quick experimentation.",
+      "Downloadable GIF of the animated text."
+    ],
+    "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Explore the dynamic interplay of text and motion by creating animated typographic compositions with adjustable parameters.\nFeatures:\n- Input field for custom text.\n- Controls for font, size, color, and animation style using Tailwind CSS and JavaScript.\n- Adjustable animation speed and direction.\n- Preset animation options for quick experimentation.\n- Downloadable GIF of the animated text.\n"
   }
 ]
