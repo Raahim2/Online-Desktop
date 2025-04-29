@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene Sunset Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        #sunset-scene {
+            transition: background 0.8s ease-in-out; /* Smoother background transition */
+        }
+        #sun {
+            transition: all 0.8s ease-in-out; /* Smoother sun transition */
+            box-shadow: 0 0 40px 10px rgba(255, 223, 186, 0.7); /* Default soft glow */
+        }
+        .cloud {
+             animation: drift 80s linear infinite alternate;
+             transition: opacity 0.8s ease-in-out; /* Smooth fade for clouds */
+        }
+         @keyframes drift {
+            0% { transform: translateX(-15%) scale(0.95); }
+            50% { transform: translateX(15%) scale(1.05); }
+            100% { transform: translateX(-15%) scale(0.95); }
+        }
+        /* Custom range input styles */
+        input[type=range] {
+            -webkit-appearance: none; appearance: none;
+            width: 100%; height: 6px;
+            background: #e5e7eb; /* gray-200 */
+            outline: none; opacity: 0.9;
+            -webkit-transition: .2s; transition: opacity .2s;
+            border-radius: 9999px; cursor: pointer;
+        }
+        input[type=range]:hover { opacity: 1; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px;
+            background: #4f46e5; /* indigo-600 */
+            border-radius: 50%; cursor: pointer;
+            border: 2px solid white; /* Add border for better visibility */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 18px; height: 18px;
+            background: #4f46e5; /* indigo-600 */
+            border-radius: 50%; cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+         /* Ensure body takes full height */
+        html, body { height: 100%; margin: 0; padding: 0; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+
+    <div id="app-container" class="flex flex-col h-screen">
+
+        <!-- Sunset Scene Area -->
+        <main id="sunset-scene" class="relative w-full flex-grow overflow-hidden flex items-center justify-center bg-gradient-to-b from-sky-400 to-orange-300">
+            <!-- Sun -->
+            <div id="sun" class="absolute rounded-full bg-yellow-400" style="width: 10vmin; height: 10vmin; left: calc(50% - 5vmin); top: 30%;"></div>
+
+            <!-- Clouds -->
+            <div class="cloud absolute top-[15%] left-[10%] w-[15vmin] h-[8vmin] bg-white/70 rounded-full filter blur-sm opacity-80"></div>
+            <div class="cloud absolute top-[25%] left-[65%] w-[22vmin] h-[12vmin] bg-white/60 rounded-full filter blur-md opacity-70"></div>
+            <div class="cloud absolute top-[12%] left-[80%] w-[12vmin] h-[6vmin] bg-white/75 rounded-full filter blur-xs opacity-90"></div>
+            <div class="cloud absolute top-[35%] left-[30%] w-[18vmin] h-[10vmin] bg-white/65 rounded-full filter blur opacity-75"></div>
+        </main>
+
+        <!-- Controls Area -->
+        <footer class="bg-white/90 backdrop-blur-sm p-3 sm:p-4 shadow-lg w-full border-t border-gray-200">
+            <div class="container mx-auto max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+
+                <!-- Time of Day Slider -->
+                <div class="space-y-1 px-2">
+                    <label for="time-slider" class="block text-sm font-medium text-gray-700">Time of Day</label>
+                    <input id="time-slider" type="range" min="0" max="100" value="45" class="w-full">
+                    <div class="flex justify-between text-xs text-gray-500 px-1">
+                        <span>Noon</span>
+                        <span>Sunset</span>
+                        <span>Night</span>
+                    </div>
+                </div>
+
+                <!-- Sun Size Slider -->
+                 <div class="space-y-1 px-2">
+                    <label for="sun-size-slider" class="block text-sm font-medium text-gray-700">Sun Size</label>
+                    <input id="sun-size-slider" type="range" min="5" max="25" value="10" class="w-full">
+                     <div class="flex justify-between text-xs text-gray-500 px-1">
+                        <span>Small</span>
+                        <span>Large</span>
+                    </div>
+                </div>
+
+                <!-- Sound Toggle -->
+                <div class="flex justify-center py-2 sm:py-0">
+                     <button id="sound-toggle" title="Toggle Ambient Sound" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out flex items-center space-x-2">
+                        <svg id="sound-icon-on" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                         <svg id="sound-icon-off" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        <span id="sound-text" class="text-sm">Play Sound</span>
+                    </button>
+                    <audio id="background-sound" loop preload="metadata">
+                        <!-- Placeholder sound - replace with a suitable ambient track -->
+                        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+
+                 <!-- Download Button -->
+                <div class="flex justify-center py-2 sm:py-0">
+                    <button id="download-button" title="Download Scene as Image" class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center space-x-2">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                         <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                       </svg>
+                        <span class="text-sm">Download</span>
+                    </button>
+                </div>
+
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        const scene = document.getElementById('sunset-scene');
+        const sun = document.getElementById('sun');
+        const timeSlider = document.getElementById('time-slider');
+        const sunSizeSlider = document.getElementById('sun-size-slider');
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundIconOn = document.getElementById('sound-icon-on');
+        const soundIconOff = document.getElementById('sound-icon-off');
+        const soundText = document.getElementById('sound-text');
+        const backgroundSound = document.getElementById('background-sound');
+        const downloadButton = document.getElementById('download-button');
+        const clouds = document.querySelectorAll('.cloud');
+
+        let isSoundPlaying = false;
+        backgroundSound.volume = 0.25; // Start quieter
+
+        // --- Gradient Definitions ---
+        // Format: [timeValue, skyColorStart, skyColorMid, skyColorEnd, sunColor, sunGlowColor]
+        const gradients = [
+            [0,   '#87CEEB', '#B0E0E6', '#ADD8E6', '#FFFFE0', 'rgba(255, 255, 224, 0.6)'], // Noon: Sky Blue -> Powder Blue -> Light Blue, Light Yellow Sun
+            [35,  '#4682B4', '#87CEFA', '#FFDAB9', '#FFFACD', 'rgba(255, 250, 205, 0.7)'], // Afternoon: Steel Blue -> Light Sky Blue -> Peach Puff, Lemon Chiffon Sun
+            [55,  '#FFB6C1', '#FFA07A', '#FF7F50', '#FFD700', 'rgba(255, 215, 0, 0.8)'],   // Sunset Approaching: Light Pink -> Light Salmon -> Coral, Gold Sun
+            [75,  '#FF6347', '#CD5C5C', '#8B008B', '#FFA500', 'rgba(255, 165, 0, 0.9)'],   // Sunset Peak: Tomato -> Indian Red -> Dark Magenta, Orange Sun
+            [90,  '#483D8B', '#2c2a65', '#191970', '#FF8C00', 'rgba(255, 140, 0, 0.7)'],   // Twilight: Dark Slate Blue -> Darker Blue -> Midnight Blue, Dark Orange Sun/Moon
+            [100, '#0b0d2e', '#191970', '#000000', '#F0E68C', 'rgba(240, 230, 140, 0.5)']   // Night: Very Dark Blue -> Midnight Blue -> Black, Pale Khaki Moon
+        ];
+
+        // --- Utility: Hex to RGB ---
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        // --- Utility: RGB to Hex ---
+        function rgbToHex(r, g, b) {
+          return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
+
+        // --- Utility: Linear Interpolation for Colors (RGB) ---
+        function lerpColor(color1, color2, factor) {
+            const c1 = typeof color1 === 'string' ? hexToRgb(color1) : color1; // Allow passing RGB objects
+            const c2 = typeof color2 === 'string' ? hexToRgb(color2) : color2;
+            if (!c1 || !c2) return rgbToHex(128, 128, 128); // Fallback grey
+
+            // Clamp factor
+             factor = Math.max(0, Math.min(1, factor));
+
+            const r = Math.round(c1.r + factor * (c2.r - c1.r));
+            const g = Math.round(c1.g + factor * (c2.g - c1.g));
+            const b = Math.round(c1.b + factor * (c2.b - c1.b));
+            return { r, g, b }; // Return RGB object for potential further use
+        }
+
+         // --- Update Scene Function ---
+        function updateScene() {
+            const timeValue = parseInt(timeSlider.value);
+            const sunSizeValue = parseInt(sunSizeSlider.value); // vmin units
+
+            // Find gradient stops
+            let g1, g2;
+            for (let i = 0; i < gradients.length - 1; i++) {
+                if (timeValue >= gradients[i][0] && timeValue <= gradients[i+1][0]) {
+                    g1 = gradients[i];
+                    g2 = gradients[i+1];
+                    break;
+                }
+            }
+             if (!g1 || !g2) { // Handle edge case (shouldn't happen with loop logic but safe)
+                 g1 = gradients[gradients.length - 2];
+                 g2 = gradients[gradients.length - 1];
+             }
+
+            // Calculate interpolation factor (normalize between the two stops)
+            const segmentDuration = g2[0] - g1[0];
+            const timeIntoSegment = timeValue - g1[0];
+            const factor = segmentDuration === 0 ? 0 : timeIntoSegment / segmentDuration;
+
+            // Interpolate colors (getting RGB objects)
+            const skyStartRgb = lerpColor(g1[1], g2[1], factor);
+            const skyMidRgb = lerpColor(g1[2], g2[2], factor);
+            const skyEndRgb = lerpColor(g1[3], g2[3], factor);
+            const sunRgb = lerpColor(g1[4], g2[4], factor);
+
+            // Interpolate sun glow color (RGBA strings directly for box-shadow)
+            const glow1 = g1[5];
+            const glow2 = g2[5];
+            // Basic RGBA interpolation (less precise than RGB but ok for glow)
+            const rgbaRegex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+            const match1 = glow1.match(rgbaRegex);
+            const match2 = glow2.match(rgbaRegex);
+            let sunGlowColor = glow1; // Default to start color
+            if (match1 && match2) {
+                const r1 = parseInt(match1[1]), g1_ = parseInt(match1[2]), b1 = parseInt(match1[3]), a1 = parseFloat(match1[4] ?? 1);
+                const r2 = parseInt(match2[1]), g2_ = parseInt(match2[2]), b2 = parseInt(match2[3]), a2 = parseFloat(match2[4] ?? 1);
+                const r = Math.round(r1 + factor * (r2 - r1));
+                const g = Math.round(g1_ + factor * (g2_ - g1_));
+                const b = Math.round(b1 + factor * (b2 - b1));
+                const a = a1 + factor * (a2 - a1);
+                sunGlowColor = `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
+            }
+
+
+            // Apply background gradient (3 stops)
+            scene.style.background = `linear-gradient(to bottom, rgb(${skyStartRgb.r}, ${skyStartRgb.g}, ${skyStartRgb.b}), rgb(${skyMidRgb.r}, ${skyMidRgb.g}, ${skyMidRgb.b}), rgb(${skyEndRgb.r}, ${skyEndRgb.g}, ${skyEndRgb.b}))`;
+
+            // Apply sun color
+            sun.style.backgroundColor = `rgb(${sunRgb.r}, ${sunRgb.g}, ${sunRgb.b})`;
+
+            // Apply sun size
+            const size = `${sunSizeValue}vmin`;
+            sun.style.width = size;
+            sun.style.height = size;
+
+            // Calculate and apply sun position (Y-axis)
+            // Map time (0-100) to vertical position (e.g., 15% to 95% from top)
+            // Make it sink faster towards the end
+            const yPosFactor = Math.pow(timeValue / 100, 1.5); // Exponential curve for sinking
+            const sunYPercent = 15 + yPosFactor * 80; // Range from 15% to 95% top offset
+            sun.style.top = `${sunYPercent}%`;
+            // Center horizontally, adjusting for size
+            sun.style.left = `calc(50% - ${sunSizeValue / 2}vmin)`;
+
+            // Apply sun glow
+            const glowSize = Math.max(5, sunSizeValue * 1.5); // Glow size relative to sun size
+            sun.style.boxShadow = `0 0 ${glowSize}px ${glowSize / 3}px ${sunGlowColor}`;
+
+            // Adjust cloud opacity (fade out more significantly at night)
+            const cloudOpacityFactor = Math.max(0, 1 - Math.pow(timeValue / 100, 3)); // Faster fade out
+             clouds.forEach(cloud => {
+                 // Get base opacity from inline style or computed style if necessary
+                 let baseOpacity = cloud.dataset.baseOpacity;
+                 if (!baseOpacity) {
+                     // Store the initial computed opacity on first run
+                     baseOpacity = window.getComputedStyle(cloud).opacity;
+                     cloud.dataset.baseOpacity = baseOpacity;
+                 }
+                 cloud.style.opacity = parseFloat(baseOpacity) * cloudOpacityFactor;
+             });
+        }
+
+
+        // --- Event Listeners ---
+        timeSlider.addEventListener('input', updateScene);
+        sunSizeSlider.addEventListener('input', updateScene);
+
+        soundToggle.addEventListener('click', () => {
+            if (backgroundSound.paused) {
+                backgroundSound.play().then(() => {
+                    isSoundPlaying = true;
+                    soundIconOn.classList.remove('hidden');
+                    soundIconOff.classList.add('hidden');
+                    soundText.textContent = 'Mute Sound';
+                }).catch(error => {
+                    console.error("Audio play failed:", error);
+                    // Maybe show a user message here
+                    isSoundPlaying = false; // Ensure state is correct
+                });
+            } else {
+                backgroundSound.pause();
+                isSoundPlaying = false;
+                soundIconOn.classList.add('hidden');
+                soundIconOff.classList.remove('hidden');
+                soundText.textContent = 'Play Sound';
+            }
+        });
+
+         backgroundSound.addEventListener('pause', () => {
+             // Update UI if paused externally (e.g., by browser)
+             if (isSoundPlaying) { // Only update if we thought it was playing
+                isSoundPlaying = false;
+                soundIconOn.classList.add('hidden');
+                soundIconOff.classList.remove('hidden');
+                soundText.textContent = 'Play Sound';
+             }
+         });
+         backgroundSound.addEventListener('play', () => {
+              // Update UI if played externally (less common)
+             if (!isSoundPlaying) { // Only update if we thought it was paused
+                isSoundPlaying = true;
+                soundIconOn.classList.remove('hidden');
+                soundIconOff.classList.add('hidden');
+                soundText.textContent = 'Mute Sound';
+             }
+         });
+
+
+         // Pause sound if user switches tabs
+         document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isSoundPlaying) {
+                backgroundSound.pause();
+            } else if (!document.hidden && isSoundPlaying && backgroundSound.paused) {
+                 // Try to resume only if it was playing before tab switch and is now paused
+                 backgroundSound.play().catch(error => console.error("Audio resume failed:", error));
+            }
+         });
+
+
+        downloadButton.addEventListener('click', () => {
+            const footer = document.querySelector('footer');
+            footer.style.opacity = '0'; // Hide footer smoothly for capture
+
+            // Wait a moment for opacity transition before capturing
+            setTimeout(() => {
+                html2canvas(scene, {
+                     useCORS: true,
+                     backgroundColor: null, // Capture actual gradient
+                     // scale: window.devicePixelRatio > 1 ? 2 : 1, // Increase scale for potentially sharper images on retina
+                     logging: false // Suppress html2canvas console logs
+                }).then(canvas => {
+                    const image = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = `serene-sunset-${Date.now()}.png`; // Add timestamp to filename
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    footer.style.opacity = '1'; // Show footer again
+                }).catch(err => {
+                    console.error("Image capture failed:", err);
+                    alert("Sorry, could not capture the image. Check console for details.");
+                    footer.style.opacity = '1'; // Ensure footer is shown even if error occurs
+                });
+            }, 100); // Small delay for fade out
+        });
+
+        // --- Initial Setup ---
+        // Store initial cloud opacities before first update potentially changes them
+        clouds.forEach(cloud => {
+             cloud.dataset.baseOpacity = window.getComputedStyle(cloud).opacity;
+        });
+        updateScene(); // Set initial state based on default slider values
+
+    </script>
+
+</body>
+</html>
