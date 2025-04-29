@@ -742,5 +742,17 @@
       "Downloadable image of the current sunset scene."
     ],
     "raw_output": "Project Name: Serene Sunset Simulator\nDescription: Recreate the calming beauty of a sunset with dynamic color gradients and gentle animation, offering a moment of digital tranquility.\nFeatures:\n- Customizable sky gradient based on time-of-day slider.\n- Animated sun and cloud elements.\n- Ambient background soundscape toggled by a button.\n- Adjustable sun size and position.\n- Downloadable image of the current sunset scene.\n"
+  },
+  {
+    "name": "Mini Musical Keyboard",
+    "description": "Play simple melodies and chords directly in your browser with a customizable virtual keyboard.",
+    "features": [
+      "Clickable keys to play corresponding notes.",
+      "Customizable keyboard size and octave range.",
+      "Option to display note names on the keys.",
+      "Visual feedback when keys are pressed.",
+      "Simple chord progression playback functionality."
+    ],
+    "raw_output": "Project Name: Mini Musical Keyboard\nDescription: Play simple melodies and chords directly in your browser with a customizable virtual keyboard.\nFeatures:\n- Clickable keys to play corresponding notes.\n- Customizable keyboard size and octave range.\n- Option to display note names on the keys.\n- Visual feedback when keys are pressed.\n- Simple chord progression playback functionality.\n"
   }
 ]
