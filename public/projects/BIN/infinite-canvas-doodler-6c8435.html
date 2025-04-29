@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Canvas Doodler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic styles for canvas and body to prevent scrolling */
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* Fallback background */
+        }
+        #canvas {
+            display: block; /* Remove extra space below canvas */
+            cursor: crosshair;
+            background-color: #ffffff; /* Default canvas background */
+        }
+        /* Style for color picker */
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 50%;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 50%;
+        }
+         input[type="color"]::-moz-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 50%;
+        }
+        /* Custom scrollbar for range input */
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          background: #4F46E5; /* Indigo-600 */
+          cursor: pointer;
+          border-radius: 50%;
+        }
+
+        input[type=range]::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          background: #4F46E5; /* Indigo-600 */
+          cursor: pointer;
+          border-radius: 50%;
+          border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+
+    <!-- Toolbar -->
+    <nav class="bg-white shadow-md p-2 flex flex-wrap items-center justify-center gap-2 md:gap-4 z-10">
+        <!-- Brush Color -->
+        <div class="flex items-center gap-2" title="Brush Color">
+            <label for="brushColor" class="text-sm text-gray-600">Color:</label>
+            <input type="color" id="brushColor" value="#000000">
+        </div>
+
+        <!-- Brush Size -->
+        <div class="flex items-center gap-2" title="Brush Size">
+            <label for="brushSize" class="text-sm text-gray-600">Size:</label>
+            <input type="range" id="brushSize" min="1" max="50" value="5" class="w-20 md:w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+            <span id="brushSizeValue" class="text-sm text-gray-700 w-6 text-right">5</span>
+        </div>
+
+        <!-- Undo/Redo -->
+        <div class="flex gap-2">
+            <button id="undoBtn" title="Undo (Ctrl+Z)" class="p-2 rounded hover:bg-gray-200 active:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <button id="redoBtn" title="Redo (Ctrl+Y)" class="p-2 rounded hover:bg-gray-200 active:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.293 3.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 9H9a7 7 0 00-7 7v2a1 1 0 11-2 0v-2a9 9 0 019-9h5.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Background Color -->
+        <div class="flex items-center gap-2" title="Background Color">
+             <label for="bgColor" class="text-sm text-gray-600">Bg:</label>
+            <input type="color" id="bgColor" value="#ffffff">
+        </div>
+
+        <!-- Download -->
+        <button id="downloadBtn" title="Download Canvas" class="p-2 rounded hover:bg-gray-200 active:bg-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+
+        <!-- Reset View -->
+         <button id="resetViewBtn" title="Reset View" class="p-2 rounded hover:bg-gray-200 active:bg-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 10H3m0 0v7m0-7h7m-7 0L21 3" />
+            </svg>
+        </button>
+    </nav>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container" class="flex-grow relative overflow-hidden bg-gray-300">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const brushColorInput = document.getElementById('brushColor');
+        const brushSizeInput = document.getElementById('brushSize');
+        const brushSizeValueSpan = document.getElementById('brushSizeValue');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const bgColorInput = document.getElementById('bgColor');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetViewBtn = document.getElementById('resetViewBtn');
+        const canvasContainer = document.getElementById('canvas-container');
+
+        let isDrawing = false;
+        let isPanning = false;
+        let lastX = 0;
+        let lastY = 0;
+        let panStartX = 0;
+        let panStartY = 0;
+
+        // Drawing state
+        let history = [];
+        let historyIndex = -1;
+        let currentPath = null; // Store the current path being drawn
+
+        // View state
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+
+        // Tool state
+        let brushSize = 5;
+        let brushColor = '#000000';
+        let backgroundColor = '#ffffff';
+
+        // --- Initialization ---
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvasContainer.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+            ctx.scale(dpr, dpr); // Scale context to account for high DPI displays
+            redrawCanvas(); // Redraw after resize
+        }
+
+        function initialize() {
+            resizeCanvas();
+            brushSize = brushSizeInput.value;
+            brushColor = brushColorInput.value;
+            backgroundColor = bgColorInput.value;
+            canvas.style.backgroundColor = backgroundColor; // Set initial CSS background
+            updateButtonStates();
+
+            // Event Listeners
+            canvas.addEventListener('mousedown', startAction);
+            canvas.addEventListener('mousemove', performAction);
+            canvas.addEventListener('mouseup', stopAction);
+            canvas.addEventListener('mouseleave', stopAction); // Stop drawing if mouse leaves canvas
+
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd);
+            canvas.addEventListener('touchcancel', handleTouchEnd);
+
+            canvas.addEventListener('wheel', handleWheel, { passive: false });
+
+            brushColorInput.addEventListener('input', (e) => brushColor = e.target.value);
+            brushSizeInput.addEventListener('input', (e) => {
+                brushSize = e.target.value;
+                brushSizeValueSpan.textContent = brushSize;
+            });
+            bgColorInput.addEventListener('input', (e) => {
+                backgroundColor = e.target.value;
+                canvas.style.backgroundColor = backgroundColor; // Update CSS background
+                redrawCanvas(); // Redraw with new background color
+            });
+
+            undoBtn.addEventListener('click', undo);
+            redoBtn.addEventListener('click', redo);
+            downloadBtn.addEventListener('click', downloadCanvas);
+            resetViewBtn.addEventListener('click', resetView);
+
+            window.addEventListener('resize', resizeCanvas);
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'z') {
+                        e.preventDefault();
+                        undo();
+                    } else if (e.key === 'y') {
+                        e.preventDefault();
+                        redo();
+                    }
+                }
+            });
+        }
+
+        // --- Coordinate Transformation ---
+
+        function getCanvasCoords(event) {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            // Use changedTouches for touch events, otherwise use clientX/Y
+            const clientX = event.changedTouches ? event.changedTouches[0].clientX : event.clientX;
+            const clientY = event.changedTouches ? event.changedTouches[0].clientY : event.clientY;
+
+            // Calculate coordinates relative to the canvas element, scaled by DPR
+            const elementX = (clientX - rect.left);
+            const elementY = (clientY - rect.top);
+
+            // Transform coordinates based on current pan and zoom
+            const canvasX = (elementX - panX) / scale;
+            const canvasY = (elementY - panY) / scale;
+
+            return { x: canvasX, y: canvasY };
+        }
+
+         // --- Drawing Logic ---
+
+        function startDrawing(x, y) {
+            isDrawing = true;
+            currentPath = {
+                points: [{ x, y }],
+                color: brushColor,
+                size: brushSize
+            };
+            // Draw the starting point immediately for dots
+            drawDot(x, y, brushSize, brushColor);
+        }
+
+        function draw(x, y) {
+            if (!isDrawing || !currentPath) return;
+
+            const lastPoint = currentPath.points[currentPath.points.length - 1];
+            drawLine(lastPoint.x, lastPoint.y, x, y, currentPath.color, currentPath.size);
+            currentPath.points.push({ x, y });
+        }
+
+        function stopDrawing() {
+            if (isDrawing && currentPath && currentPath.points.length > 0) {
+                // Add the completed path to history
+                addHistory(currentPath);
+            }
+            isDrawing = false;
+            currentPath = null;
+        }
+
+        function drawDot(x, y, size, color) {
+            // Apply view transform before drawing
+            ctx.save();
+            ctx.translate(panX, panY);
+            ctx.scale(scale, scale);
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore(); // Restore original transform
+        }
+
+        function drawLine(x1, y1, x2, y2, color, size) {
+             // Apply view transform before drawing
+            ctx.save();
+            ctx.translate(panX, panY);
+            ctx.scale(scale, scale);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            ctx.restore(); // Restore original transform
+        }
+
+         // --- Panning Logic ---
+
+        function startPanning(x, y) {
+            isPanning = true;
+            canvas.style.cursor = 'grabbing';
+            panStartX = x - panX; // Store initial mouse position relative to pan origin
+            panStartY = y - panY;
+        }
+
+        function pan(x, y) {
+            if (!isPanning) return;
+            panX = x - panStartX;
+            panY = y - panStartY;
+            redrawCanvas();
+        }
+
+        function stopPanning() {
+            if (isPanning) {
+                isPanning = false;
+                canvas.style.cursor = 'crosshair'; // Or 'grab' if implementing a pan tool toggle
+            }
+        }
+
+        // --- Zooming Logic ---
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const direction = e.deltaY < 0 ? 1 : -1; // 1 for zoom in, -1 for zoom out
+            const zoomFactor = 1 + direction * zoomIntensity;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left; // Mouse X relative to canvas element
+            const mouseY = e.clientY - rect.top;  // Mouse Y relative to canvas element
+
+            // Calculate world coordinates before zoom
+            const worldXBefore = (mouseX - panX) / scale;
+            const worldYBefore = (mouseY - panY) / scale;
+
+            // Update scale
+            const newScale = Math.max(0.1, Math.min(10, scale * zoomFactor)); // Clamp scale
+
+            // Calculate world coordinates after zoom (if centered on 0,0)
+            // const worldXAfter = (mouseX - panX) / newScale;
+            // const worldYAfter = (mouseY - panY) / newScale;
+
+            // Adjust panX and panY to keep the point under the mouse stationary
+            panX = mouseX - worldXBefore * newScale;
+            panY = mouseY - worldYBefore * newScale;
+
+            scale = newScale;
+
+            redrawCanvas();
+        }
+
+        // Basic pinch zoom state
+        let initialPinchDistance = null;
+
+        function getPinchDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function getPinchCenter(touches) {
+             const rect = canvas.getBoundingClientRect();
+             return {
+                x: ((touches[0].clientX + touches[1].clientX) / 2) - rect.left,
+                y: ((touches[0].clientY + touches[1].clientY) / 2) - rect.top
+             };
+        }
+
+        // --- Event Handlers ---
+
+        function startAction(e) {
+            e.preventDefault();
+            if (e.button === 1) { // Middle mouse button for panning
+                startPanning(e.clientX, e.clientY);
+            } else if (e.button === 0) { // Left mouse button for drawing
+                const { x, y } = getCanvasCoords(e);
+                lastX = x;
+                lastY = y;
+                startDrawing(x, y);
+            }
+        }
+
+        function performAction(e) {
+            e.preventDefault();
+            if (isPanning) {
+                pan(e.clientX, e.clientY);
+            } else if (isDrawing) {
+                const { x, y } = getCanvasCoords(e);
+                draw(x, y);
+                lastX = x;
+                lastY = y;
+            }
+        }
+
+        function stopAction(e) {
+            e.preventDefault();
+            if (isPanning) {
+                stopPanning();
+            }
+            if (isDrawing) {
+                stopDrawing();
+            }
+        }
+
+        // Touch Event Handlers
+        let touchState = {
+            isDrawing: false,
+            isPanning: false,
+            isPinching: false,
+            lastPanX: 0,
+            lastPanY: 0,
+            initialPinchDist: 0,
+            lastPinchScale: 1,
+        };
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touches = e.touches;
+
+            if (touches.length === 1) {
+                // Start drawing
+                touchState.isDrawing = true;
+                touchState.isPanning = false;
+                touchState.isPinching = false;
+                const { x, y } = getCanvasCoords(touches[0]);
+                lastX = x;
+                lastY = y;
+                startDrawing(x, y);
+            } else if (touches.length === 2) {
+                // Start panning or pinching
+                if (isDrawing) { // If drawing was in progress, stop it
+                    stopDrawing();
+                    touchState.isDrawing = false;
+                }
+                touchState.isPanning = true;
+                touchState.isPinching = true;
+                const rect = canvas.getBoundingClientRect();
+                touchState.lastPanX = (touches[0].clientX + touches[1].clientX) / 2;
+                touchState.lastPanY = (touches[0].clientY + touches[1].clientY) / 2;
+                touchState.initialPinchDist = getPinchDistance(touches);
+                touchState.lastPinchScale = scale; // Store current scale
+                canvas.style.cursor = 'move';
+            }
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touches = e.touches;
+
+            if (touches.length === 1 && touchState.isDrawing) {
+                // Continue drawing
+                const { x, y } = getCanvasCoords(touches[0]);
+                draw(x, y);
+                lastX = x;
+                lastY = y;
+            } else if (touches.length === 2 && touchState.isPanning) {
+                // Panning
+                const currentPanX = (touches[0].clientX + touches[1].clientX) / 2;
+                const currentPanY = (touches[0].clientY + touches[1].clientY) / 2;
+                const deltaX = currentPanX - touchState.lastPanX;
+                const deltaY = currentPanY - touchState.lastPanY;
+                panX += deltaX;
+                panY += deltaY;
+                touchState.lastPanX = currentPanX;
+                touchState.lastPanY = currentPanY;
+
+                // Pinching
+                const currentPinchDist = getPinchDistance(touches);
+                if (touchState.initialPinchDist > 0) {
+                    const scaleFactor = currentPinchDist / touchState.initialPinchDist;
+                    const newScale = Math.max(0.1, Math.min(10, touchState.lastPinchScale * scaleFactor)); // Clamp scale
+
+                    // Zoom towards pinch center
+                    const pinchCenter = getPinchCenter(touches);
+                    const worldX = (pinchCenter.x - panX) / scale;
+                    const worldY = (pinchCenter.y - panY) / scale;
+
+                    panX = pinchCenter.x - worldX * newScale;
+                    panY = pinchCenter.y - worldY * newScale;
+                    scale = newScale;
+                }
+                redrawCanvas();
+            }
+        }
+
+        function handleTouchEnd(e) {
+            // e.preventDefault(); // Avoid preventDefault on touchend if possible, can interfere with clicks
+            const touches = e.touches;
+
+            if (touchState.isDrawing) {
+                stopDrawing();
+            }
+
+            if (touches.length < 2) {
+                 touchState.isPanning = false;
+                 touchState.isPinching = false;
+                 canvas.style.cursor = 'crosshair';
+            }
+             if (touches.length === 1) {
+                 // If one finger remains, potentially transition back to drawing?
+                 // For simplicity, we stop actions. User needs to lift all fingers and restart.
+                 touchState.isDrawing = false; // Ensure drawing stops
+            }
+
+            if (touches.length === 0) {
+                // Reset all states when no fingers are left
+                touchState.isDrawing = false;
+                touchState.isPanning = false;
+                touchState.isPinching = false;
+                canvas.style.cursor = 'crosshair';
+            }
+        }
+
+
+        // --- History Management (Undo/Redo) ---
+
+        function addHistory(path) {
+            // Clear redo stack
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            history.push(path);
+            historyIndex++;
+            updateButtonStates();
+        }
+
+        function undo() {
+            if (historyIndex >= 0) {
+                historyIndex--;
+                redrawCanvas();
+                updateButtonStates();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                redrawCanvas();
+                updateButtonStates();
+            }
+        }
+
+        function updateButtonStates() {
+            undoBtn.disabled = historyIndex < 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        }
+
+        // --- Canvas Redrawing ---
+
+        function redrawCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            // Store the current transform state
+            ctx.save();
+
+            // Reset transform to identity for clearing
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Use dpr scale here
+
+            // Clear the entire canvas with the background color
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr); // Use logical size for clearing
+
+            // Apply the current view transformation (pan and zoom)
+            // Adjust for DPR scaling
+            ctx.translate(panX / dpr, panY / dpr);
+            ctx.scale(scale, scale);
+
+            // Redraw all paths from history up to the current index
+            for (let i = 0; i <= historyIndex; i++) {
+                const path = history[i];
+                if (!path || !path.points || path.points.length === 0) continue;
+
+                ctx.strokeStyle = path.color;
+                ctx.lineWidth = path.size;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                ctx.moveTo(path.points[0].x, path.points[0].y);
+                for (let j = 1; j < path.points.length; j++) {
+                    ctx.lineTo(path.points[j].x, path.points[j].y);
+                }
+                // If it was just a dot (one point)
+                if (path.points.length === 1) {
+                    // Draw a small line segment or arc to make the dot visible
+                    // Option 1: Tiny line
+                     ctx.lineTo(path.points[0].x + 0.01, path.points[0].y + 0.01); // Minimal move to trigger stroke
+                    // Option 2: Arc (might be better but fill was used before)
+                    // ctx.fillStyle = path.color;
+                    // ctx.arc(path.points[0].x, path.points[0].y, path.size / 2, 0, Math.PI * 2);
+                    // ctx.fill(); // Use fill for single points if preferred
+                }
+                 ctx.stroke(); // Stroke the path
+            }
+
+            // Restore the original transform state (identity)
+            ctx.restore();
+        }
+
+
+        // --- Utility Functions ---
+
+        function downloadCanvas() {
+            if (history.length === 0) return; // Nothing to download
+
+            // 1. Calculate bounding box of all drawn elements
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            let hasDrawing = false;
+            for (let i = 0; i <= historyIndex; i++) {
+                const path = history[i];
+                 if (!path || !path.points) continue;
+                hasDrawing = true;
+                const halfSize = (path.size || 1) / 2; // Consider brush size for bounds
+                path.points.forEach(p => {
+                    minX = Math.min(minX, p.x - halfSize);
+                    minY = Math.min(minY, p.y - halfSize);
+                    maxX = Math.max(maxX, p.x + halfSize);
+                    maxY = Math.max(maxY, p.y + halfSize);
+                });
+            }
+
+            if (!hasDrawing) return; // No actual points drawn
+
+            const padding = 20; // Add some padding around the drawing
+            const bboxWidth = maxX - minX + padding * 2;
+            const bboxHeight = maxY - minY + padding * 2;
+
+             if (bboxWidth <= 0 || bboxHeight <= 0) return; // Avoid invalid dimensions
+
+            // 2. Create an offscreen canvas
+            const offscreenCanvas = document.createElement('canvas');
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+
+            // Set canvas size (consider DPR for quality if needed, but simpler without for now)
+            offscreenCanvas.width = Math.max(1, Math.round(bboxWidth)); // Ensure minimum 1px
+            offscreenCanvas.height = Math.max(1, Math.round(bboxHeight));
+
+            // 3. Draw the background
+            offscreenCtx.fillStyle = backgroundColor;
+            offscreenCtx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+            // 4. Draw the content, translated to fit the offscreen canvas
+            offscreenCtx.translate(-minX + padding, -minY + padding); // Translate drawing into view
+
+            // Re-draw history onto the offscreen canvas
+            for (let i = 0; i <= historyIndex; i++) {
+                const path = history[i];
+                 if (!path || !path.points || path.points.length === 0) continue;
+
+                offscreenCtx.strokeStyle = path.color;
+                offscreenCtx.lineWidth = path.size;
+                offscreenCtx.lineCap = 'round';
+                offscreenCtx.lineJoin = 'round';
+
+                offscreenCtx.beginPath();
+                offscreenCtx.moveTo(path.points[0].x, path.points[0].y);
+                 for (let j = 1; j < path.points.length; j++) {
+                    offscreenCtx.lineTo(path.points[j].x, path.points[j].y);
+                }
+                 if (path.points.length === 1) {
+                     offscreenCtx.lineTo(path.points[0].x + 0.01, path.points[0].y + 0.01);
+                 }
+                offscreenCtx.stroke();
+            }
+
+            // 5. Generate data URL and trigger download
+            const dataUrl = offscreenCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'infinite-doodle.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetView() {
+            scale = 1;
+            panX = 0;
+            panY = 0;
+            redrawCanvas();
+        }
+
+        // --- Start the application ---
+        initialize();
+
+    </script>
+
+</body>
+</html>
