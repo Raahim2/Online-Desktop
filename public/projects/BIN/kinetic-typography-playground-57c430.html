@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Typography Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto+Mono:wght@400;700&family=Playfair+Display:wght@400;700&family=Lobster&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <style>
+        /* Define custom animations using CSS keyframes */
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes slideInUp { 0% { transform: translateY(50px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes slideInLeft { 0% { transform: translateX(-50px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% { transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000); }
+            0% { opacity: 0; transform: scale3d(.3, .3, .3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(.9, .9, .9); }
+            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(.97, .97, .97); }
+            100% { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        @keyframes wave {
+             0%, 100% { transform: translateY(0); }
+             50% { transform: translateY(-10px); }
+        }
+        @keyframes rotateIn {
+            0% { transform: rotate(-200deg) scale(0); opacity: 0; }
+            100% { transform: rotate(0deg) scale(1); opacity: 1; }
+        }
+
+        /* Apply animations dynamically via JS */
+        .animate-fadeIn { animation-name: fadeIn; }
+        .animate-slideInUp { animation-name: slideInUp; }
+        .animate-slideInLeft { animation-name: slideInLeft; }
+        .animate-bounceIn { animation-name: bounceIn; }
+        .animate-pulse { animation-name: pulse; animation-iteration-count: infinite; }
+        .animate-wave > span { animation-name: wave; }
+        .animate-rotateIn { animation-name: rotateIn; }
+
+        /* Base styles for animated elements */
+        .animated-element {
+            display: inline-block; /* Needed for transforms and per-char animations */
+            animation-duration: 1s; /* Default duration, adjustable */
+            animation-fill-mode: both; /* Keep end state */
+            animation-timing-function: ease-in-out;
+            white-space: pre; /* Preserve spaces between characters if splitting */
+        }
+
+        /* Direction control */
+        .animate-reverse { animation-direction: reverse; }
+        .animate-alternate { animation-direction: alternate; animation-iteration-count: infinite; }
+        .animate-alternate-reverse { animation-direction: alternate-reverse; animation-iteration-count: infinite; }
+        .animate-normal { animation-direction: normal; } /* Default */
+
+        /* Hide scrollbar for cleaner look */
+        body::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Style range input */
+         input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            cursor: pointer;
+            outline: none;
+            border-radius: 15px;
+            height: 6px;
+            background: #e2e8f0; /* bg-gray-300 */
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 16px;
+            width: 16px;
+            background-color: #3b82f6; /* bg-blue-500 */
+            border-radius: 50%;
+            border: none;
+            transition: background-color 0.3s ease-in-out;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            background-color: #3b82f6; /* bg-blue-500 */
+            border-radius: 50%;
+            border: none;
+            transition: background-color 0.3s ease-in-out;
+        }
+         input[type=range]:hover::-webkit-slider-thumb {
+             background-color: #2563eb; /* bg-blue-600 */
+         }
+         input[type=range]:hover::-moz-range-thumb {
+             background-color: #2563eb; /* bg-blue-600 */
+         }
+
+         /* Style color input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #e2e8f0; /* border-gray-300 */
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 50%;
+            border: none;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border-radius: 50%;
+            border: none;
+        }
+
+        /* Loading overlay */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            display: none; /* Hidden by default */
+        }
+        #loading-overlay.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
+
+    <div id="loading-overlay">
+        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Generating GIF...
+    </div>
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+
+        <!-- Controls Panel -->
+        <aside class="w-full lg:w-1/3 xl:w-1/4 p-6 bg-white shadow-lg overflow-y-auto">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold text-blue-600 mb-2">Kinetic Typography</h1>
+                <p class="text-gray-600 text-sm">Create animated typographic compositions. Adjust parameters and download as GIF.</p>
+            </header>
+
+            <form id="controls-form" class="space-y-6">
+                <!-- Text Input -->
+                <div>
+                    <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">Your Text</label>
+                    <input type="text" id="text-input" value="Animate Me!" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+
+                <!-- Font Controls -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="font-select" class="block text-sm font-medium text-gray-700 mb-1">Font Family</label>
+                        <select id="font-select" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-white">
+                            <option value="'Inter', sans-serif" style="font-family: 'Inter', sans-serif;">Inter</option>
+                            <option value="'Poppins', sans-serif" style="font-family: 'Poppins', sans-serif;">Poppins</option>
+                            <option value="'Roboto Mono', monospace" style="font-family: 'Roboto Mono', monospace;">Roboto Mono</option>
+                            <option value="'Playfair Display', serif" style="font-family: 'Playfair Display', serif;">Playfair Display</option>
+                            <option value="'Lobster', cursive" style="font-family: 'Lobster', cursive;">Lobster</option>
+                        </select>
+                    </div>
+                     <div class="flex items-end space-x-3">
+                        <div class="flex-grow">
+                           <label for="font-size" class="block text-sm font-medium text-gray-700 mb-1">Font Size (<span id="font-size-value">72</span>px)</label>
+                           <input type="range" id="font-size" min="12" max="200" value="72" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                        </div>
+                        <input type="color" id="font-color" value="#3b82f6" title="Font Color">
+                     </div>
+                </div>
+
+                <!-- Animation Controls -->
+                <div>
+                    <label for="animation-style" class="block text-sm font-medium text-gray-700 mb-1">Animation Style</label>
+                    <select id="animation-style" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-white">
+                        <option value="none">None</option>
+                        <option value="fadeIn">Fade In (Word)</option>
+                        <option value="fadeInChar">Fade In (Character)</option>
+                        <option value="slideInUp">Slide In Up (Word)</option>
+                        <option value="slideInUpChar">Slide In Up (Character)</option>
+                        <option value="slideInLeft">Slide In Left (Word)</option>
+                        <option value="slideInLeftChar">Slide In Left (Character)</option>
+                        <option value="bounceIn">Bounce In (Word)</option>
+                        <option value="bounceInChar">Bounce In (Character)</option>
+                        <option value="pulse">Pulse (Whole Text)</option>
+                        <option value="waveChar">Wave (Character)</option>
+                        <option value="rotateInChar">Rotate In (Character)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="animation-speed" class="block text-sm font-medium text-gray-700 mb-1">Speed (<span id="animation-speed-value">1</span>s)</label>
+                        <input type="range" id="animation-speed" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label for="animation-direction" class="block text-sm font-medium text-gray-700 mb-1">Direction / Iteration</label>
+                        <select id="animation-direction" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-white">
+                            <option value="normal">Normal (Once)</option>
+                            <option value="reverse">Reverse (Once)</option>
+                            <option value="alternate">Alternate (Infinite)</option>
+                            <option value="alternate-reverse">Alternate Reverse (Infinite)</option>
+                        </select>
+                    </div>
+                </div>
+
+                 <!-- Stagger Delay (for character animations) -->
+                <div id="stagger-control" class="hidden">
+                    <label for="stagger-delay" class="block text-sm font-medium text-gray-700 mb-1">Character Delay (<span id="stagger-delay-value">50</span>ms)</label>
+                    <input type="range" id="stagger-delay" min="0" max="500" step="10" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                </div>
+
+                <!-- Preset Animations -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Presets</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" data-preset="gentle-fade" class="preset-btn px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm transition duration-150 ease-in-out">Gentle Fade</button>
+                        <button type="button" data-preset="quick-bounce" class="preset-btn px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm transition duration-150 ease-in-out">Quick Bounce</button>
+                        <button type="button" data-preset="char-wave" class="preset-btn px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm transition duration-150 ease-in-out">Character Wave</button>
+                        <button type="button" data-preset="slide-stagger" class="preset-btn px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm transition duration-150 ease-in-out">Slide Stagger</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+                     <button type="button" id="replay-animation" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                        </svg>
+                        Replay
+                    </button>
+                    <button type="button" id="download-gif" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                           <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                         </svg>
+                         Download GIF
+                    </button>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Animation Display Area -->
+        <main class="w-full lg:w-2/3 xl:w-3/4 flex-grow flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+             <div id="animation-container" class="w-full h-full flex items-center justify-center text-center relative">
+                 <!-- This div is captured by html2canvas -->
+                 <div id="animation-canvas" class="inline-block">
+                     <div id="animated-text" class="text-7xl font-bold whitespace-nowrap">
+                         <!-- Text content will be injected here by JS -->
+                     </div>
+                 </div>
+             </div>
+        </main>
+
+    </div>
+
+    <script>
+        const textInput = document.getElementById('text-input');
+        const fontSelect = document.getElementById('font-select');
+        const fontSizeSlider = document.getElementById('font-size');
+        const fontSizeValue = document.getElementById('font-size-value');
+        const fontColorPicker = document.getElementById('font-color');
+        const animationStyleSelect = document.getElementById('animation-style');
+        const animationSpeedSlider = document.getElementById('animation-speed');
+        const animationSpeedValue = document.getElementById('animation-speed-value');
+        const animationDirectionSelect = document.getElementById('animation-direction');
+        const staggerControl = document.getElementById('stagger-control');
+        const staggerDelaySlider = document.getElementById('stagger-delay');
+        const staggerDelayValue = document.getElementById('stagger-delay-value');
+        const animatedTextContainer = document.getElementById('animated-text');
+        const animationCanvas = document.getElementById('animation-canvas'); // The element to capture
+        const replayButton = document.getElementById('replay-animation');
+        const downloadButton = document.getElementById('download-gif');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Define worker path for gif.js
+        const gifWorkerPath = 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js';
+
+        let currentAnimationFrameId = null; // To manage animation replays
+
+        const presets = {
+            'gentle-fade': { text: 'Fade In', font: "'Poppins', sans-serif", size: 90, color: '#4f46e5', style: 'fadeInChar', speed: 1.5, direction: 'normal', stagger: 80 },
+            'quick-bounce': { text: 'Bounce!', font: "'Lobster', cursive", size: 120, color: '#db2777', style: 'bounceInChar', speed: 0.8, direction: 'normal', stagger: 40 },
+            'char-wave': { text: 'Waving Text', font: "'Inter', sans-serif", size: 80, color: '#10b981', style: 'waveChar', speed: 1.5, direction: 'alternate', stagger: 100 },
+            'slide-stagger': { text: 'Stagger Slide', font: "'Roboto Mono', monospace", size: 60, color: '#f59e0b', style: 'slideInUpChar', speed: 1.0, direction: 'normal', stagger: 60 }
+        };
+
+        function updateText() {
+            const text = textInput.value;
+            const style = animationStyleSelect.value;
+            const speed = parseFloat(animationSpeedSlider.value);
+            const direction = animationDirectionSelect.value;
+            const staggerDelay = parseInt(staggerDelaySlider.value); // ms
+
+            animatedTextContainer.innerHTML = ''; // Clear previous content
+            animatedTextContainer.style.fontFamily = fontSelect.value;
+            animatedTextContainer.style.fontSize = `${fontSizeSlider.value}px`;
+            animatedTextContainer.style.color = fontColorPicker.value;
+            animatedTextContainer.className = ''; // Reset classes
+
+            // Check if character-based animation is selected
+            const isCharAnimation = style.endsWith('Char');
+            const baseStyle = isCharAnimation ? style.slice(0, -4) : style; // e.g., 'fadeIn' from 'fadeInChar'
+
+            // Show/hide stagger control
+            staggerControl.style.display = isCharAnimation ? 'block' : 'none';
+
+            if (style === 'none') {
+                animatedTextContainer.textContent = text;
+                return; // No animation needed
+            }
+
+            // Add base animation class for whole text if not character based
+            if (!isCharAnimation && style !== 'none') {
+                 animatedTextContainer.classList.add(`animate-${baseStyle}`);
+                 animatedTextContainer.textContent = text;
+            }
+
+            // Handle character-based animations
+            if (isCharAnimation) {
+                const chars = text.split('');
+                chars.forEach((char, index) => {
+                    const span = document.createElement('span');
+                    span.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space for spaces
+                    span.className = `animated-element animate-${baseStyle}`;
+                    span.style.animationDelay = `${index * (staggerDelay / 1000)}s`; // Convert ms to s
+                    span.style.animationDuration = `${speed}s`;
+                    span.style.animationDirection = direction.startsWith('alternate') ? 'normal' : direction; // Apply direction only if not alternating for initial run
+                    span.style.opacity = 0; // Start invisible for most animations
+                    animatedTextContainer.appendChild(span);
+                });
+            } else {
+                // Apply styles to the main container for non-char animations
+                animatedTextContainer.style.animationDuration = `${speed}s`;
+                animatedTextContainer.style.animationDirection = direction.startsWith('alternate') ? 'normal' : direction;
+            }
+
+             // Apply iteration/direction classes
+             applyAnimationDirection(animatedTextContainer, direction, isCharAnimation);
+
+             // Trigger reflow to restart animation if needed (especially for replay)
+             void animatedTextContainer.offsetWidth;
+        }
+
+        function applyAnimationDirection(element, directionValue, isCharAnimation) {
+             const elementsToStyle = isCharAnimation ? element.childNodes : [element];
+
+             elementsToStyle.forEach(el => {
+                if (!el.classList) return; // Skip text nodes if any
+                el.classList.remove('animate-normal', 'animate-reverse', 'animate-alternate', 'animate-alternate-reverse');
+                el.style.animationIterationCount = '1'; // Default to once
+
+                switch (directionValue) {
+                    case 'normal':
+                        el.classList.add('animate-normal');
+                        break;
+                    case 'reverse':
+                        el.classList.add('animate-reverse');
+                        break;
+                    case 'alternate':
+                        el.classList.add('animate-alternate');
+                        el.style.animationIterationCount = 'infinite';
+                        break;
+                    case 'alternate-reverse':
+                        el.classList.add('animate-alternate-reverse');
+                        el.style.animationIterationCount = 'infinite';
+                        break;
+                }
+             });
+        }
+
+
+        function replayAnimation() {
+             // Clone the node to effectively restart CSS animations
+             const oldElement = animatedTextContainer;
+             const newElement = oldElement.cloneNode(true); // Deep clone
+             oldElement.parentNode.replaceChild(newElement, oldElement);
+             // Re-assign the global reference
+             window.animatedTextContainer = newElement; // Update global reference if needed elsewhere
+             // Re-apply styles that might be lost during clone (like direct style attributes if any were missed)
+             updateText(); // Re-run the update logic to ensure everything is applied correctly
+        }
+
+        function applyPreset(presetName) {
+            const preset = presets[presetName];
+            if (!preset) return;
+
+            textInput.value = preset.text;
+            fontSelect.value = preset.font;
+            fontSizeSlider.value = preset.size;
+            fontSizeValue.textContent = preset.size;
+            fontColorPicker.value = preset.color;
+            animationStyleSelect.value = preset.style;
+            animationSpeedSlider.value = preset.speed;
+            animationSpeedValue.textContent = preset.speed;
+            animationDirectionSelect.value = preset.direction;
+            if (preset.stagger !== undefined) {
+                 staggerDelaySlider.value = preset.stagger;
+                 staggerDelayValue.textContent = preset.stagger;
+            }
+
+            // Trigger updates
+            updateText();
+        }
+
+        async function downloadGif() {
+            loadingOverlay.classList.add('active');
+            downloadButton.disabled = true;
+            replayButton.disabled = true;
+
+            const textElement = animatedTextContainer;
+            const duration = parseFloat(animationSpeedSlider.value) * 1000; // in ms
+            const frameDelay = 50; // ms between frames (20 FPS)
+            const numFrames = Math.max(10, Math.ceil(duration / frameDelay)); // Ensure minimum frames
+            const style = animationStyleSelect.value;
+            const isCharAnimation = style.endsWith('Char');
+            const staggerDelay = isCharAnimation ? parseInt(staggerDelaySlider.value) : 0;
+            const totalChars = textInput.value.length;
+            const maxDelay = isCharAnimation ? (totalChars -1) * staggerDelay : 0;
+            const totalAnimationTime = duration + maxDelay; // Approximate total time for staggered animations
+
+            // Temporarily set iteration to 1 for capture if it's infinite
+            const originalDirection = animationDirectionSelect.value;
+            const needsInfiniteReset = originalDirection.includes('alternate');
+            if (needsInfiniteReset) {
+                 applyAnimationDirection(textElement, 'normal', isCharAnimation); // Force single run for capture
+            }
+
+            // Ensure animation starts from beginning for capture
+            replayAnimation(); // Restart animation cleanly
+
+            // Wait a brief moment for styles to apply after replay
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const gif = new GIF({
+                workers: 2,
+                quality: 10, // Lower quality for faster processing, higher value = better quality
+                workerScript: gifWorkerPath,
+                width: animationCanvas.offsetWidth,
+                height: animationCanvas.offsetHeight,
+                background: '#00000000', // Transparent background
+                transparent: 0x00FF00 // Match transparent color if needed, or use null
+            });
+
+            try {
+                for (let i = 0; i < numFrames; i++) {
+                    const timeProgress = (i / (numFrames - 1)); // 0 to 1
+                    const currentTime = timeProgress * totalAnimationTime;
+
+                    // Manually update animation state for this frame (if possible/needed)
+                    // For CSS animations, this is tricky. We rely on html2canvas capturing the state.
+                    // For JS animations, we'd call an update function: updateAnimationState(currentTime);
+
+                    // Capture frame
+                    const canvas = await html2canvas(animationCanvas, {
+                         backgroundColor: null, // Transparent background for canvas capture
+                         scale: 1 // Use scale 1 for performance, increase for quality if needed
+                    });
+                    gif.addFrame(canvas, { delay: frameDelay, copy: true });
+                }
+
+                gif.on('finished', function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'kinetic-typography.gif';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    // Restore original settings if changed
+                    if (needsInfiniteReset) {
+                        applyAnimationDirection(textElement, originalDirection, isCharAnimation);
+                    }
+                    loadingOverlay.classList.remove('active');
+                    downloadButton.disabled = false;
+                    replayButton.disabled = false;
+                });
+
+                gif.render();
+
+            } catch (error) {
+                 console.error("Error generating GIF:", error);
+                 alert("Error generating GIF. Check console for details.");
+                 loadingOverlay.classList.remove('active');
+                 downloadButton.disabled = false;
+                 replayButton.disabled = false;
+                 // Restore original settings if changed
+                 if (needsInfiniteReset) {
+                     applyAnimationDirection(textElement, originalDirection, isCharAnimation);
+                 }
+            }
+        }
+
+
+        // Event Listeners
+        textInput.addEventListener('input', updateText);
+        fontSelect.addEventListener('change', updateText);
+        fontSizeSlider.addEventListener('input', (e) => {
+            fontSizeValue.textContent = e.target.value;
+            updateText();
+        });
+        fontColorPicker.addEventListener('input', updateText);
+        animationStyleSelect.addEventListener('change', updateText);
+        animationSpeedSlider.addEventListener('input', (e) => {
+            animationSpeedValue.textContent = parseFloat(e.target.value).toFixed(1);
+            updateText();
+        });
+        animationDirectionSelect.addEventListener('change', updateText);
+        staggerDelaySlider.addEventListener('input', (e) => {
+             staggerDelayValue.textContent = e.target.value;
+             // No need to call updateText immediately, it reads the value when needed
+             // But we might want to replay if changing stagger while animation runs
+             replayAnimation(); // Replay to see stagger changes immediately
+        });
+
+        replayButton.addEventListener('click', replayAnimation);
+        downloadButton.addEventListener('click', downloadGif);
+
+        presetButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                applyPreset(button.dataset.preset);
+            });
+        });
+
+        // Initial setup
+        updateText();
+
+    </script>
+
+</body>
+</html>
