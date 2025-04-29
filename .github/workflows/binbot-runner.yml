@@ -1,8 +1,8 @@
-name: Run Binbot every 1 hours 
+name: Run Binbot every 3 hours 
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 */3 * * *"
   workflow_dispatch:  # Manual run option from GitHub Actions tab
 
 jobs:
