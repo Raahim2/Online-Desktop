@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric Constellation Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic styling for SVG elements that might be harder with just Tailwind */
+        #constellation-canvas {
+            cursor: crosshair;
+            touch-action: none; /* Prevent scrolling on touch devices */
+        }
+        .constellation-point {
+            cursor: pointer;
+            transition: r 0.1s ease-in-out, fill 0.1s ease-in-out;
+        }
+        .constellation-point:hover, .constellation-point.selected {
+            r: 6px; /* Slightly larger on hover/selection */
+            fill: #60a5fa; /* Tailwind blue-400 */
+        }
+        .constellation-line {
+            pointer-events: none; /* Lines shouldn't block clicks on points */
+            transition: stroke 0.1s ease-in-out, stroke-width 0.1s ease-in-out;
+        }
+        /* Custom scrollbar for controls */
+        .controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .controls-panel::-webkit-scrollbar-track {
+            background: #1f2937; /* gray-800 */
+            border-radius: 3px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: #4b5563; /* gray-600 */
+            border-radius: 3px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* gray-500 */
+        }
+        /* Ensure range input track looks decent */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #374151; /* gray-700 */
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #60a5fa; /* blue-400 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #60a5fa; /* blue-400 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased flex flex-col min-h-screen">
+
+    <header class="bg-gray-800 shadow-md p-4 text-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-white">Geometric Constellation Creator</h1>
+        <p class="text-sm md:text-base text-gray-400 mt-1">Click to create points, click points to connect them. Explore emergent patterns.</p>
+    </header>
+
+    <main class="flex-grow flex flex-col lg:flex-row overflow-hidden">
+
+        <!-- Controls Panel -->
+        <aside class="w-full lg:w-72 bg-gray-800 p-4 overflow-y-auto controls-panel flex-shrink-0 shadow-lg lg:h-[calc(100vh-68px)]">
+            <div class="space-y-6">
+
+                <!-- Starfield Controls -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 border-b border-gray-700 pb-1">Starfield</h3>
+                    <div class="space-y-3">
+                        <label for="star-density" class="block text-sm font-medium text-gray-300">Background Star Density (<span id="star-density-value">50</span>)</label>
+                        <input type="range" id="star-density" min="0" max="200" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm">
+                    </div>
+                </div>
+
+                <!-- Line Controls -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 border-b border-gray-700 pb-1">Line Style</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="line-color" class="block text-sm font-medium text-gray-300 mb-1">Line Color</label>
+                            <input type="color" id="line-color" value="#FFFFFF" class="w-full h-10 p-1 bg-gray-700 border border-gray-600 rounded cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="line-style" class="block text-sm font-medium text-gray-300 mb-1">Line Style</label>
+                            <select id="line-style" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-blue-500 focus:border-blue-500">
+                                <option value="solid">Solid</option>
+                                <option value="dashed">Dashed</option>
+                                <option value="dotted">Dotted</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="line-width" class="block text-sm font-medium text-gray-300 mb-1">Line Width (<span id="line-width-value">1.5</span>px)</label>
+                            <input type="range" id="line-width" min="0.5" max="5" value="1.5" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 border-b border-gray-700 pb-1">Actions</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="undo-button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">Undo</button>
+                        <button id="redo-button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">Redo</button>
+                        <button id="clear-button" class="col-span-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out">Clear All</button>
+                        <button id="download-button" class="col-span-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out">Download SVG</button>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Drawing Area -->
+        <section class="flex-grow bg-gray-900 relative overflow-hidden" id="canvas-container">
+            <svg id="constellation-canvas" width="100%" height="100%" class="absolute top-0 left-0">
+                <defs>
+                    <!-- Define patterns or filters if needed later -->
+                </defs>
+                <g id="background-stars-group"></g>
+                <g id="constellation-lines-group"></g>
+                <g id="constellation-points-group"></g>
+                <line id="preview-line" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4 4" visibility="hidden" pointer-events="none" />
+            </svg>
+             <div id="coords-display" class="absolute bottom-2 right-2 bg-gray-800 bg-opacity-70 text-gray-300 text-xs px-2 py-1 rounded pointer-events-none">
+                X: 0, Y: 0
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const svgCanvas = document.getElementById('constellation-canvas');
+        const canvasContainer = document.getElementById('canvas-container');
+        const backgroundStarsGroup = document.getElementById('background-stars-group');
+        const pointsGroup = document.getElementById('constellation-points-group');
+        const linesGroup = document.getElementById('constellation-lines-group');
+        const previewLine = document.getElementById('preview-line');
+        const coordsDisplay = document.getElementById('coords-display');
+
+        const starDensitySlider = document.getElementById('star-density');
+        const starDensityValue = document.getElementById('star-density-value');
+        const lineColorInput = document.getElementById('line-color');
+        const lineStyleSelect = document.getElementById('line-style');
+        const lineWidthSlider = document.getElementById('line-width');
+        const lineWidthValue = document.getElementById('line-width-value');
+
+        const undoButton = document.getElementById('undo-button');
+        const redoButton = document.getElementById('redo-button');
+        const clearButton = document.getElementById('clear-button');
+        const downloadButton = document.getElementById('download-button');
+
+        let points = [];
+        let lines = [];
+        let backgroundStars = [];
+        let history = [];
+        let historyIndex = -1;
+        let nextPointId = 0;
+        let nextLineId = 0;
+
+        let isConnecting = false;
+        let firstPointForConnection = null;
+        let currentMousePos = { x: 0, y: 0 };
+
+        let currentLineColor = '#FFFFFF';
+        let currentLineStyle = 'solid'; // 'solid', 'dashed', 'dotted'
+        let currentLineWidth = 1.5;
+        let currentStarDensity = 50;
+
+        // --- State Management (Undo/Redo) ---
+
+        function saveState() {
+            // Clear redo history
+            history = history.slice(0, historyIndex + 1);
+
+            // Deep copy current state
+            const state = {
+                points: JSON.parse(JSON.stringify(points)),
+                lines: JSON.parse(JSON.stringify(lines)),
+                nextPointId: nextPointId,
+                nextLineId: nextLineId
+            };
+            history.push(state);
+            historyIndex++;
+            updateUndoRedoButtons();
+        }
+
+        function loadState(state) {
+            points = JSON.parse(JSON.stringify(state.points));
+            lines = JSON.parse(JSON.stringify(state.lines));
+            nextPointId = state.nextPointId;
+            nextLineId = state.nextLineId;
+            isConnecting = false; // Reset connection state when loading
+            firstPointForConnection = null;
+            drawCanvas();
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                loadState(history[historyIndex]);
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                loadState(history[historyIndex]);
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            undoButton.disabled = historyIndex <= 0;
+            redoButton.disabled = historyIndex >= history.length - 1;
+        }
+
+        // --- Drawing Functions ---
+
+        function drawCanvas() {
+            // Clear existing elements but keep groups
+            while (pointsGroup.firstChild) {
+                pointsGroup.removeChild(pointsGroup.firstChild);
+            }
+            while (linesGroup.firstChild) {
+                linesGroup.removeChild(linesGroup.firstChild);
+            }
+             // Don't clear background stars unless density changes
+
+            // Draw Lines
+            lines.forEach(line => {
+                const p1 = points.find(p => p.id === line.p1Id);
+                const p2 = points.find(p => p.id === line.p2Id);
+                if (p1 && p2) {
+                    const lineElement = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    lineElement.setAttribute('x1', p1.x);
+                    lineElement.setAttribute('y1', p1.y);
+                    lineElement.setAttribute('x2', p2.x);
+                    lineElement.setAttribute('y2', p2.y);
+                    lineElement.setAttribute('stroke', line.color);
+                    lineElement.setAttribute('stroke-width', line.width);
+                    lineElement.classList.add('constellation-line');
+                    if (line.style === 'dashed') {
+                        lineElement.setAttribute('stroke-dasharray', '5 5');
+                    } else if (line.style === 'dotted') {
+                         lineElement.setAttribute('stroke-dasharray', `${line.width} ${line.width * 2}`);
+                         lineElement.setAttribute('stroke-linecap', 'round');
+                    }
+                    linesGroup.appendChild(lineElement);
+                }
+            });
+
+            // Draw Points
+            points.forEach(point => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 4); // Base radius
+                circle.setAttribute('fill', '#FFFFFF'); // Default point color
+                circle.classList.add('constellation-point');
+                circle.dataset.id = point.id; // Store id for click handling
+
+                if (isConnecting && firstPointForConnection && firstPointForConnection.id === point.id) {
+                    circle.classList.add('selected'); // Highlight selected point
+                }
+
+                // Add event listener directly to the point for connection logic
+                circle.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent canvas click when clicking a point
+                    handlePointClick(point);
+                });
+                 circle.addEventListener('mouseenter', () => {
+                    if (!isConnecting) circle.setAttribute('r', 6);
+                 });
+                 circle.addEventListener('mouseleave', () => {
+                     if (!isConnecting || (firstPointForConnection && firstPointForConnection.id !== point.id)) {
+                         circle.setAttribute('r', 4);
+                     }
+                 });
+
+                pointsGroup.appendChild(circle);
+            });
+
+            // Hide preview line initially
+            previewLine.setAttribute('visibility', 'hidden');
+        }
+
+        function generateBackgroundStars(density) {
+            while (backgroundStarsGroup.firstChild) {
+                backgroundStarsGroup.removeChild(backgroundStarsGroup.firstChild);
+            }
+            backgroundStars = [];
+            const rect = svgCanvas.getBoundingClientRect();
+            const width = rect.width || canvasContainer.clientWidth; // Fallback for initial load
+            const height = rect.height || canvasContainer.clientHeight;
+
+            if (width === 0 || height === 0) return; // Don't generate if canvas size is unknown
+
+            const numStars = Math.floor((width * height) / 100000 * density); // Adjust density factor as needed
+
+            for (let i = 0; i < numStars; i++) {
+                const star = {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.2 + 0.3, // Varying sizes
+                    opacity: Math.random() * 0.6 + 0.2 // Varying opacity
+                };
+                backgroundStars.push(star);
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', star.x);
+                circle.setAttribute('cy', star.y);
+                circle.setAttribute('r', star.radius);
+                circle.setAttribute('fill', '#FFFFFF');
+                circle.setAttribute('opacity', star.opacity);
+                circle.style.pointerEvents = 'none'; // Background stars shouldn't be interactive
+                backgroundStarsGroup.appendChild(circle);
+            }
+        }
+
+        // --- Event Handlers ---
+
+        function getMousePos(event) {
+            const rect = svgCanvas.getBoundingClientRect();
+            // Handle both mouse and touch events
+            const clientX = event.clientX ?? event.touches?.[0]?.clientX;
+            const clientY = event.clientY ?? event.touches?.[0]?.clientY;
+
+            if (clientX === undefined || clientY === undefined) {
+                 return currentMousePos; // Return last known position if event data is missing
+            }
+
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handleCanvasClick(event) {
+            // Ignore clicks if they landed on a point (handled by point's own listener)
+            if (event.target !== svgCanvas && event.target.closest('.constellation-point')) {
+                return;
+            }
+
+            // If connecting, clicking on the background cancels the connection
+            if (isConnecting) {
+                isConnecting = false;
+                firstPointForConnection = null;
+                previewLine.setAttribute('visibility', 'hidden');
+                drawCanvas(); // Redraw to remove selection highlight
+                return;
+            }
+
+            // Otherwise, add a new point
+            const pos = getMousePos(event);
+            addPoint(pos.x, pos.y);
+            saveState(); // Save state after adding a point
+        }
+
+        function handlePointClick(point) {
+            if (!isConnecting) {
+                // Start connecting
+                isConnecting = true;
+                firstPointForConnection = point;
+                previewLine.setAttribute('x1', point.x);
+                previewLine.setAttribute('y1', point.y);
+                previewLine.setAttribute('x2', point.x); // Initially point to itself
+                previewLine.setAttribute('y2', point.y);
+                previewLine.setAttribute('visibility', 'visible');
+                drawCanvas(); // Redraw to highlight the selected point
+            } else {
+                // Finish connecting (if not clicking the same point)
+                if (firstPointForConnection.id !== point.id) {
+                    // Check if this line already exists
+                    const exists = lines.some(line =>
+                        (line.p1Id === firstPointForConnection.id && line.p2Id === point.id) ||
+                        (line.p1Id === point.id && line.p2Id === firstPointForConnection.id)
+                    );
+
+                    if (!exists) {
+                        addLine(firstPointForConnection.id, point.id);
+                        saveState(); // Save state after adding a line
+                    }
+                    isConnecting = false;
+                    firstPointForConnection = null;
+                    previewLine.setAttribute('visibility', 'hidden');
+                    // drawCanvas() will be called by addLine if successful, otherwise call it here to remove selection
+                    if(exists) drawCanvas();
+
+                } else {
+                     // Clicked the same point again - cancel connection
+                    isConnecting = false;
+                    firstPointForConnection = null;
+                    previewLine.setAttribute('visibility', 'hidden');
+                    drawCanvas(); // Redraw to remove selection highlight
+                }
+            }
+        }
+
+        function handleMouseMove(event) {
+            currentMousePos = getMousePos(event);
+             // Update coordinate display
+            coordsDisplay.textContent = `X: ${currentMousePos.x.toFixed(0)}, Y: ${currentMousePos.y.toFixed(0)}`;
+
+            if (isConnecting && firstPointForConnection) {
+                previewLine.setAttribute('x2', currentMousePos.x);
+                previewLine.setAttribute('y2', currentMousePos.y);
+                previewLine.setAttribute('visibility', 'visible'); // Ensure visible
+            } else {
+                 previewLine.setAttribute('visibility', 'hidden');
+            }
+        }
+
+        function addPoint(x, y) {
+            const newPoint = { x, y, id: nextPointId++ };
+            points.push(newPoint);
+            drawCanvas();
+        }
+
+        function addLine(p1Id, p2Id) {
+            const newLine = {
+                p1Id,
+                p2Id,
+                id: nextLineId++,
+                color: currentLineColor,
+                style: currentLineStyle,
+                width: currentLineWidth
+            };
+            lines.push(newLine);
+            drawCanvas();
+        }
+
+        function clearAll() {
+            points = [];
+            lines = [];
+            isConnecting = false;
+            firstPointForConnection = null;
+            nextPointId = 0;
+            nextLineId = 0;
+            previewLine.setAttribute('visibility', 'hidden');
+            drawCanvas();
+            saveState(); // Save the cleared state
+        }
+
+        function downloadSVG() {
+            // Create a clone of the SVG element
+            const svgClone = svgCanvas.cloneNode(true);
+
+            // Remove elements not needed for download (preview line, maybe background stars?)
+            const previewLineClone = svgClone.querySelector('#preview-line');
+            if (previewLineClone) previewLineClone.remove();
+
+            // Optional: Remove background stars from download
+            // const backgroundStarsGroupClone = svgClone.querySelector('#background-stars-group');
+            // if (backgroundStarsGroupClone) backgroundStarsGroupClone.remove();
+
+
+            // Ensure width and height are set explicitly for standalone SVG
+            const rect = svgCanvas.getBoundingClientRect();
+            svgClone.setAttribute('width', rect.width);
+            svgClone.setAttribute('height', rect.height);
+            svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); // Add xmlns namespace
+
+             // Add a background rectangle matching the canvas color for context
+            const backgroundRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            backgroundRect.setAttribute('width', '100%');
+            backgroundRect.setAttribute('height', '100%');
+            backgroundRect.setAttribute('fill', '#111827'); // bg-gray-900
+            svgClone.insertBefore(backgroundRect, svgClone.firstChild); // Insert as the first element
+
+
+            // Serialize the SVG to string
+            const serializer = new XMLSerializer();
+            let svgString = serializer.serializeToString(svgClone);
+
+            // Add XML declaration
+            svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
+
+            // Create Blob and download link
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'constellation.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- Control Updates ---
+
+        starDensitySlider.addEventListener('input', (e) => {
+            currentStarDensity = parseInt(e.target.value);
+            starDensityValue.textContent = currentStarDensity;
+             // Debounce or throttle regeneration if performance is an issue
+            generateBackgroundStars(currentStarDensity);
+        });
+
+        lineColorInput.addEventListener('input', (e) => {
+            currentLineColor = e.target.value;
+        });
+
+        lineStyleSelect.addEventListener('change', (e) => {
+            currentLineStyle = e.target.value;
+        });
+
+         lineWidthSlider.addEventListener('input', (e) => {
+            currentLineWidth = parseFloat(e.target.value);
+            lineWidthValue.textContent = currentLineWidth.toFixed(1);
+        });
+
+        // --- Initialization ---
+
+        function init() {
+            // Attach major event listeners
+            svgCanvas.addEventListener('click', handleCanvasClick);
+            svgCanvas.addEventListener('mousemove', handleMouseMove);
+            svgCanvas.addEventListener('mouseleave', () => {
+                 // Hide preview line and coords when mouse leaves canvas
+                 previewLine.setAttribute('visibility', 'hidden');
+                 coordsDisplay.textContent = '';
+            });
+            // Add touch equivalents
+            svgCanvas.addEventListener('touchstart', (e) => {
+                // Prevent default touch behavior like scrolling when drawing
+                if (e.target === svgCanvas || e.target.closest('.constellation-point')) {
+                     e.preventDefault();
+                }
+                // Treat touchstart like mousedown/click for adding points/starting connection
+                // Use the first touch point
+                if (e.touches.length === 1) {
+                    const touchPos = getMousePos(e);
+                    currentMousePos = touchPos; // Update position for potential preview line
+
+                    // Check if touch is on a point
+                    const touchedElement = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+                    if (touchedElement && touchedElement.classList.contains('constellation-point')) {
+                         const pointId = parseInt(touchedElement.dataset.id);
+                         const point = points.find(p => p.id === pointId);
+                         if (point) {
+                             handlePointClick(point); // Simulate point click
+                         }
+                    } else {
+                        handleCanvasClick(e); // Simulate canvas click
+                    }
+                }
+            }, { passive: false }); // Need passive: false to call preventDefault
+
+            svgCanvas.addEventListener('touchmove', (e) => {
+                 if (e.touches.length === 1) {
+                     e.preventDefault(); // Prevent scrolling while drawing preview
+                     handleMouseMove(e);
+                 }
+            }, { passive: false });
+
+            svgCanvas.addEventListener('touchend', (e) => {
+                 // Touchend doesn't have coordinates in the same way,
+                 // The logic in handlePointClick/handleCanvasClick mostly handles state changes on start/tap
+                 // We might just need to update the last known mouse position if needed
+                 // currentMousePos = { x: 0, y: 0 }; // Or keep last known?
+            });
+
+
+            undoButton.addEventListener('click', undo);
+            redoButton.addEventListener('click', redo);
+            clearButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the entire constellation?')) {
+                    clearAll();
+                }
+            });
+            downloadButton.addEventListener('click', downloadSVG);
+
+            // Initial setup
+            saveState(); // Save the initial empty state
+            generateBackgroundStars(currentStarDensity); // Generate initial stars
+
+            // Redraw background stars if window resizes
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    generateBackgroundStars(currentStarDensity);
+                    // Optional: redraw constellation if needed, though SVG scales
+                    drawCanvas();
+                }, 250); // Debounce resize event
+            });
+
+            // Initial draw call might be needed if generateBackgroundStars is async or delayed
+            drawCanvas();
+        }
+
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', init);
+
+    </script>
+
+</body>
+</html>
