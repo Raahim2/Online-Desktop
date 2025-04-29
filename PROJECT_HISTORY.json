@@ -658,5 +658,17 @@
       "Downloadable image of the final puppet show scene."
     ],
     "raw_output": "Project Name: Shadow Puppet Theater\nDescription: Create and animate your own shadow puppet show with customizable figures, backdrops, and dialogue.\nFeatures:\n- Drag-and-drop interface for positioning puppet figures on a virtual stage.\n- Adjustable light source to create dynamic shadow effects.\n- Text input fields for adding dialogue to each puppet.\n- Simple animation controls for puppet movement and dialogue timing.\n- Downloadable image of the final puppet show scene.\n"
+  },
+  {
+    "name": "Geometric Constellation Creator",
+    "description": "Design and explore unique constellations by connecting points on a starfield, revealing emergent patterns and celestial art.",
+    "features": [
+      "Click and drag to create points and connecting lines.",
+      "Customizable star density and appearance using Tailwind CSS.",
+      "Downloadable SVG of the created constellation.",
+      "Undo/Redo functionality for refining designs.",
+      "Adjustable line styles and colors."
+    ],
+    "raw_output": "Project Name: Geometric Constellation Creator\nDescription: Design and explore unique constellations by connecting points on a starfield, revealing emergent patterns and celestial art.\nFeatures:\n- Click and drag to create points and connecting lines.\n- Customizable star density and appearance using Tailwind CSS.\n- Downloadable SVG of the created constellation.\n- Undo/Redo functionality for refining designs.\n- Adjustable line styles and colors.\n"
   }
 ]
