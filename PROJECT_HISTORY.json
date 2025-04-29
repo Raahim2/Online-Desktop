@@ -622,5 +622,17 @@
       "Adjustable sensitivity to mouse interaction."
     ],
     "raw_output": "Project Name: Mood Ring Generator\nDescription: Create and personalize digital mood rings that shift colors based on mouse movements, reflecting a spectrum of emotions.\nFeatures:\n- Interactive color gradient shifts on mouse hover and movement.\n- Customizable color palettes using Tailwind CSS color utilities.\n- Option to save and share generated mood ring images.\n- Display of current color's associated mood keyword.\n- Adjustable sensitivity to mouse interaction.\n"
+  },
+  {
+    "name": "Infinite Canvas Doodler",
+    "description": "An endless canvas for freehand drawing and doodling, with a simple, intuitive interface.",
+    "features": [
+      "Draw with variable brush sizes and colors using mouse or touch.",
+      "Pan and zoom across the infinite canvas.",
+      "Undo/Redo functionality for correcting mistakes.",
+      "Download the canvas as an image.",
+      "Customizable background color."
+    ],
+    "raw_output": "Project Name: Infinite Canvas Doodler\nDescription: An endless canvas for freehand drawing and doodling, with a simple, intuitive interface.\nFeatures:\n- Draw with variable brush sizes and colors using mouse or touch.\n- Pan and zoom across the infinite canvas.\n- Undo/Redo functionality for correcting mistakes.\n- Download the canvas as an image.\n- Customizable background color.\n"
   }
 ]
