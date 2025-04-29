@@ -694,5 +694,17 @@
       "Option to save the garden as an image."
     ],
     "raw_output": "Project Name: Virtual Zen Garden\nDescription: Create and personalize a serene digital zen garden, raking sand and arranging rocks for a moment of tranquility.\nFeatures:\n- Click-and-drag raking functionality to create patterns in the sand.\n- Drag-and-drop placement of rocks and other decorative elements.\n- Customizable sand color and rock styles using Tailwind CSS.\n- \"Reset\" button to clear the garden and start fresh.\n- Option to save the garden as an image.\n"
+  },
+  {
+    "name": "Procedural Island Generator",
+    "description": "Craft unique island silhouettes with adjustable parameters, generating randomized landmasses for map-making or creative exploration.",
+    "features": [
+      "Slider controls for island size, roughness, and shape.",
+      "Customizable color palettes for land, water, and vegetation.",
+      "Downloadable SVG of the generated island.",
+      "Random seed input for reproducible results.",
+      "Button to regenerate a new island."
+    ],
+    "raw_output": "Project Name: Procedural Island Generator\nDescription: Craft unique island silhouettes with adjustable parameters, generating randomized landmasses for map-making or creative exploration.\nFeatures:\n- Slider controls for island size, roughness, and shape.\n- Customizable color palettes for land, water, and vegetation.\n- Downloadable SVG of the generated island.\n- Random seed input for reproducible results.\n- Button to regenerate a new island.\n"
   }
 ]
