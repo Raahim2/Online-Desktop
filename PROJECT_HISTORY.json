@@ -646,5 +646,17 @@
       "Option to randomize the shift value for added security."
     ],
     "raw_output": "Project Name: Enigma Coder\nDescription: Encrypt and decrypt secret messages using a customizable Caesar cipher, directly within the browser.\nFeatures:\n- Input field for entering text to be encoded or decoded.\n- Slider to adjust the cipher shift value.\n- Real-time output of the encrypted/decrypted text.\n- Copy-to-clipboard functionality for easy sharing.\n- Option to randomize the shift value for added security.\n"
+  },
+  {
+    "name": "Shadow Puppet Theater",
+    "description": "Create and animate your own shadow puppet show with customizable figures, backdrops, and dialogue.",
+    "features": [
+      "Drag-and-drop interface for positioning puppet figures on a virtual stage.",
+      "Adjustable light source to create dynamic shadow effects.",
+      "Text input fields for adding dialogue to each puppet.",
+      "Simple animation controls for puppet movement and dialogue timing.",
+      "Downloadable image of the final puppet show scene."
+    ],
+    "raw_output": "Project Name: Shadow Puppet Theater\nDescription: Create and animate your own shadow puppet show with customizable figures, backdrops, and dialogue.\nFeatures:\n- Drag-and-drop interface for positioning puppet figures on a virtual stage.\n- Adjustable light source to create dynamic shadow effects.\n- Text input fields for adding dialogue to each puppet.\n- Simple animation controls for puppet movement and dialogue timing.\n- Downloadable image of the final puppet show scene.\n"
   }
 ]
