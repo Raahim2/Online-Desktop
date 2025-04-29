@@ -682,5 +682,17 @@
       "Downloadable GIF of the animated text."
     ],
     "raw_output": "Project Name: Kinetic Typography Playground\nDescription: Explore the dynamic interplay of text and motion by creating animated typographic compositions with adjustable parameters.\nFeatures:\n- Input field for custom text.\n- Controls for font, size, color, and animation style using Tailwind CSS and JavaScript.\n- Adjustable animation speed and direction.\n- Preset animation options for quick experimentation.\n- Downloadable GIF of the animated text.\n"
+  },
+  {
+    "name": "Virtual Zen Garden",
+    "description": "Create and personalize a serene digital zen garden, raking sand and arranging rocks for a moment of tranquility.",
+    "features": [
+      "Click-and-drag raking functionality to create patterns in the sand.",
+      "Drag-and-drop placement of rocks and other decorative elements.",
+      "Customizable sand color and rock styles using Tailwind CSS.",
+      "\"Reset\" button to clear the garden and start fresh.",
+      "Option to save the garden as an image."
+    ],
+    "raw_output": "Project Name: Virtual Zen Garden\nDescription: Create and personalize a serene digital zen garden, raking sand and arranging rocks for a moment of tranquility.\nFeatures:\n- Click-and-drag raking functionality to create patterns in the sand.\n- Drag-and-drop placement of rocks and other decorative elements.\n- Customizable sand color and rock styles using Tailwind CSS.\n- \"Reset\" button to clear the garden and start fresh.\n- Option to save the garden as an image.\n"
   }
 ]
