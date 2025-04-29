@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedural Island Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styles (optional, for aesthetics) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Style range input tracks */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none; /* Important for Firefox */
+        }
+        /* Style color input */
+        input[type=color] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #e5e7eb; /* gray-200 */
+        }
+        input[type=color]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type=color]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+        input[type=color]::-moz-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+
+        <!-- Controls Panel -->
+        <aside class="w-full lg:w-80 xl:w-96 bg-white shadow-lg p-6 space-y-6 overflow-y-auto">
+            <header class="border-b pb-4 mb-6">
+                <h1 class="text-2xl font-bold text-gray-700">Procedural Island Generator</h1>
+                <p class="text-sm text-gray-500 mt-1">Craft unique island silhouettes.</p>
+            </header>
+
+            <section>
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Generation Parameters</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="sizeSlider" class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="range" id="sizeSlider" min="50" max="250" value="150" class="flex-grow">
+                            <span id="sizeValue" class="text-sm text-gray-600 w-8 text-right">150</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="roughnessSlider" class="block text-sm font-medium text-gray-700 mb-1">Roughness</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="range" id="roughnessSlider" min="0.01" max="1.0" step="0.01" value="0.3" class="flex-grow">
+                            <span id="roughnessValue" class="text-sm text-gray-600 w-8 text-right">0.30</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="shapeSlider" class="block text-sm font-medium text-gray-700 mb-1">Shape Detail</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="range" id="shapeSlider" min="3" max="30" value="12" class="flex-grow">
+                            <span id="shapeValue" class="text-sm text-gray-600 w-8 text-right">12</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-semibold mb-3 text-gray-600">Color Palette</h2>
+                <div class="grid grid-cols-3 gap-4 items-center">
+                    <div class="flex flex-col items-center">
+                        <label for="landColor" class="block text-sm font-medium text-gray-700 mb-1">Land</label>
+                        <input type="color" id="landColor" value="#8DB86E">
+                    </div>
+                     <div class="flex flex-col items-center">
+                        <label for="waterColor" class="block text-sm font-medium text-gray-700 mb-1">Water</label>
+                        <input type="color" id="waterColor" value="#65A8C4">
+                    </div>
+                     <div class="flex flex-col items-center">
+                        <label for="vegColor" class="block text-sm font-medium text-gray-700 mb-1">Detail</label>
+                        <input type="color" id="vegColor" value="#5A945A">
+                    </div>
+                </div>
+                 <p class="text-xs text-gray-500 mt-2 text-center">Detail color currently unused in generation.</p>
+            </section>
+
+            <section>
+                 <h2 class="text-lg font-semibold mb-3 text-gray-600">Seed & Actions</h2>
+                 <div class="space-y-4">
+                    <div>
+                        <label for="seedInput" class="block text-sm font-medium text-gray-700 mb-1">Random Seed</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="seedInput" class="flex-grow mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Leave blank for random">
+                             <button id="randomSeedBtn" title="Use Random Seed" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-md text-gray-600 transition duration-150">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2a8.001 8.001 0 0115.357-2m0 0H15" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="regenerateBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2a8.001 8.001 0 0115.357-2m0 0H15" />
+                        </svg>
+                        <span>Regenerate Island</span>
+                    </button>
+                    <button id="downloadBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                         </svg>
+                        <span>Download SVG</span>
+                    </button>
+                 </div>
+            </section>
+
+        </aside>
+
+        <!-- SVG Display Area -->
+        <main class="flex-1 flex items-center justify-center p-4 lg:p-8 bg-gray-100">
+            <div id="svgContainer" class="w-full h-full max-w-4xl max-h-[calc(100vh-4rem)] aspect-square bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+                 <svg id="islandSvg" width="100%" height="100%" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+                        </filter>
+                    </defs>
+                    <rect id="waterRect" width="100%" height="100%" fill="#65A8C4"/>
+                    <path id="islandPath" d="" fill="#8DB86E" filter="url(#shadow)"/>
+                 </svg>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const sizeSlider = document.getElementById('sizeSlider');
+        const sizeValue = document.getElementById('sizeValue');
+        const roughnessSlider = document.getElementById('roughnessSlider');
+        const roughnessValue = document.getElementById('roughnessValue');
+        const shapeSlider = document.getElementById('shapeSlider');
+        const shapeValue = document.getElementById('shapeValue');
+        const landColorInput = document.getElementById('landColor');
+        const waterColorInput = document.getElementById('waterColor');
+        const vegColorInput = document.getElementById('vegColor'); // Currently unused in generation logic
+        const seedInput = document.getElementById('seedInput');
+        const randomSeedBtn = document.getElementById('randomSeedBtn');
+        const regenerateBtn = document.getElementById('regenerateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const svgContainer = document.getElementById('svgContainer');
+        const islandSvg = document.getElementById('islandSvg');
+        const islandPath = document.getElementById('islandPath');
+        const waterRect = document.getElementById('waterRect');
+
+        const SVG_WIDTH = 500;
+        const SVG_HEIGHT = 500;
+        const CENTER_X = SVG_WIDTH / 2;
+        const CENTER_Y = SVG_HEIGHT / 2;
+
+        let currentSeed = '';
+
+        // --- PRNG (Mulberry32) ---
+        function mulberry32(a) {
+            return function() {
+              var t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+        let random = Math.random; // Default to Math.random
+
+        // --- Island Generation Logic ---
+        function generateIsland() {
+            const size = parseInt(sizeSlider.value);
+            const roughness = parseFloat(roughnessSlider.value);
+            const numPoints = parseInt(shapeSlider.value); // Controls detail/shape complexity
+
+            // Seed handling
+            let seedStr = seedInput.value.trim();
+            if (seedStr === '') {
+                seedStr = String(Date.now() + Math.random()); // Generate a random seed if empty
+                // Don't update the input field visually unless user clicks random button
+            }
+            currentSeed = seedStr; // Store the seed used for potential download filename
+
+            // Simple hashing function for seed string to number
+            let seedNum = 0;
+            for(let i = 0; i < seedStr.length; i++) {
+                seedNum = (seedNum << 5) - seedNum + seedStr.charCodeAt(i);
+                seedNum |= 0; // Convert to 32bit integer
+            }
+            random = mulberry32(seedNum); // Initialize seeded PRNG
+
+            const points = [];
+            const angleStep = (Math.PI * 2) / numPoints;
+
+            for (let i = 0; i < numPoints; i++) {
+                const angle = angleStep * i;
+
+                // Base radius + random variation controlled by roughness
+                const baseRadius = size * 0.8; // Use 80% of size as base
+                const radiusVariation = size * roughness * (random() * 2 - 1); // Random value between -size*roughness and +size*roughness
+                let radius = baseRadius + radiusVariation;
+
+                // Ensure minimum radius to avoid collapsing to center
+                radius = Math.max(radius, size * 0.1);
+
+                // Add some larger scale undulation based on angle (simple sine wave modulation)
+                const shapeModulation = size * 0.15 * Math.sin(angle * 3 + random() * Math.PI); // Modulate shape
+                radius += shapeModulation;
+
+                // Convert polar coordinates (angle, radius) to Cartesian (x, y)
+                const x = CENTER_X + radius * Math.cos(angle);
+                const y = CENTER_Y + radius * Math.sin(angle);
+
+                points.push({ x, y });
+            }
+
+            // Create SVG path data using Catmull-Rom splines for smooth curves
+            const pathData = generateSplinePath(points);
+
+            // Update SVG
+            islandPath.setAttribute('d', pathData);
+            islandPath.setAttribute('fill', landColorInput.value);
+            waterRect.setAttribute('fill', waterColorInput.value);
+        }
+
+        // Function to generate smooth path data from points (using Catmull-Rom logic)
+        // Simplified: uses quadratic Bezier curves for smoothing between points
+        function generateSplinePath(points) {
+            if (points.length < 3) return ''; // Need at least 3 points
+
+            let path = `M ${points[0].x},${points[0].y} `;
+            const n = points.length;
+
+            for (let i = 0; i < n; i++) {
+                const p0 = points[i];
+                const p1 = points[(i + 1) % n]; // Next point, wrap around
+                const p2 = points[(i + 2) % n]; // Point after next
+
+                // Calculate control point for quadratic Bezier
+                // Midpoint between current and next point
+                const midX = (p0.x + p1.x) / 2;
+                const midY = (p0.y + p1.y) / 2;
+
+                // Use the midpoint as the end point of the quadratic curve,
+                // and the actual point p1 as the control point. This creates smoother joins.
+                path += `Q ${p1.x},${p1.y} ${ (p1.x + p2.x) / 2},${ (p1.y + p2.y) / 2} `;
+            }
+
+            path += 'Z'; // Close the path
+            return path;
+        }
+
+
+        // --- Event Listeners ---
+        sizeSlider.addEventListener('input', (e) => {
+            sizeValue.textContent = e.target.value;
+            // Optional: Regenerate on slider drag (can be slow)
+            // generateIsland();
+        });
+        roughnessSlider.addEventListener('input', (e) => {
+            roughnessValue.textContent = parseFloat(e.target.value).toFixed(2);
+            // Optional: Regenerate on slider drag
+            // generateIsland();
+        });
+        shapeSlider.addEventListener('input', (e) => {
+            shapeValue.textContent = e.target.value;
+            // Optional: Regenerate on slider drag
+            // generateIsland();
+        });
+
+        // Regenerate when sliders stop being dragged (mouseup/touchend)
+        [sizeSlider, roughnessSlider, shapeSlider].forEach(slider => {
+             slider.addEventListener('change', generateIsland); // 'change' fires after interaction ends
+        });
+
+
+        landColorInput.addEventListener('input', (e) => {
+            islandPath.setAttribute('fill', e.target.value);
+        });
+        waterColorInput.addEventListener('input', (e) => {
+            waterRect.setAttribute('fill', e.target.value);
+        });
+        // vegColorInput listener could be added if used later
+
+        regenerateBtn.addEventListener('click', generateIsland);
+
+        randomSeedBtn.addEventListener('click', () => {
+            seedInput.value = String(Date.now() + Math.random());
+            generateIsland();
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const svgData = islandSvg.outerHTML;
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            // Use seed in filename if available, otherwise generic name
+            const filename = currentSeed ? `island_${currentSeed.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.svg` : 'island.svg';
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+
+        // --- Initial Generation ---
+        window.addEventListener('load', () => {
+            // Set initial values display
+            sizeValue.textContent = sizeSlider.value;
+            roughnessValue.textContent = parseFloat(roughnessSlider.value).toFixed(2);
+            shapeValue.textContent = shapeSlider.value;
+            // Generate the first island
+            generateIsland();
+        });
+
+    </script>
+
+</body>
+</html>
