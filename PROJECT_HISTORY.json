@@ -706,5 +706,17 @@
       "Button to regenerate a new island."
     ],
     "raw_output": "Project Name: Procedural Island Generator\nDescription: Craft unique island silhouettes with adjustable parameters, generating randomized landmasses for map-making or creative exploration.\nFeatures:\n- Slider controls for island size, roughness, and shape.\n- Customizable color palettes for land, water, and vegetation.\n- Downloadable SVG of the generated island.\n- Random seed input for reproducible results.\n- Button to regenerate a new island.\n"
+  },
+  {
+    "name": "Interactive Idea Incubator",
+    "description": "Brainstorm and organize ideas visually, connecting them with lines and expanding on concepts in a freeform digital space.",
+    "features": [
+      "Click to create draggable idea bubbles with editable text.",
+      "Draw connecting lines between ideas to visualize relationships.",
+      "Double-click bubbles to expand for detailed notes and sub-ideas.",
+      "Download the idea map as an SVG image.",
+      "Customizable bubble colors and line styles using Tailwind CSS."
+    ],
+    "raw_output": "Project Name: Interactive Idea Incubator\nDescription: Brainstorm and organize ideas visually, connecting them with lines and expanding on concepts in a freeform digital space.\nFeatures:\n- Click to create draggable idea bubbles with editable text.\n- Draw connecting lines between ideas to visualize relationships.\n- Double-click bubbles to expand for detailed notes and sub-ideas.\n- Download the idea map as an SVG image.\n- Customizable bubble colors and line styles using Tailwind CSS.\n"
   }
 ]
