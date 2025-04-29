@@ -634,5 +634,17 @@
       "Customizable background color."
     ],
     "raw_output": "Project Name: Infinite Canvas Doodler\nDescription: An endless canvas for freehand drawing and doodling, with a simple, intuitive interface.\nFeatures:\n- Draw with variable brush sizes and colors using mouse or touch.\n- Pan and zoom across the infinite canvas.\n- Undo/Redo functionality for correcting mistakes.\n- Download the canvas as an image.\n- Customizable background color.\n"
+  },
+  {
+    "name": "Enigma Coder",
+    "description": "Encrypt and decrypt secret messages using a customizable Caesar cipher, directly within the browser.",
+    "features": [
+      "Input field for entering text to be encoded or decoded.",
+      "Slider to adjust the cipher shift value.",
+      "Real-time output of the encrypted/decrypted text.",
+      "Copy-to-clipboard functionality for easy sharing.",
+      "Option to randomize the shift value for added security."
+    ],
+    "raw_output": "Project Name: Enigma Coder\nDescription: Encrypt and decrypt secret messages using a customizable Caesar cipher, directly within the browser.\nFeatures:\n- Input field for entering text to be encoded or decoded.\n- Slider to adjust the cipher shift value.\n- Real-time output of the encrypted/decrypted text.\n- Copy-to-clipboard functionality for easy sharing.\n- Option to randomize the shift value for added security.\n"
   }
 ]
