@@ -718,5 +718,17 @@
       "Customizable bubble colors and line styles using Tailwind CSS."
     ],
     "raw_output": "Project Name: Interactive Idea Incubator\nDescription: Brainstorm and organize ideas visually, connecting them with lines and expanding on concepts in a freeform digital space.\nFeatures:\n- Click to create draggable idea bubbles with editable text.\n- Draw connecting lines between ideas to visualize relationships.\n- Double-click bubbles to expand for detailed notes and sub-ideas.\n- Download the idea map as an SVG image.\n- Customizable bubble colors and line styles using Tailwind CSS.\n"
+  },
+  {
+    "name": "Personal Mantra Generator",
+    "description": "Create and visualize personalized mantras with dynamic styling and animation for daily inspiration.",
+    "features": [
+      "Input field for custom mantra text.",
+      "Customizable font styles, colors, and background gradients using Tailwind CSS.",
+      "Subtle animation effects on hover or click, such as text shimmer or background pulsation.",
+      "Option to save generated mantras locally for later viewing.",
+      "Random mantra generation button for quick inspiration."
+    ],
+    "raw_output": "Project Name: Personal Mantra Generator\nDescription: Create and visualize personalized mantras with dynamic styling and animation for daily inspiration.\nFeatures:\n- Input field for custom mantra text.\n- Customizable font styles, colors, and background gradients using Tailwind CSS.\n- Subtle animation effects on hover or click, such as text shimmer or background pulsation.\n- Option to save generated mantras locally for later viewing.\n- Random mantra generation button for quick inspiration.\n"
   }
 ]
