@@ -766,5 +766,17 @@
       "Adjustable canvas size and background color."
     ],
     "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns.\nFeatures:\n- Customizable parameters for shape generation (number, size, type).\n- Dynamic color palettes generated using Tailwind CSS color utilities.\n- Downloadable SVG of the created artwork.\n- Randomization button to generate new compositions.\n- Adjustable canvas size and background color.\n"
+  },
+  {
+    "name": "Dynamic Storytelling Dice",
+    "description": "Craft branching narratives and explore different story paths by rolling virtual dice linked to custom story snippets.",
+    "features": [
+      "Customizable dice with user-defined text on each face.",
+      "Click-to-roll functionality with smooth animation.",
+      "Display of rolled outcome and corresponding story segment.",
+      "Branching story paths based on dice rolls.",
+      "Option to save and share story creations."
+    ],
+    "raw_output": "Project Name: Dynamic Storytelling Dice\nDescription: Craft branching narratives and explore different story paths by rolling virtual dice linked to custom story snippets.\nFeatures:\n- Customizable dice with user-defined text on each face.\n- Click-to-roll functionality with smooth animation.\n- Display of rolled outcome and corresponding story segment.\n- Branching story paths based on dice rolls.\n- Option to save and share story creations.\n"
   }
 ]
