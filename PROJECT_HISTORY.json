@@ -802,5 +802,17 @@
       "Copy-to-clipboard functionality for generated CSS."
     ],
     "raw_output": "Project Name: CSS Variable Explorer\nDescription: Visually explore and manipulate CSS variables (custom properties) in real-time, seeing their impact on a sample webpage element.\nFeatures:\n- Input fields to define and modify CSS variable values.\n- Live preview of changes applied to a sample element.\n- Color picker for easy color variable selection.\n- Slider controls for numerical variables.\n- Copy-to-clipboard functionality for generated CSS.\n"
+  },
+  {
+    "name": "Interactive Breathing Guide",
+    "description": "A calming visual breathing exercise tool to promote relaxation and mindfulness.",
+    "features": [
+      "Animated expanding and contracting circle to guide breathing rhythm.",
+      "Customizable breath cycle duration and holding times.",
+      "Soothing background color gradients that shift during the exercise.",
+      "Optional ambient soundscape toggled by a button.",
+      "Fullscreen mode for immersive experience."
+    ],
+    "raw_output": "Project Name: Interactive Breathing Guide\nDescription: A calming visual breathing exercise tool to promote relaxation and mindfulness.\nFeatures:\n- Animated expanding and contracting circle to guide breathing rhythm.\n- Customizable breath cycle duration and holding times.\n- Soothing background color gradients that shift during the exercise.\n- Optional ambient soundscape toggled by a button.\n- Fullscreen mode for immersive experience.\n"
   }
 ]
