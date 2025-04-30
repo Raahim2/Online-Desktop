@@ -1,8 +1,8 @@
-name: Run Binbot every 3 hours 
+name: Run Binbot every 4 hours 
 
 on:
   schedule:
-    - cron: "0 */3 * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch:  # Manual run option from GitHub Actions tab
 
 jobs:
@@ -26,4 +26,4 @@ jobs:
         env:
           REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python Bots/binbot.py
+        run: python Bots/BinBotPro.py
