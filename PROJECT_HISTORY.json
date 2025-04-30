@@ -790,5 +790,17 @@
       "Preset style themes for quick exploration."
     ],
     "raw_output": "Project Name: Lyric Weaver\nDescription: Craft visually appealing text-based art by dynamically manipulating font styles, colors, and spacing of user-inputted lyrics or poems.\nFeatures:\n- Input field for text/lyrics.\n- Customizable font families, sizes, and colors using Tailwind CSS.\n- Interactive sliders to adjust letter spacing, line height, and text transformations.\n- Downloadable SVG of the styled text art.\n- Preset style themes for quick exploration.\n"
+  },
+  {
+    "name": "CSS Variable Explorer",
+    "description": "Visually explore and manipulate CSS variables (custom properties) in real-time, seeing their impact on a sample webpage element.",
+    "features": [
+      "Input fields to define and modify CSS variable values.",
+      "Live preview of changes applied to a sample element.",
+      "Color picker for easy color variable selection.",
+      "Slider controls for numerical variables.",
+      "Copy-to-clipboard functionality for generated CSS."
+    ],
+    "raw_output": "Project Name: CSS Variable Explorer\nDescription: Visually explore and manipulate CSS variables (custom properties) in real-time, seeing their impact on a sample webpage element.\nFeatures:\n- Input fields to define and modify CSS variable values.\n- Live preview of changes applied to a sample element.\n- Color picker for easy color variable selection.\n- Slider controls for numerical variables.\n- Copy-to-clipboard functionality for generated CSS.\n"
   }
 ]
