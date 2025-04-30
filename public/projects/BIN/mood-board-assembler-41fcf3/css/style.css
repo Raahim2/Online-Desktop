@@ -1,0 +1,85 @@
+/* css/style.css */
+
+/* Hide the default file input (alternative to inline style) */
+/* #add-image-input { display: none; } */
+
+/* Draggable element base styles */
+.draggable {
+    user-select: none; /* Prevent text selection during drag */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE */
+    /* position: absolute; is set inline by JS */
+    /* cursor: grab; is set inline by JS */
+}
+
+.draggable:active {
+    /* cursor: grabbing; is set inline by JS */
+    /* Ensure dragged element is visually on top during drag */
+    /* Note: z-index is managed dynamically in script.js for layering */
+}
+
+/* Text element specific styles */
+.text-element {
+    /* Ensure text doesn't overflow weirdly during resize/edit */
+    overflow-wrap: break-word;
+    word-wrap: break-word; /* Legacy */
+    white-space: pre-wrap; /* Respect newlines entered by user */
+    /* min-width/height are handled by dragdrop.js */
+    /* padding is set inline by JS */
+}
+
+/* Style for contenteditable focus state */
+.text-element[contenteditable="true"]:focus {
+    outline: 1px solid dodgerblue;
+    box-shadow: 0 0 3px rgba(30, 144, 255, 0.4);
+    /* Ensure focus style doesn't add size */
+    outline-offset: 0px;
+}
+
+/* Selected element visual cue */
+/* .selected { */
+    /* border: 1px dashed dodgerblue; is set inline by JS */
+/* } */
+
+/* Resize Handle Styling (supplements inline styles from dragdrop.js) */
+.resize-handle {
+    /* position, size, bg, border, cursor, z-index are set inline */
+    /* display: none; is set inline initially and toggled by JS */
+    opacity: 0.6;
+    transition: opacity 0.15s ease-in-out;
+    border-radius: 2px; /* Slightly rounded corners */
+}
+
+.resize-handle:hover {
+    opacity: 1;
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Element Toolbar Transition */
+#element-toolbar {
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    visibility: visible; /* Default state */
+}
+
+#element-toolbar.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Style for disabled buttons (Tailwind handles opacity, but can add cursor) */
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Optional: Add a subtle pattern or texture to the canvas background */
+/* #moodboard-canvas { */
+    /* background-image: url('data:image/svg+xml,...'); */
+/* } */
+
+/* Ensure images within the canvas don't become draggable by the browser default */
+#moodboard-canvas img {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
