@@ -754,5 +754,17 @@
       "Simple chord progression playback functionality."
     ],
     "raw_output": "Project Name: Mini Musical Keyboard\nDescription: Play simple melodies and chords directly in your browser with a customizable virtual keyboard.\nFeatures:\n- Clickable keys to play corresponding notes.\n- Customizable keyboard size and octave range.\n- Option to display note names on the keys.\n- Visual feedback when keys are pressed.\n- Simple chord progression playback functionality.\n"
+  },
+  {
+    "name": "Abstract Art Generator",
+    "description": "Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns.",
+    "features": [
+      "Customizable parameters for shape generation (number, size, type).",
+      "Dynamic color palettes generated using Tailwind CSS color utilities.",
+      "Downloadable SVG of the created artwork.",
+      "Randomization button to generate new compositions.",
+      "Adjustable canvas size and background color."
+    ],
+    "raw_output": "Project Name: Abstract Art Generator\nDescription: Create unique and visually stunning abstract art pieces with randomized shapes, colors, and patterns.\nFeatures:\n- Customizable parameters for shape generation (number, size, type).\n- Dynamic color palettes generated using Tailwind CSS color utilities.\n- Downloadable SVG of the created artwork.\n- Randomization button to generate new compositions.\n- Adjustable canvas size and background color.\n"
   }
 ]
