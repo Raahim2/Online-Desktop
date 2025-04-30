@@ -814,5 +814,17 @@
       "Fullscreen mode for immersive experience."
     ],
     "raw_output": "Project Name: Interactive Breathing Guide\nDescription: A calming visual breathing exercise tool to promote relaxation and mindfulness.\nFeatures:\n- Animated expanding and contracting circle to guide breathing rhythm.\n- Customizable breath cycle duration and holding times.\n- Soothing background color gradients that shift during the exercise.\n- Optional ambient soundscape toggled by a button.\n- Fullscreen mode for immersive experience.\n"
+  },
+  {
+    "name": "Personal Digital Shrine",
+    "description": "Create a dedicated space for reflection and gratitude by curating images, quotes, and personal affirmations.",
+    "features": [
+      "Drag-and-drop image upload and positioning.",
+      "Customizable text areas for quotes and affirmations.",
+      "Adjustable background colors and gradients using Tailwind CSS.",
+      "Option to save the shrine configuration locally.",
+      "Fullscreen mode for immersive experience."
+    ],
+    "raw_output": "Project Name: Personal Digital Shrine\nDescription: Create a dedicated space for reflection and gratitude by curating images, quotes, and personal affirmations.\nFeatures:\n- Drag-and-drop image upload and positioning.\n- Customizable text areas for quotes and affirmations.\n- Adjustable background colors and gradients using Tailwind CSS.\n- Option to save the shrine configuration locally.\n- Fullscreen mode for immersive experience.\n"
   }
 ]
