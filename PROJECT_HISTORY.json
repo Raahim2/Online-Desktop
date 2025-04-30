@@ -778,5 +778,17 @@
       "Option to save and share story creations."
     ],
     "raw_output": "Project Name: Dynamic Storytelling Dice\nDescription: Craft branching narratives and explore different story paths by rolling virtual dice linked to custom story snippets.\nFeatures:\n- Customizable dice with user-defined text on each face.\n- Click-to-roll functionality with smooth animation.\n- Display of rolled outcome and corresponding story segment.\n- Branching story paths based on dice rolls.\n- Option to save and share story creations.\n"
+  },
+  {
+    "name": "Lyric Weaver",
+    "description": "Craft visually appealing text-based art by dynamically manipulating font styles, colors, and spacing of user-inputted lyrics or poems.",
+    "features": [
+      "Input field for text/lyrics.",
+      "Customizable font families, sizes, and colors using Tailwind CSS.",
+      "Interactive sliders to adjust letter spacing, line height, and text transformations.",
+      "Downloadable SVG of the styled text art.",
+      "Preset style themes for quick exploration."
+    ],
+    "raw_output": "Project Name: Lyric Weaver\nDescription: Craft visually appealing text-based art by dynamically manipulating font styles, colors, and spacing of user-inputted lyrics or poems.\nFeatures:\n- Input field for text/lyrics.\n- Customizable font families, sizes, and colors using Tailwind CSS.\n- Interactive sliders to adjust letter spacing, line height, and text transformations.\n- Downloadable SVG of the styled text art.\n- Preset style themes for quick exploration.\n"
   }
 ]
