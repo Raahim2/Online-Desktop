@@ -1,0 +1,110 @@
+// js/storage.js
+// Handles saving and retrieving data using localStorage.
+
+const Storage = (() => {
+    const FAVORITES_KEY = 'poetryPromptsFavorites';
+
+    // --- Private Helper ---
+    const _saveToLocalStorage = (key, data) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (e) {
+            console.error(`Error saving ${key} to localStorage:`, e);
+            // Consider notifying the user if storage is full
+        }
+    };
+
+    const _getFromLocalStorage = (key) => {
+        const dataJson = localStorage.getItem(key);
+        if (dataJson === null) {
+            return null; // Explicitly return null if key doesn't exist
+        }
+        try {
+            return JSON.parse(dataJson);
+        } catch (e) {
+            console.error(`Error parsing ${key} from localStorage:`, e);
+            // If parsing fails, maybe clear the corrupted data?
+            // localStorage.removeItem(key);
+            return null; // Return null on parsing error
+        }
+    };
+
+    // --- Public Methods for Favorites ---
+
+    /**
+     * Retrieves the list of favorite prompts.
+     * @returns {string[]} An array of favorite prompts, or an empty array if none exist or on error.
+     */
+    const getFavorites = () => {
+        const favorites = _getFromLocalStorage(FAVORITES_KEY);
+        return Array.isArray(favorites) ? favorites : [];
+    };
+
+    /**
+     * Saves a new prompt to the favorites list if it's not already present.
+     * @param {string} prompt - The prompt string to save.
+     * @returns {boolean} True if the prompt was added, false if it was already present.
+     */
+    const saveFavorite = (prompt) => {
+        if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+            console.warn("Attempted to save an invalid prompt.");
+            return false;
+        }
+        const favorites = getFavorites();
+        const trimmedPrompt = prompt.trim(); // Ensure consistency
+        if (!favorites.includes(trimmedPrompt)) {
+            favorites.push(trimmedPrompt);
+            _saveToLocalStorage(FAVORITES_KEY, favorites);
+            return true;
+        }
+        return false; // Already exists
+    };
+
+    /**
+     * Removes a specific prompt from the favorites list.
+     * @param {string} promptToRemove - The prompt string to remove.
+     * @returns {boolean} True if the prompt was found and removed, false otherwise.
+     */
+    const removeFavorite = (promptToRemove) => {
+        if (!promptToRemove || typeof promptToRemove !== 'string') return false;
+
+        let favorites = getFavorites();
+        const initialLength = favorites.length;
+        const trimmedPromptToRemove = promptToRemove.trim();
+        favorites = favorites.filter(prompt => prompt !== trimmedPromptToRemove);
+
+        if (favorites.length < initialLength) {
+            _saveToLocalStorage(FAVORITES_KEY, favorites);
+            return true;
+        }
+        return false; // Not found
+    };
+
+    /**
+     * Removes a prompt from the favorites list by its index.
+     * @param {number} indexToRemove - The index of the prompt to remove.
+     * @returns {boolean} True if the index was valid and the prompt was removed, false otherwise.
+     */
+    const removeFavoriteByIndex = (indexToRemove) => {
+        if (typeof indexToRemove !== 'number' || indexToRemove < 0) {
+            return false;
+        }
+        const favorites = getFavorites();
+        if (indexToRemove < favorites.length) {
+            favorites.splice(indexToRemove, 1);
+            _saveToLocalStorage(FAVORITES_KEY, favorites);
+            return true;
+        }
+        return false; // Index out of bounds
+    };
+
+
+    // --- Public API ---
+    return {
+        getFavorites,
+        saveFavorite,
+        removeFavorite,
+        removeFavoriteByIndex
+        // Add methods for other storage needs (like theme) if required later
+    };
+})();
