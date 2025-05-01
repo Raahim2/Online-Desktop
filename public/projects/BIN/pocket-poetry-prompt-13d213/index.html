@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Poetry Prompt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Basic Tailwind dark mode setup
+        tailwind.config = {
+          darkMode: 'class', // or 'media'
+          theme: {
+            extend: {
+              // Add custom theme extensions if needed
+            }
+          }
+        }
+        // Apply dark mode based on localStorage
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-300 font-sans">
+
+    <header class="w-full max-w-2xl flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-400">Pocket Poetry Prompt</h1>
+        <button id="dark-mode-toggle" aria-label="Toggle Dark Mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
+            <i class="fas fa-moon text-xl text-gray-700 dark:text-gray-300"></i>
+            <i class="fas fa-sun text-xl text-gray-700 dark:text-gray-300 hidden"></i>
+        </button>
+    </header>
+
+    <main class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center transition-colors duration-300">
+        <div id="prompt-container" class="mb-6 min-h-[100px] flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded p-4 bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
+            <p id="prompt-display" class="text-lg italic">Click "Generate" to get your first prompt!</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-3 mb-6">
+            <button id="generate-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-6 rounded transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center space-x-2">
+                <i class="fas fa-lightbulb"></i>
+                <span>Generate</span>
+            </button>
+            <button id="save-btn" aria-label="Save Prompt" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center space-x-2">
+                <i class="fas fa-heart"></i>
+                <span>Save</span>
+            </button>
+            <button id="copy-btn" aria-label="Copy Prompt" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center space-x-2">
+                <i class="fas fa-copy"></i>
+                <span>Copy</span>
+            </button>
+        </div>
+
+        <div class="flex justify-center space-x-4">
+             <button id="view-saved-btn" class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                View Saved (<span id="saved-count">0</span>)
+            </button>
+             <button id="contribute-btn" class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                Contribute Prompt
+            </button>
+        </div>
+    </main>
+
+    <!-- Saved Prompts Modal/Section (Initially Hidden) -->
+    <div id="saved-prompts-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto relative">
+            <button id="close-saved-modal-btn" class="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-2xl">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4 text-center text-indigo-600 dark:text-indigo-400">Saved Prompts</h2>
+            <ul id="saved-prompts-list" class="space-y-3">
+                <!-- Saved prompts will be listed here -->
+                <li class="text-center text-gray-500 dark:text-gray-400">No prompts saved yet.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Contribute Prompt Modal/Section (Initially Hidden) -->
+    <div id="contribute-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md relative">
+             <button id="close-contribute-modal-btn" class="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-2xl">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4 text-center text-indigo-600 dark:text-indigo-400">Contribute a Prompt</h2>
+            <form id="contribute-form">
+                <textarea id="new-prompt-input" rows="3" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter your poetry prompt..." required></textarea>
+                <button type="submit" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded transition duration-200 ease-in-out">Submit Prompt</button>
+            </form>
+             <p id="contribution-message" class="text-center text-green-600 dark:text-green-400 mt-3 hidden"></p>
+        </div>
+    </div>
+
+    <!-- Toast Notification Area -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-300 z-60">
+        Copied to clipboard!
+    </div>
+
+
+    <script src="js/prompts.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/script.js" defer></script>
+</body>
+</html>
