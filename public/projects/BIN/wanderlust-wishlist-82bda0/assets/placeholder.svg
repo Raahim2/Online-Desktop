@@ -1,0 +1,18 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" fill="#cbd5e1">
+    <!-- Background -->
+    <rect width="400" height="300" fill="#e2e8f0"/>
+
+    <!-- Simple Landscape Placeholder -->
+    <!-- Mountains -->
+    <path d="M100 250 L150 150 L200 200 L250 120 L300 250 Z" fill="#94a3b8"/>
+    <path d="M50 250 L100 180 L150 220 L200 160 L250 250 Z" fill="#a1a1aa" opacity="0.7"/>
+
+    <!-- Sun/Moon -->
+    <circle cx="320" cy="80" r="30" fill="#fde047"/>
+
+    <!-- Ground Line -->
+    <rect y="250" width="400" height="50" fill="#d1d5db"/>
+
+    <!-- Optional: Text Placeholder -->
+    <!-- <text x="200" y="160" font-family="sans-serif" font-size="20" fill="#a1a1aa" text-anchor="middle">No Image</text> -->
+</svg>
