@@ -941,5 +941,30 @@
       "js/storage.js"
     ],
     "raw_output": "Project Name: Ephemeral Canvas\nDescription: A minimalist digital art tool that emphasizes the fleeting nature of creation. Users can draw and experiment with colors and brush sizes, but their artwork disappears after a set time, encouraging playful exploration without the pressure of permanence.\nTarget Audience: Creative individuals, those seeking a mindful digital experience, and anyone looking for a unique way to de-stress.\nKey Functionalities:\n- Drawing Canvas: Users can draw directly on the canvas using their mouse or touch input.\n- Color Picker:  A color picker allows users to select different drawing colors.\n- Brush Size Adjustment: A slider controls the brush size.\n- Timer Setting:  Users can set a timer for how long their artwork will persist before disappearing.\n- Clear Canvas Button: A button clears the canvas immediately.\n- Fullscreen Mode:  Allows for an immersive drawing experience.\n- Color Palette Saving: Users can save their favorite color palettes for later use.\nUI/UX Considerations:\n- Minimalist Interface:  A clean and uncluttered interface to minimize distractions.\n- Responsive Design: Adapts to various screen sizes and devices.\n- Smooth Drawing Experience:  Ensure a smooth and responsive drawing interaction.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/canvas.js\n- js/timer.js\n- js/color.js\n- js/storage.js\n\n\n"
+  },
+  {
+    "name": "Wanderlust Wishlist",
+    "description": "A visual travel planning tool that allows users to create and organize their dream destinations. Users can add locations, attach images, notes, and budget estimates, fostering inspiration and providing a structured approach to travel planning.",
+    "features": [
+      "Destination Addition: Add new destinations with custom titles and brief descriptions.",
+      "Image Upload: Upload images representing each destination, creating visually appealing wish list items.",
+      "Note Taking: Add detailed notes, potential activities, and travel tips for each location.",
+      "Budget Estimation:  Input estimated budget ranges for each trip, helping users plan financially.",
+      "Categorization/Tagging: Categorize destinations by region, trip type (adventure, relaxation, etc.), or custom tags for improved organization.",
+      "Drag-and-Drop Reordering: Rearrange destinations on the wishlist using drag-and-drop for flexible organization.",
+      "Local Storage: Save and retrieve wishlist data locally in the browser."
+    ],
+    "target_audience": "Travel enthusiasts, aspiring adventurers, and anyone who enjoys dreaming and planning future trips.",
+    "ui_ux_notes": " - Card-Based Layout: Use a visually appealing card layout for each destination, showcasing images and key details. - Responsive Design: Ensure the wishlist adapts to different screen sizes for seamless use on various devices. - Interactive Map Integration (Optional):  Potentially integrate a map to visually display saved destinations.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/storage.js",
+      "js/ui.js",
+      "js/dragdrop.js",
+      "css/style.css",
+      "assets/placeholder.svg"
+    ],
+    "raw_output": "Project Name: Wanderlust Wishlist\nDescription: A visual travel planning tool that allows users to create and organize their dream destinations. Users can add locations, attach images, notes, and budget estimates, fostering inspiration and providing a structured approach to travel planning.\nTarget Audience: Travel enthusiasts, aspiring adventurers, and anyone who enjoys dreaming and planning future trips.\nKey Functionalities:\n- Destination Addition: Add new destinations with custom titles and brief descriptions.\n- Image Upload: Upload images representing each destination, creating visually appealing wish list items.\n- Note Taking: Add detailed notes, potential activities, and travel tips for each location.\n- Budget Estimation:  Input estimated budget ranges for each trip, helping users plan financially.\n- Categorization/Tagging: Categorize destinations by region, trip type (adventure, relaxation, etc.), or custom tags for improved organization.\n- Drag-and-Drop Reordering: Rearrange destinations on the wishlist using drag-and-drop for flexible organization.\n- Local Storage: Save and retrieve wishlist data locally in the browser.\nUI/UX Considerations:\n- Card-Based Layout: Use a visually appealing card layout for each destination, showcasing images and key details.\n- Responsive Design: Ensure the wishlist adapts to different screen sizes for seamless use on various devices.\n- Interactive Map Integration (Optional):  Potentially integrate a map to visually display saved destinations.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/storage.js\n- js/ui.js\n- js/dragdrop.js\n- css/style.css\n- assets/placeholder.svg\n"
   }
 ]
