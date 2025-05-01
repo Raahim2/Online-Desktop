@@ -966,5 +966,27 @@
       "assets/placeholder.svg"
     ],
     "raw_output": "Project Name: Wanderlust Wishlist\nDescription: A visual travel planning tool that allows users to create and organize their dream destinations. Users can add locations, attach images, notes, and budget estimates, fostering inspiration and providing a structured approach to travel planning.\nTarget Audience: Travel enthusiasts, aspiring adventurers, and anyone who enjoys dreaming and planning future trips.\nKey Functionalities:\n- Destination Addition: Add new destinations with custom titles and brief descriptions.\n- Image Upload: Upload images representing each destination, creating visually appealing wish list items.\n- Note Taking: Add detailed notes, potential activities, and travel tips for each location.\n- Budget Estimation:  Input estimated budget ranges for each trip, helping users plan financially.\n- Categorization/Tagging: Categorize destinations by region, trip type (adventure, relaxation, etc.), or custom tags for improved organization.\n- Drag-and-Drop Reordering: Rearrange destinations on the wishlist using drag-and-drop for flexible organization.\n- Local Storage: Save and retrieve wishlist data locally in the browser.\nUI/UX Considerations:\n- Card-Based Layout: Use a visually appealing card layout for each destination, showcasing images and key details.\n- Responsive Design: Ensure the wishlist adapts to different screen sizes for seamless use on various devices.\n- Interactive Map Integration (Optional):  Potentially integrate a map to visually display saved destinations.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/storage.js\n- js/ui.js\n- js/dragdrop.js\n- css/style.css\n- assets/placeholder.svg\n"
+  },
+  {
+    "name": "Pocket Poetry Prompt",
+    "description": "A minimalist web app designed to spark creativity by providing random poetry prompts. Users can generate new prompts, save favorites, and even contribute their own, fostering a community-driven space for poetic inspiration.",
+    "features": [
+      "Generate Prompt: Click a button to generate a new random poetry prompt (e.g., a word, phrase, image, or concept).",
+      "Save Favorites: Save preferred prompts for later use and inspiration.",
+      "Contribute Prompts: Submit original prompts to be added to the pool of available prompts.",
+      "View Saved Prompts: Access a list of saved prompts with easy removal options.",
+      "Copy Prompt: Copy the current prompt to the clipboard for use in other writing applications.",
+      "Dark Mode Toggle: Switch between light and dark mode for personalized viewing preference."
+    ],
+    "target_audience": "Writers, poets, aspiring creatives, and anyone seeking a creative outlet.",
+    "ui_ux_notes": " - Clean and Minimalist Design: A distraction-free interface to encourage focus on the prompts. - Mobile-First Approach: Ensure responsiveness and optimal usability on mobile devices. - Smooth Animations: Incorporate subtle animations to enhance user interaction and visual appeal.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/prompts.js  # Stores prompts data",
+      "js/storage.js # Handles local storage",
+      "css/style.css"
+    ],
+    "raw_output": "Project Name: Pocket Poetry Prompt\nDescription: A minimalist web app designed to spark creativity by providing random poetry prompts. Users can generate new prompts, save favorites, and even contribute their own, fostering a community-driven space for poetic inspiration.\nTarget Audience: Writers, poets, aspiring creatives, and anyone seeking a creative outlet.\nKey Functionalities:\n- Generate Prompt: Click a button to generate a new random poetry prompt (e.g., a word, phrase, image, or concept).\n- Save Favorites: Save preferred prompts for later use and inspiration.\n- Contribute Prompts: Submit original prompts to be added to the pool of available prompts.\n- View Saved Prompts: Access a list of saved prompts with easy removal options.\n- Copy Prompt: Copy the current prompt to the clipboard for use in other writing applications.\n- Dark Mode Toggle: Switch between light and dark mode for personalized viewing preference.\nUI/UX Considerations:\n- Clean and Minimalist Design: A distraction-free interface to encourage focus on the prompts.\n- Mobile-First Approach: Ensure responsiveness and optimal usability on mobile devices.\n- Smooth Animations: Incorporate subtle animations to enhance user interaction and visual appeal.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/prompts.js  # Stores prompts data\n- js/storage.js # Handles local storage\n- css/style.css\n\n\n"
   }
 ]
