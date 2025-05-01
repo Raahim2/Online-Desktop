@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Palette Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/grid.js" defer></script>
+    <script src="js/palette.js" defer></script>
+    <script src="js/drawing.js" defer></script>
+    <script src="js/export.js" defer></script>
+    <style>
+        /* Minimal custom styles if needed, e.g., for grid lines not easily done with Tailwind */
+        #grid-container {
+            display: grid;
+            border: 1px solid #ccc;
+            width: fit-content; /* Adjust as needed */
+            height: fit-content; /* Adjust as needed */
+            margin: auto; /* Center the grid */
+            touch-action: none; /* Prevent scrolling on canvas */
+            background-color: #fff; /* Default background for empty cells */
+        }
+        .grid-cell {
+            border: 1px solid #eee; /* Light grid lines */
+            width: 20px; /* Default cell size */
+            height: 20px; /* Default cell size */
+        }
+        .grid-cell:hover {
+            background-color: #f0f0f0 !important; /* Hover effect, !important to override inline style */
+        }
+        .active-tool {
+            background-color: #3b82f6 !important; /* Blue-600 */
+            color: white !important;
+        }
+        .palette-color.selected {
+            border: 2px solid #000;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col items-center min-h-screen p-4">
+
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Pixel Palette Playground</h1>
+    </header>
+
+    <main class="flex flex-col lg:flex-row gap-8 w-full max-w-6xl">
+
+        <!-- Controls Section -->
+        <section id="controls" class="bg-white p-4 rounded shadow-md flex flex-col gap-4 lg:w-1/4 order-2 lg:order-1">
+            <h2 class="text-xl font-semibold border-b pb-2">Controls</h2>
+
+            <!-- Grid Size -->
+            <div>
+                <label for="grid-size" class="block text-sm font-medium text-gray-700 mb-1">Grid Size:</label>
+                <select id="grid-size" name="grid-size" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="16">16x16</option>
+                    <option value="32" selected>32x32</option>
+                    <option value="48">48x48</option>
+                    <option value="64">64x64</option>
+                </select>
+            </div>
+
+             <!-- Cell Size (Zoom) -->
+            <div>
+                <label for="cell-size-slider" class="block text-sm font-medium text-gray-700 mb-1">Zoom (<span id="cell-size-value">20</span>px):</label>
+                <input type="range" id="cell-size-slider" min="5" max="40" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <!-- Color Palette -->
+            <div id="palette-section">
+                <h3 class="text-lg font-medium mb-2">Color Palette</h3>
+                <div id="palette-container" class="grid grid-cols-8 gap-1 mb-2">
+                    <!-- Default palette colors will be loaded by JS -->
+                </div>
+                <label for="color-picker" class="block text-sm font-medium text-gray-700 mb-1">Current Color:</label>
+                <input type="color" id="color-picker" value="#000000" class="w-full h-10 border border-gray-300 rounded cursor-pointer">
+            </div>
+
+            <!-- Tools -->
+            <div>
+                <h3 class="text-lg font-medium mb-2">Tools</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button id="tool-draw" class="tool-button flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded active-tool" data-tool="draw">Draw</button>
+                    <button id="tool-fill" class="tool-button flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded" data-tool="fill">Fill</button>
+                    <button id="tool-erase" class="tool-button flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded" data-tool="erase">Erase</button>
+                </div>
+            </div>
+
+             <!-- History -->
+            <div>
+                <h3 class="text-lg font-medium mb-2">History</h3>
+                <div class="flex gap-2">
+                    <button id="undo-button" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled>Undo</button>
+                    <button id="redo-button" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled>Redo</button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div>
+                <h3 class="text-lg font-medium mb-2">Actions</h3>
+                <div class="flex flex-col gap-2">
+                     <button id="export-png-button" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Export as PNG</button>
+                    <button id="clear-button" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Clear Canvas</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Canvas Area -->
+        <section id="canvas-area" class="flex-1 flex justify-center items-start lg:order-2 overflow-auto p-4 bg-gray-200 rounded shadow-inner">
+            <div id="grid-container" class="cursor-crosshair shadow-lg">
+                <!-- Grid cells will be generated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-8 text-center text-gray-500 text-sm">
+        <p>&copy; 2023 Pixel Palette Playground</p>
+    </footer>
+
+</body>
+</html>
