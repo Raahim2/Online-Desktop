@@ -1085,5 +1085,26 @@
       "css/style.css"
     ],
     "raw_output": "Project Name: Idea Incubator\nDescription: A web application designed to capture, categorize, and connect fleeting ideas.  Users can quickly jot down thoughts, tag them with keywords, and visually explore the relationships between their ideas, fostering creativity and facilitating brainstorming.  It acts as a digital \"idea garden\" where thoughts can germinate and interconnect.\nTarget Audience: Writers, entrepreneurs, students, and anyone who wants to capture and organize their ideas effectively.\nKey Functionalities:\n- Idea Capture:  Quickly add new ideas with short descriptions.\n- Keyword Tagging:  Tag ideas with relevant keywords to categorize and connect them.\n- Visual Network: Display ideas and their connections as an interactive network graph.\n- Search/Filter:  Search for ideas by keywords or filter by tags.\n- Idea Expansion:  Expand on existing ideas with additional notes and details.\n- Export as Text:  Export all captured ideas and their connections as a plain text file.\nUI/UX Considerations:\n- Intuitive Node Interaction:  Easy dragging, connecting, and expanding of idea nodes in the network graph.\n- Responsive Design:  Adapts to different screen sizes for optimal viewing.\n- Clean Visuals:  A minimalist aesthetic to avoid visual clutter and enhance focus.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/graph.js\n- js/storage.js\n- css/style.css\n\n"
+  },
+  {
+    "name": "Story Weaver",
+    "description": "A collaborative storytelling platform where users contribute sentences to create evolving narratives. Each user adds a sentence, building upon the previous contributions to weave unpredictable and often humorous stories. It encourages creativity and spontaneous storytelling.",
+    "features": [
+      "New Story Creation: Start a new story with an initial sentence.",
+      "Sentence Contribution: Add a sentence to an existing story, building on the narrative.",
+      "Story Browsing: Browse a list of active stories and choose one to contribute to.",
+      "Real-time Updates: See new sentences appear as others contribute to the story.",
+      "Voting/Ranking: Vote on favorite stories or sentences.",
+      "User Profiles (Optional): View profiles of other contributors, showing their contributions."
+    ],
+    "target_audience": "Creative writers, casual storytellers, and anyone looking for a fun and collaborative writing experience.",
+    "ui_ux_notes": " - Clean and Minimalist Design:  Focus on the story content and ease of contribution. - Mobile-First Approach:  Ensure responsiveness and a comfortable mobile experience. - Real-time Feedback:  Provide clear visual feedback when new sentences are added.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/api.js # For handling story data",
+      "js/ui.js # For UI updates"
+    ],
+    "raw_output": "Project Name: Story Weaver\nDescription: A collaborative storytelling platform where users contribute sentences to create evolving narratives. Each user adds a sentence, building upon the previous contributions to weave unpredictable and often humorous stories. It encourages creativity and spontaneous storytelling.\nTarget Audience: Creative writers, casual storytellers, and anyone looking for a fun and collaborative writing experience.\nKey Functionalities:\n- New Story Creation: Start a new story with an initial sentence.\n- Sentence Contribution: Add a sentence to an existing story, building on the narrative.\n- Story Browsing: Browse a list of active stories and choose one to contribute to.\n- Real-time Updates: See new sentences appear as others contribute to the story.\n- Voting/Ranking: Vote on favorite stories or sentences.\n- User Profiles (Optional): View profiles of other contributors, showing their contributions.\nUI/UX Considerations:\n- Clean and Minimalist Design:  Focus on the story content and ease of contribution.\n- Mobile-First Approach:  Ensure responsiveness and a comfortable mobile experience.\n- Real-time Feedback:  Provide clear visual feedback when new sentences are added.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/api.js # For handling story data\n- js/ui.js # For UI updates\n\n\n"
   }
 ]
