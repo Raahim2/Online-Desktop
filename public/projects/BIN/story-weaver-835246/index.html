@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Weaver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css"> <!-- Optional custom CSS -->
+    <style>
+        /* Minimal custom styles if needed */
+        .story-sentence {
+            transition: background-color 0.5s ease-in-out;
+        }
+        .new-sentence-highlight {
+            background-color: #fefcbf; /* Light yellow highlight */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-3xl font-bold text-gray-800">Story Weaver</h1>
+            <p class="text-sm text-gray-600">Collaborative Storytelling</p>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+
+        <!-- View: Story List -->
+        <section id="view-story-list" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-semibold text-gray-700">Active Stories</h2>
+                <button id="show-new-story-form-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                    Start New Story
+                </button>
+            </div>
+
+            <!-- New Story Form (Initially Hidden) -->
+            <form id="new-story-form" class="hidden bg-white p-4 rounded shadow space-y-3">
+                 <h3 class="text-lg font-medium text-gray-700">Create a New Story</h3>
+                 <div>
+                     <label for="new-story-title" class="block text-sm font-medium text-gray-700">Story Title (Optional)</label>
+                     <input type="text" id="new-story-title" name="title" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="An Unexpected Journey">
+                 </div>
+                 <div>
+                     <label for="first-sentence" class="block text-sm font-medium text-gray-700">First Sentence *</label>
+                     <textarea id="first-sentence" name="sentence" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="It was a dark and stormy night..."></textarea>
+                 </div>
+                 <div class="flex justify-end space-x-2">
+                     <button type="button" id="cancel-new-story-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition duration-300">Cancel</button>
+                     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300">Create Story</button>
+                 </div>
+                 <div id="new-story-error" class="text-red-500 text-sm mt-2 hidden"></div>
+            </form>
+
+            <div id="story-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Story cards will be loaded here by JS -->
+                <p id="loading-stories" class="text-gray-500 col-span-full">Loading stories...</p>
+            </div>
+        </section>
+
+        <!-- View: Single Story -->
+        <section id="view-single-story" class="hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <button id="back-to-list-btn" class="text-blue-500 hover:text-blue-700 font-semibold flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Stories
+                </button>
+                <span id="story-vote-area" class="text-gray-600">
+                    <!-- Voting UI Placeholder -->
+                     <button class="text-gray-400 hover:text-red-500 transition duration-150">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                         </svg>
+                         <span id="story-vote-count">0</span>
+                     </button>
+                </span>
+            </div>
+
+            <div class="bg-white p-6 rounded shadow">
+                <h2 id="story-title" class="text-2xl font-bold text-gray-800 mb-4">Story Title</h2>
+                <div id="story-content" class="space-y-2 text-gray-700 leading-relaxed mb-6">
+                    <!-- Sentences will be loaded here -->
+                    <p class="text-gray-500">Loading story content...</p>
+                </div>
+
+                <form id="add-sentence-form" class="space-y-3">
+                    <h3 class="text-lg font-medium text-gray-700">Add Your Sentence</h3>
+                    <div>
+                        <label for="sentence-input" class="sr-only">Your sentence</label>
+                        <textarea id="sentence-input" name="sentence" rows="3" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Continue the story..."></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                         <button type="submit" id="add-sentence-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">Add Sentence</button>
+                    </div>
+                     <div id="add-sentence-error" class="text-red-500 text-sm mt-2 hidden"></div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center text-gray-500 text-sm py-4 mt-8">
+        &copy; 2023 Story Weaver. Weaving tales together.
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/script.js" defer></script>
+</body>
+</html>
