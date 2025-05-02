@@ -1,0 +1,23 @@
+const soundsData = [
+    {
+        id: 'rain',
+        name: 'Rain',
+        path: 'assets/sounds/rain.mp3'
+    },
+    {
+        id: 'waves',
+        name: 'Waves',
+        path: 'assets/sounds/waves.mp3'
+    },
+    {
+        id: 'forest',
+        name: 'Forest',
+        path: 'assets/sounds/forest.mp3'
+    },
+    {
+        id: 'wind',
+        name: 'Wind',
+        path: 'assets/sounds/wind.mp3'
+    }
+    // Add more sounds here if needed following the same structure
+];
