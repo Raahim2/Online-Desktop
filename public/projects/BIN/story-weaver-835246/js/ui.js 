@@ -1,0 +1,182 @@
+const ui = (() => {
+
+    const storyListView = document.getElementById('view-story-list');
+    const singleStoryView = document.getElementById('view-single-story');
+    const newStoryFormElement = document.getElementById('new-story-form'); // Renamed to avoid conflict
+
+    const showStoryListView = () => {
+        storyListView.classList.remove('hidden');
+        singleStoryView.classList.add('hidden');
+        // Ensure new story form is hidden when returning to list view
+        hideNewStoryForm(newStoryFormElement);
+    };
+
+    const showSingleStoryView = () => {
+        storyListView.classList.add('hidden');
+        singleStoryView.classList.remove('hidden');
+    };
+
+    const showNewStoryForm = (formElement) => {
+        formElement.classList.remove('hidden');
+    };
+
+    const hideNewStoryForm = (formElement) => {
+        formElement.classList.add('hidden');
+    };
+
+    const setLoading = (element, isLoading, message = 'Loading...') => {
+        if (!element) return;
+        if (isLoading) {
+            element.textContent = message; // Simple text loading indicator
+            element.classList.remove('hidden'); // Ensure it's visible if it was hidden (like loading-stories)
+        } else {
+            // Don't clear content if it's a container like story-content
+            if (element.id === 'loading-stories') {
+                 element.classList.add('hidden');
+                 element.textContent = ''; // Clear only if it's the dedicated loading indicator
+            }
+            // For other elements like story-content, the calling function will replace the content
+        }
+    };
+
+    const displayError = (errorElement, message) => {
+        if (!errorElement) return;
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    };
+
+    const clearErrors = (errorElement) => {
+        if (!errorElement) return;
+        errorElement.textContent = '';
+        errorElement.classList.add('hidden');
+    };
+
+    const createStoryCard = (story, clickHandler) => {
+        const card = document.createElement('div');
+        card.className = 'story-card bg-white p-4 rounded shadow hover:shadow-lg transition duration-300 cursor-pointer';
+        card.dataset.storyId = story.id;
+
+        const title = document.createElement('h3');
+        title.className = 'text-lg font-semibold text-gray-800 mb-2';
+        title.textContent = story.title || `Story #${story.id}`;
+
+        const excerpt = document.createElement('p');
+        excerpt.className = 'text-sm text-gray-600 mb-3 line-clamp-2'; // Limits to 2 lines
+        excerpt.textContent = story.sentences[0]?.text || 'No sentences yet.';
+
+        const info = document.createElement('div');
+        info.className = 'text-xs text-gray-500 flex justify-between items-center';
+
+        const sentenceCount = document.createElement('span');
+        sentenceCount.textContent = `${story.sentences.length} sentence${story.sentences.length !== 1 ? 's' : ''}`;
+
+        const voteCount = document.createElement('span');
+        voteCount.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+            </svg>
+            ${story.votes || 0}
+        `;
+
+        info.appendChild(sentenceCount);
+        info.appendChild(voteCount);
+
+        card.appendChild(title);
+        card.appendChild(excerpt);
+        card.appendChild(info);
+
+        // No need for explicit click handler here if using event delegation in script.js
+        // card.addEventListener('click', () => clickHandler(story.id));
+
+        return card;
+    };
+
+    const displayStories = (container, stories, clickHandler) => {
+        container.innerHTML = ''; // Clear previous content or loading indicator
+        if (stories.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 col-span-full text-center">No stories found.</p>';
+            return;
+        }
+        stories.forEach(story => {
+            const card = createStoryCard(story, clickHandler);
+            container.appendChild(card);
+        });
+    };
+
+    const appendSentence = (contentElement, sentence, highlight = false) => {
+         if (!contentElement) return;
+         const sentencePara = document.createElement('p');
+         sentencePara.className = 'story-sentence py-1'; // Added padding
+         sentencePara.textContent = sentence.text;
+         // Optional: Add author info
+         // const authorSpan = document.createElement('span');
+         // authorSpan.className = 'text-xs text-gray-500 ml-2';
+         // authorSpan.textContent = ` - ${sentence.author || 'Anonymous'}`;
+         // sentencePara.appendChild(authorSpan);
+
+         contentElement.appendChild(sentencePara);
+
+         if (highlight) {
+             // Remove highlight from previous sentences quickly
+             contentElement.querySelectorAll('.new-sentence-highlight').forEach(el => {
+                 el.classList.remove('new-sentence-highlight');
+             });
+             // Add highlight to the new sentence
+             sentencePara.classList.add('new-sentence-highlight');
+             // Optional: Remove highlight after a short delay
+             // setTimeout(() => {
+             //     sentencePara.classList.remove('new-sentence-highlight');
+             // }, 2500); // Remove highlight after 2.5 seconds
+         }
+         // Scroll to bottom (optional)
+         contentElement.scrollTop = contentElement.scrollHeight;
+    };
+
+    const displaySingleStory = (titleElement, contentElement, story, highlightNew = false) => {
+        if (!titleElement || !contentElement || !story) return;
+
+        titleElement.textContent = story.title || `Story #${story.id}`;
+        // Update vote count display (assuming element exists)
+        const voteCountElement = document.getElementById('story-vote-count');
+        if (voteCountElement) {
+            voteCountElement.textContent = story.votes || 0;
+        }
+
+        // Determine how many sentences are currently displayed
+        const currentSentencesCount = contentElement.querySelectorAll('.story-sentence').length;
+        const newSentences = story.sentences.slice(currentSentencesCount);
+
+        if (!highlightNew || currentSentencesCount === 0) {
+            // Full refresh or initial load
+            contentElement.innerHTML = ''; // Clear previous content or loading
+            story.sentences.forEach(sentence => {
+                appendSentence(contentElement, sentence, false); // Don't highlight on full refresh
+            });
+        } else {
+            // Append only new sentences and highlight them
+            newSentences.forEach(sentence => {
+                 appendSentence(contentElement, sentence, true);
+            });
+        }
+
+         // Remove loading state if it was set before calling this
+         setLoading(contentElement, false);
+    };
+
+
+    // Public UI methods
+    return {
+        showStoryListView,
+        showSingleStoryView,
+        setLoading,
+        displayStories,
+        displaySingleStory,
+        appendSentence,
+        displayError,
+        clearErrors,
+        showNewStoryForm,
+        hideNewStoryForm
+        // createStoryCard is internal, not exposed directly
+    };
+
+})();
