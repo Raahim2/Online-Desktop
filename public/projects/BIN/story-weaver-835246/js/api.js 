@@ -1,0 +1,160 @@
+const api = (() => {
+    const STORAGE_KEY = 'storyWeaverData';
+
+    // --- Local Storage Simulation ---
+
+    const _getData = () => {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : { stories: {}, nextStoryId: 1 };
+    };
+
+    const _saveData = (data) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    };
+
+    // Initialize with some dummy data if storage is empty
+    const _initializeIfNeeded = () => {
+        let data = _getData();
+        if (Object.keys(data.stories).length === 0 && data.nextStoryId === 1) {
+            const initialStories = {
+                1: {
+                    id: 1,
+                    title: "The Lost Sock",
+                    sentences: [
+                        { text: "Once upon a time, in a land of laundry baskets...", author: "System", timestamp: Date.now() - 20000 },
+                        { text: "There lived a lonely left sock named Lefty.", author: "UserA", timestamp: Date.now() - 10000 },
+                        { text: "Lefty dreamed of finding his missing partner.", author: "UserB", timestamp: Date.now() - 5000 }
+                    ],
+                    createdAt: Date.now() - 30000,
+                    votes: 5
+                },
+                2: {
+                    id: 2,
+                    title: "Space Pigeons",
+                    sentences: [
+                        { text: "The pigeons gathered on the rooftop, cooing secret codes.", author: "UserC", timestamp: Date.now() - 15000 },
+                        { text: "They weren't ordinary pigeons; they were plotting interstellar travel.", author: "UserD", timestamp: Date.now() - 8000 }
+                    ],
+                    createdAt: Date.now() - 25000,
+                    votes: 2
+                }
+            };
+            data.stories = initialStories;
+            data.nextStoryId = 3;
+            _saveData(data);
+        }
+    };
+
+    _initializeIfNeeded(); // Run initialization check
+
+    // --- API Functions ---
+
+    const getStories = async () => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const data = _getData();
+        // Return stories as an array, sorted by creation date (newest first)
+        return Object.values(data.stories).sort((a, b) => b.createdAt - a.createdAt);
+    };
+
+    const getStory = async (storyId) => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const data = _getData();
+        const story = data.stories[storyId];
+        if (!story) {
+            // Simulate a 404 Not Found error
+            // throw new Error(`Story with ID ${storyId} not found.`);
+            console.warn(`Story with ID ${storyId} not found.`);
+            return null; // Return null instead of throwing for easier handling in script.js
+        }
+        return { ...story }; // Return a copy
+    };
+
+    const createStory = async (firstSentence, title = "Untitled Story") => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 400));
+        const data = _getData();
+        const newStoryId = data.nextStoryId;
+
+        if (!firstSentence || typeof firstSentence !== 'string' || firstSentence.trim().length === 0) {
+             throw new Error("The first sentence cannot be empty.");
+        }
+
+        const newStory = {
+            id: newStoryId,
+            title: title.trim() || `Story #${newStoryId}`,
+            sentences: [
+                { text: firstSentence.trim(), author: "Creator", timestamp: Date.now() } // Simplified author
+            ],
+            createdAt: Date.now(),
+            votes: 0
+        };
+
+        data.stories[newStoryId] = newStory;
+        data.nextStoryId++;
+        _saveData(data);
+
+        return { ...newStory }; // Return a copy
+    };
+
+    const addSentence = async (storyId, sentenceText) => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 350));
+        const data = _getData();
+        const story = data.stories[storyId];
+
+        if (!story) {
+            throw new Error(`Story with ID ${storyId} not found.`);
+        }
+        if (!sentenceText || typeof sentenceText !== 'string' || sentenceText.trim().length === 0) {
+             throw new Error("Sentence cannot be empty.");
+        }
+        // Basic check to prevent adding the exact same sentence consecutively (optional)
+        // const lastSentence = story.sentences[story.sentences.length - 1]?.text;
+        // if (lastSentence && lastSentence.toLowerCase() === sentenceText.trim().toLowerCase()) {
+        //     throw new Error("Cannot add the exact same sentence twice in a row.");
+        // }
+
+
+        const newSentence = {
+            text: sentenceText.trim(),
+            author: "Contributor", // Simplified author - real app would use logged-in user
+            timestamp: Date.now()
+        };
+
+        story.sentences.push(newSentence);
+        _saveData(data);
+
+        return { ...story }; // Return the updated story
+    };
+
+    // --- Optional: Voting ---
+    const voteStory = async (storyId) => {
+         // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 150));
+        const data = _getData();
+        const story = data.stories[storyId];
+
+        if (!story) {
+            throw new Error(`Story with ID ${storyId} not found.`);
+        }
+
+        // Simple increment vote - real app needs user tracking to prevent multi-voting
+        story.votes = (story.votes || 0) + 1;
+        _saveData(data);
+
+        return { id: storyId, votes: story.votes };
+    };
+
+
+    // Public API
+    return {
+        getStories,
+        getStory,
+        createStory,
+        addSentence,
+        voteStory // Expose voting function if implemented
+    };
+
+})();
