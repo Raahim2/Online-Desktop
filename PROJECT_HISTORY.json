@@ -1063,5 +1063,27 @@
       "css/style.css"
     ],
     "raw_output": "Project Name: Virtual Gratitude Jar\nDescription: A web application that allows users to digitally collect and reflect on moments of gratitude. Users can add entries, categorize them, and visually explore their collection, fostering a positive mindset and promoting appreciation for everyday joys.\nTarget Audience: Individuals seeking to cultivate gratitude, improve well-being, and reflect on positive experiences.\nKey Functionalities:\n- Add Entry:  Add new gratitude entries with optional titles and detailed descriptions.\n- Categorization:  Categorize entries using tags or keywords for better organization and reflection.\n- Visualization: View entries in a visually appealing layout, potentially using a \"jar\" metaphor or other creative representation.\n- Search/Filter: Search for entries by keywords or filter by category.\n- Random Entry Display: Display a random gratitude entry to inspire reflection throughout the day.\n- Export to Text: Export all entries as a plain text file.\n- Local Storage: Store all data locally in the user's browser for privacy.\nUI/UX Considerations:\n- Clean and Minimalist Design: A simple and calming interface to encourage reflection.\n- Mobile-First Approach:  Ensure the application is fully responsive and works well on mobile devices.\n- Subtle Animations: Use smooth animations to enhance user interaction.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/storage.js\n- js/ui.js\n- css/style.css\n\n\n"
+  },
+  {
+    "name": "Idea Incubator",
+    "description": "A web application designed to capture, categorize, and connect fleeting ideas.  Users can quickly jot down thoughts, tag them with keywords, and visually explore the relationships between their ideas, fostering creativity and facilitating brainstorming.  It acts as a digital \"idea garden\" where thoughts can germinate and interconnect.",
+    "features": [
+      "Idea Capture:  Quickly add new ideas with short descriptions.",
+      "Keyword Tagging:  Tag ideas with relevant keywords to categorize and connect them.",
+      "Visual Network: Display ideas and their connections as an interactive network graph.",
+      "Search/Filter:  Search for ideas by keywords or filter by tags.",
+      "Idea Expansion:  Expand on existing ideas with additional notes and details.",
+      "Export as Text:  Export all captured ideas and their connections as a plain text file."
+    ],
+    "target_audience": "Writers, entrepreneurs, students, and anyone who wants to capture and organize their ideas effectively.",
+    "ui_ux_notes": " - Intuitive Node Interaction:  Easy dragging, connecting, and expanding of idea nodes in the network graph. - Responsive Design:  Adapts to different screen sizes for optimal viewing. - Clean Visuals:  A minimalist aesthetic to avoid visual clutter and enhance focus.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/graph.js",
+      "js/storage.js",
+      "css/style.css"
+    ],
+    "raw_output": "Project Name: Idea Incubator\nDescription: A web application designed to capture, categorize, and connect fleeting ideas.  Users can quickly jot down thoughts, tag them with keywords, and visually explore the relationships between their ideas, fostering creativity and facilitating brainstorming.  It acts as a digital \"idea garden\" where thoughts can germinate and interconnect.\nTarget Audience: Writers, entrepreneurs, students, and anyone who wants to capture and organize their ideas effectively.\nKey Functionalities:\n- Idea Capture:  Quickly add new ideas with short descriptions.\n- Keyword Tagging:  Tag ideas with relevant keywords to categorize and connect them.\n- Visual Network: Display ideas and their connections as an interactive network graph.\n- Search/Filter:  Search for ideas by keywords or filter by tags.\n- Idea Expansion:  Expand on existing ideas with additional notes and details.\n- Export as Text:  Export all captured ideas and their connections as a plain text file.\nUI/UX Considerations:\n- Intuitive Node Interaction:  Easy dragging, connecting, and expanding of idea nodes in the network graph.\n- Responsive Design:  Adapts to different screen sizes for optimal viewing.\n- Clean Visuals:  A minimalist aesthetic to avoid visual clutter and enhance focus.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/graph.js\n- js/storage.js\n- css/style.css\n\n"
   }
 ]
