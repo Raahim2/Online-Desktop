@@ -1,0 +1,30 @@
+/* Custom styles supplementing Tailwind */
+
+/* Enhance graph node interactivity */
+#graph-container g > circle {
+    cursor: pointer;
+    transition: stroke 0.2s ease-in-out, stroke-width 0.2s ease-in-out;
+}
+
+/* Style for the graph links */
+#graph-container line {
+    /* Add transitions if link appearance changes dynamically beyond stroke-width */
+    /* transition: stroke 0.2s ease-in-out, stroke-opacity 0.2s ease-in-out; */
+}
+
+/* Ensure graph SVG takes full container space */
+#graph-container svg {
+    display: block; /* Remove potential extra space below SVG */
+    width: 100%;
+    height: 100%;
+}
+
+/* Style for text within graph nodes for better readability */
+#graph-container g > text {
+    pointer-events: none; /* Prevent text from interfering with node drag/click */
+    user-select: none; /* Prevent text selection */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    font-family: sans-serif; /* Ensure consistent font */
+}
