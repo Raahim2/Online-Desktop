@@ -1129,5 +1129,29 @@
       "js/storage.js"
     ],
     "raw_output": "Project Name: Constellation Creator\nDescription: A web application that allows users to create and name their own constellations by connecting stars on a night sky canvas.  Users can drag and drop stars, draw lines between them, name their constellations, and save their creations. This fosters creativity and provides a playful way to explore the night sky.\nTarget Audience: Astronomy enthusiasts, creative individuals, children, and anyone who enjoys stargazing.\nKey Functionalities:\n- Star Placement: Drag and drop stars onto the canvas to create a custom arrangement.\n- Constellation Drawing: Click and drag to draw lines between stars, forming constellations.\n- Constellation Naming:  Provide a text input to name created constellations.\n- Saving Creations: Save constellation arrangements locally in the browser for later viewing.\n- Loading Creations: Load previously saved constellations.\n- Clearing the Canvas: Clear the canvas to start creating a new constellation.\n- Random Star Generation: Generate a random distribution of stars on the canvas.\nUI/UX Considerations:\n- Dark Mode: A dark background to simulate the night sky.\n- Drag-and-Drop Smoothness:  Ensure a smooth and responsive drag-and-drop interaction for both stars and lines.\n- Responsive Design:  Adapt to different screen sizes and aspect ratios.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/stars.js\n- js/drawing.js\n- js/storage.js\n\n\n"
+  },
+  {
+    "name": "Lyrically",
+    "description": "A web application that allows users to input song lyrics and generates visually appealing text-based art. Users can customize fonts, colors, layouts, and add background images to create unique visual representations of their favorite song lyrics.  It's a fun way to celebrate music and create personalized art.",
+    "features": [
+      "Lyric Input:  A text area for users to paste or type song lyrics.",
+      "Font Customization:  Select different fonts and adjust font size.",
+      "Color Customization:  Choose text and background colors.",
+      "Layout Options:  Select from different layout styles (e.g., centered, justified, staggered).",
+      "Background Image Upload:  Upload an image to use as a background for the lyric art.",
+      "Download as Image: Download the generated lyric art as a PNG or JPEG image.",
+      "Preset Styles:  Choose from pre-designed style templates."
+    ],
+    "target_audience": "Music lovers, creative individuals, and anyone who enjoys visual expression through text.",
+    "ui_ux_notes": " - Clean and Intuitive Interface:  Easy-to-use controls and a clear visual hierarchy. - Responsive Design: Adapts to various screen sizes for optimal viewing. - Live Preview:  Display a live preview of the lyric art as users customize the settings.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/styling.js",
+      "js/download.js",
+      "css/style.css",
+      "assets/presets.js # Optional: if storing preset styles in a separate file."
+    ],
+    "raw_output": "Project Name: Lyrically\nDescription: A web application that allows users to input song lyrics and generates visually appealing text-based art. Users can customize fonts, colors, layouts, and add background images to create unique visual representations of their favorite song lyrics.  It's a fun way to celebrate music and create personalized art.\nTarget Audience: Music lovers, creative individuals, and anyone who enjoys visual expression through text.\nKey Functionalities:\n- Lyric Input:  A text area for users to paste or type song lyrics.\n- Font Customization:  Select different fonts and adjust font size.\n- Color Customization:  Choose text and background colors.\n- Layout Options:  Select from different layout styles (e.g., centered, justified, staggered).\n- Background Image Upload:  Upload an image to use as a background for the lyric art.\n- Download as Image: Download the generated lyric art as a PNG or JPEG image.\n- Preset Styles:  Choose from pre-designed style templates.\nUI/UX Considerations:\n- Clean and Intuitive Interface:  Easy-to-use controls and a clear visual hierarchy.\n- Responsive Design: Adapts to various screen sizes for optimal viewing.\n- Live Preview:  Display a live preview of the lyric art as users customize the settings.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/styling.js\n- js/download.js\n- css/style.css\n- assets/presets.js # Optional: if storing preset styles in a separate file.\n\n"
   }
 ]
