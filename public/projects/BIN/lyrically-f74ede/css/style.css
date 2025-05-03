@@ -1,0 +1,83 @@
+/* Enhance color input appearance for better cross-browser consistency */
+input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%; /* Ensure it fills container */
+  height: 2.5rem; /* Match Tailwind h-10 */
+  border: none; /* Remove default border if any */
+  padding: 0; /* Remove default padding */
+  border-radius: 0.375rem; /* Match Tailwind rounded-md */
+  cursor: pointer;
+  overflow: hidden; /* Clip the inner color swatch */
+  border: 1px solid #e5e7eb; /* Add a subtle border like other inputs */
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  /* Use inset border to show color against potential dark backgrounds */
+   border-radius: 0.375rem; /* Match parent radius */
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+   border-radius: 0.375rem; /* Match parent radius */
+}
+
+
+/* Add subtle transitions for smoother visual updates in the preview */
+#preview-area,
+#background-layer,
+#text-layer {
+    transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease, border 0.3s ease, filter 0.3s ease;
+    /* Avoid transitioning font-size/family as it can be visually disruptive */
+}
+
+/* Ensure background layer covers area correctly */
+#background-layer {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Ensure text layer respects whitespace and wraps correctly */
+#text-layer {
+    white-space: pre-wrap; /* Preserve whitespace and wrap */
+    word-wrap: break-word; /* Break long words */
+    overflow-wrap: break-word; /* Ensure wrapping */
+    /* Text alignment is handled by Tailwind classes added via JS */
+}
+
+/* Styles for html2canvas rendering consistency (optional but can help) */
+#preview-area {
+    /* Ensure position context for absolute children */
+    position: relative;
+     /* Force hardware acceleration potentially? Might help rendering */
+    /* transform: translateZ(0); */
+}
+
+/* Hide the remove background image button initially via CSS */
+/* Can be overridden by JS adding/removing the 'hidden' class */
+/* #remove-bg-image {
+    display: none;
+} */
+
+/* Custom scrollbar styles (if overflow becomes scrollable in future) */
+/*
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+*/
