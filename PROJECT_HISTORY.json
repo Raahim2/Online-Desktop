@@ -1106,5 +1106,28 @@
       "js/ui.js # For UI updates"
     ],
     "raw_output": "Project Name: Story Weaver\nDescription: A collaborative storytelling platform where users contribute sentences to create evolving narratives. Each user adds a sentence, building upon the previous contributions to weave unpredictable and often humorous stories. It encourages creativity and spontaneous storytelling.\nTarget Audience: Creative writers, casual storytellers, and anyone looking for a fun and collaborative writing experience.\nKey Functionalities:\n- New Story Creation: Start a new story with an initial sentence.\n- Sentence Contribution: Add a sentence to an existing story, building on the narrative.\n- Story Browsing: Browse a list of active stories and choose one to contribute to.\n- Real-time Updates: See new sentences appear as others contribute to the story.\n- Voting/Ranking: Vote on favorite stories or sentences.\n- User Profiles (Optional): View profiles of other contributors, showing their contributions.\nUI/UX Considerations:\n- Clean and Minimalist Design:  Focus on the story content and ease of contribution.\n- Mobile-First Approach:  Ensure responsiveness and a comfortable mobile experience.\n- Real-time Feedback:  Provide clear visual feedback when new sentences are added.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/api.js # For handling story data\n- js/ui.js # For UI updates\n\n\n"
+  },
+  {
+    "name": "Constellation Creator",
+    "description": "A web application that allows users to create and name their own constellations by connecting stars on a night sky canvas.  Users can drag and drop stars, draw lines between them, name their constellations, and save their creations. This fosters creativity and provides a playful way to explore the night sky.",
+    "features": [
+      "Star Placement: Drag and drop stars onto the canvas to create a custom arrangement.",
+      "Constellation Drawing: Click and drag to draw lines between stars, forming constellations.",
+      "Constellation Naming:  Provide a text input to name created constellations.",
+      "Saving Creations: Save constellation arrangements locally in the browser for later viewing.",
+      "Loading Creations: Load previously saved constellations.",
+      "Clearing the Canvas: Clear the canvas to start creating a new constellation.",
+      "Random Star Generation: Generate a random distribution of stars on the canvas."
+    ],
+    "target_audience": "Astronomy enthusiasts, creative individuals, children, and anyone who enjoys stargazing.",
+    "ui_ux_notes": " - Dark Mode: A dark background to simulate the night sky. - Drag-and-Drop Smoothness:  Ensure a smooth and responsive drag-and-drop interaction for both stars and lines. - Responsive Design:  Adapt to different screen sizes and aspect ratios.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/stars.js",
+      "js/drawing.js",
+      "js/storage.js"
+    ],
+    "raw_output": "Project Name: Constellation Creator\nDescription: A web application that allows users to create and name their own constellations by connecting stars on a night sky canvas.  Users can drag and drop stars, draw lines between them, name their constellations, and save their creations. This fosters creativity and provides a playful way to explore the night sky.\nTarget Audience: Astronomy enthusiasts, creative individuals, children, and anyone who enjoys stargazing.\nKey Functionalities:\n- Star Placement: Drag and drop stars onto the canvas to create a custom arrangement.\n- Constellation Drawing: Click and drag to draw lines between stars, forming constellations.\n- Constellation Naming:  Provide a text input to name created constellations.\n- Saving Creations: Save constellation arrangements locally in the browser for later viewing.\n- Loading Creations: Load previously saved constellations.\n- Clearing the Canvas: Clear the canvas to start creating a new constellation.\n- Random Star Generation: Generate a random distribution of stars on the canvas.\nUI/UX Considerations:\n- Dark Mode: A dark background to simulate the night sky.\n- Drag-and-Drop Smoothness:  Ensure a smooth and responsive drag-and-drop interaction for both stars and lines.\n- Responsive Design:  Adapt to different screen sizes and aspect ratios.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/stars.js\n- js/drawing.js\n- js/storage.js\n\n\n"
   }
 ]
