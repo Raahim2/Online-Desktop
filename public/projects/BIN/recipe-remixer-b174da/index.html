@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Remixer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-emerald-600 text-white p-6 shadow-md">
+        <div class="container mx-auto max-w-6xl">
+            <h1 class="text-3xl font-bold">Recipe Remixer</h1>
+            <p class="text-emerald-100">Find recipes with the ingredients you already have!</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-6xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <!-- Left Column: Input & Filters -->
+        <aside class="md:col-span-1 space-y-8">
+            <!-- Ingredient Input -->
+            <section id="ingredient-input-section" class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Enter Your Ingredients</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="ingredient-input" placeholder="e.g., chicken, tomato, onion" class="flex-grow p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button id="add-ingredient-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded transition duration-150 ease-in-out">Add</button>
+                </div>
+                <ul id="ingredient-list" class="list-disc list-inside space-y-1 text-gray-700 mb-4">
+                    <!-- Ingredients will be added here by JS -->
+                </ul>
+                <button id="find-recipes-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition duration-150 ease-in-out">Find Recipes</button>
+            </section>
+
+            <!-- Filters -->
+            <section id="filter-section" class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Filter Recipes</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dietary Restrictions:</label>
+                        <div class="flex flex-wrap gap-x-4 gap-y-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" value="vegetarian" name="dietary">
+                                <span class="ml-2 text-gray-700">Vegetarian</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" value="vegan" name="dietary">
+                                <span class="ml-2 text-gray-700">Vegan</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500" value="gluten-free" name="dietary">
+                                <span class="ml-2 text-gray-700">Gluten-Free</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="cuisine-filter" class="block text-sm font-medium text-gray-700 mb-1">Cuisine Type:</label>
+                        <select id="cuisine-filter" name="cuisine" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-700">
+                            <option value="">Any</option>
+                            <option value="italian">Italian</option>
+                            <option value="mexican">Mexican</option>
+                            <option value="indian">Indian</option>
+                            <option value="chinese">Chinese</option>
+                            <option value="american">American</option>
+                            <!-- Add more cuisines as needed -->
+                        </select>
+                    </div>
+                </div>
+                 <button id="apply-filters-btn" class="mt-4 w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition duration-150 ease-in-out">Apply Filters</button>
+            </section>
+
+             <!-- Favorite Recipes -->
+            <section id="favorites-section" class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Favorite Recipes</h2>
+                <div id="favorite-recipes-list" class="space-y-3">
+                    <p class="text-gray-500 italic">No favorite recipes saved yet.</p>
+                    <!-- Favorite recipes will be listed here -->
+                </div>
+            </section>
+        </aside>
+
+        <!-- Right Column: Recipe Suggestions -->
+        <section id="recipe-suggestions-section" class="md:col-span-2 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Recipe Suggestions</h2>
+            <div id="recipe-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p id="recipes-placeholder" class="text-gray-500 italic col-span-full">Enter ingredients and click "Find Recipes" to see suggestions.</p>
+                <!-- Recipe cards will be dynamically inserted here -->
+                <!-- Example Recipe Card Structure (hidden template) -->
+                <template id="recipe-card-template">
+                    <div class="recipe-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer bg-gray-50" data-recipe-id="">
+                        <img src="https://via.placeholder.com/300x200/cccccc/969696?text=Recipe+Image" alt="Recipe Image Placeholder" class="w-full h-40 object-cover recipe-image">
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold mb-1 recipe-title">Recipe Title</h3>
+                            <p class="text-sm text-gray-600 mb-2 recipe-description">Short description of the recipe...</p>
+                            <p class="text-xs text-gray-500 recipe-ingredients-match">Matches: Ingredient 1, Ingredient 2</p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Recipe Detail Modal (Hidden by default) -->
+    <div id="recipe-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+            <button id="modal-close-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+
+            <h2 id="modal-recipe-title" class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Recipe Title</h2>
+
+            <img id="modal-recipe-image" src="https://via.placeholder.com/600x400/cccccc/969696?text=Recipe+Image" alt="Recipe Image" class="w-full h-64 object-cover rounded mb-4">
+
+            <div class="mb-4">
+                <label for="modal-serving-size" class="block text-sm font-medium text-gray-700">Serving Size:</label>
+                <input type="number" id="modal-serving-size" value="4" min="1" class="mt-1 p-2 border border-gray-300 rounded w-20 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2 text-gray-700">Ingredients:</h3>
+                <ul id="modal-recipe-ingredients" class="list-disc list-inside space-y-1 text-gray-700">
+                    <!-- Ingredients list -->
+                </ul>
+                <!-- Add ingredient modification controls if needed -->
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2 text-gray-700">Instructions:</h3>
+                <div id="modal-recipe-instructions" class="prose max-w-none text-gray-700 space-y-2">
+                    <!-- Instructions steps -->
+                </div>
+            </div>
+
+             <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2 text-gray-700">Notes:</h3>
+                <textarea id="modal-recipe-notes" rows="3" placeholder="Add your personal notes or modifications here..." class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-3 pt-4 border-t mt-4">
+                 <button id="modal-favorite-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded transition duration-150 ease-in-out">
+                    <span class="favorite-text">Add to Favorites</span>
+                    <span class="unfavorite-text hidden">Remove from Favorites</span>
+                 </button>
+                 <button id="modal-share-btn" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded transition duration-150 ease-in-out">Share Recipe</button>
+                 <input type="text" id="shareable-link" class="absolute -left-[9999px]" readonly> <!-- Hidden input for copy/paste -->
+                 <span id="share-confirmation" class="text-green-600 text-sm ml-2 hidden">Link copied!</span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-500 text-sm py-4 mt-8 border-t border-gray-200">
+        &copy; 2023 Recipe Remixer. All rights reserved.
+    </footer>
+
+    <script src="js/recipes.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/script.js" defer></script>
+</body>
+</html>
