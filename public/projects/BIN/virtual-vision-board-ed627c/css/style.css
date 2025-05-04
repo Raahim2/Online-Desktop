@@ -1,0 +1,40 @@
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Add subtle transitions for non-positional style changes */
+.draggable {
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    /* Avoid transitioning top/left/transform for smoother dragging */
+}
+
+/* Ensure images within draggable elements behave correctly */
+.draggable img {
+    display: block; /* Remove extra space below image */
+    max-width: 100%; /* Ensure images scale within their container */
+    height: auto;
+}
+
+/* Optional: Style the color input preview */
+input[type="color"] {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	padding: 0;
+	border: none; /* Tailwind adds border, this removes default */
+	width: 100%; /* Ensure it fills container */
+	height: 2.5rem; /* Match Tailwind's h-10 */
+	cursor: pointer;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+	border: none;
+    border-radius: 0.25rem; /* Match Tailwind's rounded */
+}
+input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 0.25rem; /* Match Tailwind's rounded */
+}
