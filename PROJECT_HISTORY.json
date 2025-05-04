@@ -1219,5 +1219,28 @@
       "js/storage.js"
     ],
     "raw_output": "Project Name: Mood Music Maestro\nDescription: A web application that curates Spotify playlists based on the user's current mood. Users select their mood from a range of options, and the app dynamically generates a Spotify playlist link using the Spotify API. This provides a personalized and seamless music listening experience tailored to the user's emotional state.\nTarget Audience: Music lovers, anyone seeking mood-enhancing music, and users who enjoy discovering new music based on their feelings.\nKey Functionalities:\n- Mood Selection: Users select their current mood from a visually appealing list of options (e.g., happy, sad, energetic, relaxed).\n- Playlist Generation:  The app fetches relevant tracks from the Spotify API based on the selected mood using appropriate keywords and genre filtering.\n- Spotify Playlist Link:  Generates a shareable link to the curated Spotify playlist.\n- Playlist Preview: Displays a preview of the playlist, including track titles and artists (if feasible with API limitations).\n- Mood History:  Saves the user's recent mood selections locally for quick access.\n- Customization Options: Allows users to specify preferred genres or artists to further personalize the playlist generation.\nUI/UX Considerations:\n- Intuitive Mood Selection:  Visually appealing and easy-to-use mood selection interface.\n- Responsive Design:  Adapts to different screen sizes for seamless use on various devices.\n- Dynamic Feedback:  Provides visual feedback during playlist generation and link creation.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/api.js\n- js/storage.js\n\n\n"
+  },
+  {
+    "name": "Personalized Book Tracker",
+    "description": "A web application that allows users to track their reading progress, set reading goals, and visualize their reading habits.  Users can add books, log reading sessions, and gain insights into their reading preferences.  It's a powerful tool for book lovers to manage and celebrate their reading journey.",
+    "features": [
+      "Add Book:  Add books to the tracker with title, author, and optional cover image.",
+      "Log Reading Session:  Log reading sessions by specifying the book and the number of pages read.",
+      "Set Reading Goals: Set daily or weekly reading goals (e.g., number of pages or reading time).",
+      "Progress Visualization:  Visualize reading progress using charts or graphs (e.g., pages read per day, books completed per month).",
+      "Reading History: View a history of past reading sessions and completed books.",
+      "Search/Filter: Search for books by title or author, and filter by status (e.g., currently reading, completed).",
+      "Export Data: Export reading data as a CSV or JSON file."
+    ],
+    "target_audience": "Avid readers, book clubs, and anyone who wants to track and analyze their reading habits.",
+    "ui_ux_notes": " - Clean and Intuitive Interface:  Easy-to-use forms for adding books and logging sessions. - Mobile-First Design:  Ensure the app is fully responsive and works well on mobile devices. - Data Visualization:  Clear and engaging charts to visualize reading progress and habits.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/storage.js",
+      "js/charts.js",
+      "js/ui.js"
+    ],
+    "raw_output": "Project Name: Personalized Book Tracker\nDescription: A web application that allows users to track their reading progress, set reading goals, and visualize their reading habits.  Users can add books, log reading sessions, and gain insights into their reading preferences.  It's a powerful tool for book lovers to manage and celebrate their reading journey.\nTarget Audience: Avid readers, book clubs, and anyone who wants to track and analyze their reading habits.\nKey Functionalities:\n- Add Book:  Add books to the tracker with title, author, and optional cover image.\n- Log Reading Session:  Log reading sessions by specifying the book and the number of pages read.\n- Set Reading Goals: Set daily or weekly reading goals (e.g., number of pages or reading time).\n- Progress Visualization:  Visualize reading progress using charts or graphs (e.g., pages read per day, books completed per month).\n- Reading History: View a history of past reading sessions and completed books.\n- Search/Filter: Search for books by title or author, and filter by status (e.g., currently reading, completed).\n- Export Data: Export reading data as a CSV or JSON file.\nUI/UX Considerations:\n- Clean and Intuitive Interface:  Easy-to-use forms for adding books and logging sessions.\n- Mobile-First Design:  Ensure the app is fully responsive and works well on mobile devices.\n- Data Visualization:  Clear and engaging charts to visualize reading progress and habits.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/storage.js\n- js/charts.js\n- js/ui.js\n\n"
   }
 ]
