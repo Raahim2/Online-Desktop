@@ -1,0 +1,93 @@
+const ContentService = (() => {
+
+    const allContent = {
+        affirmations: [
+            { id: 'aff1', type: 'Affirmation', text: "I am capable of achieving great things." },
+            { id: 'aff2', type: 'Affirmation', text: "I radiate positivity and attract good energy." },
+            { id: 'aff3', type: 'Affirmation', text: "I am worthy of love, happiness, and success." },
+            { id: 'aff4', type: 'Affirmation', text: "I embrace challenges as opportunities for growth." },
+            { id: 'aff5', type: 'Affirmation', text: "I trust my intuition and make wise decisions." },
+            { id: 'aff6', type: 'Affirmation', text: "I am grateful for the abundance in my life." },
+            { id: 'aff7', type: 'Affirmation', text: "I choose peace and calm in every situation." },
+            { id: 'aff8', type: 'Affirmation', text: "My potential is limitless." },
+            { id: 'aff9', type: 'Affirmation', text: "I am resilient and can overcome any obstacle." },
+            { id: 'aff10', type: 'Affirmation', text: "Today, I focus on what makes me feel good." }
+        ],
+        quotes: [
+            { id: 'quo1', type: 'Quote', text: "The best way to predict the future is to create it." }, // Peter Drucker (often attributed)
+            { id: 'quo2', type: 'Quote', text: "Your limitation—it's only your imagination." },
+            { id: 'quo3', type: 'Quote', text: "Push yourself, because no one else is going to do it for you." },
+            { id: 'quo4', type: 'Quote', text: "Great things never come from comfort zones." },
+            { id: 'quo5', type: 'Quote', text: "The harder you work for something, the greater you'll feel when you achieve it." },
+            { id: 'quo6', type: 'Quote', text: "Dream bigger. Do bigger." },
+            { id: 'quo7', type: 'Quote', text: "Don't stop when you're tired. Stop when you're done." },
+            { id: 'quo8', type: 'Quote', text: "Wake up with determination. Go to bed with satisfaction." },
+            { id: 'quo9', type: 'Quote', text: "Do something today that your future self will thank you for." },
+            { id: 'quo10', type: 'Quote', text: "Little things make big days." } // Often attributed to gardening contexts, fits well here.
+        ],
+        meditations: [
+            { id: 'med1', type: 'Micro-Meditation', text: "Close your eyes. Take three deep breaths. Notice the sensation of the air entering and leaving your body. Be present." },
+            { id: 'med2', type: 'Micro-Meditation', text: "Focus on your feet touching the ground. Feel the support beneath you. Take a moment to feel grounded and stable." },
+            { id: 'med3', type: 'Micro-Meditation', text: "Listen intently to the sounds around you, near and far, without judgment. Just observe the soundscape." },
+            { id: 'med4', type: 'Micro-Meditation', text: "Bring to mind someone you care about. Send them a silent wish for their happiness and well-being." },
+            { id: 'med5', type: 'Micro-Meditation', text: "Gently scan your body from head to toe. Notice any tension without trying to change it. Simply acknowledge it." },
+            { id: 'med6', type: 'Micro-Meditation', text: "Think of one thing you are grateful for right now, however small. Hold that feeling of gratitude for a moment." },
+            { id: 'med7', type: 'Micro-Meditation', text: "Place a hand on your heart. Feel its rhythm. Breathe gently and connect with your inner calm." },
+            { id: 'med8', type: 'Micro-Meditation', text: "Imagine a warm, calming light filling your body with each inhale, and releasing tension with each exhale." },
+            { id: 'med9', type: 'Micro-Meditation', text: "Observe your thoughts like clouds passing in the sky. Don't engage, just watch them drift by." },
+            { id: 'med10', type: 'Micro-Meditation', text: "Take a mindful sip of water or tea. Notice the temperature, taste, and sensation as you swallow." }
+        ]
+    };
+
+    const fallbackContent = { id: 'fb1', type: 'Info', text: "Take a moment for yourself today. Breathe deeply." };
+
+    // Basic pseudo-random number generator state for more deterministic "randomness" per day
+    let seed = new Date().getDate(); // Use day of the month as a simple seed
+
+    function pseudoRandom() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+    }
+
+    function getDailyContent(selectedCategories = ['affirmations', 'quotes', 'meditations']) {
+        // Reset seed based on the current date to get the same "random" item for the same day
+        seed = new Date().getDate();
+
+        return new Promise((resolve) => {
+            let availableContent = [];
+            selectedCategories.forEach(category => {
+                if (allContent[category]) {
+                    availableContent = availableContent.concat(allContent[category]);
+                }
+            });
+
+            if (availableContent.length === 0) {
+                console.warn("No content available for selected categories:", selectedCategories);
+                resolve(getFallbackContent()); // Use fallback if no categories match or are empty
+                return;
+            }
+
+            // Use the pseudo-random number generator tied to the date
+            const randomIndex = Math.floor(pseudoRandom() * availableContent.length);
+            const selectedContent = availableContent[randomIndex];
+
+            // Simulate potential async operation (e.g., fetching from API in future)
+            setTimeout(() => {
+                 // Add the selected categories to the returned object for caching logic
+                resolve({ ...selectedContent, categories: selectedCategories });
+            }, 50); // Simulate slight delay
+        });
+    }
+
+    function getFallbackContent() {
+         // Return a copy to prevent accidental modification
+        return { ...fallbackContent, categories: [] };
+    }
+
+    // Public API
+    return {
+        getDailyContent,
+        getFallbackContent
+    };
+
+})();
