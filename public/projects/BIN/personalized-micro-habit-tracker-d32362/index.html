@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Habit Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+    <div class="container mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Micro-Habit Tracker</h1>
+            <p class="text-gray-600 mt-2">Cultivate positive habits, one small step at a time.</p>
+        </header>
+
+        <main>
+            <!-- Habit Creation Form -->
+            <section id="habit-creation" class="mb-8 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Add New Habit</h2>
+                <form id="add-habit-form" class="space-y-4">
+                    <div>
+                        <label for="habit-name" class="block text-sm font-medium text-gray-700">Habit Name</label>
+                        <input type="text" id="habit-name" name="habit-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., Drink a glass of water">
+                    </div>
+                    <div>
+                        <label for="habit-description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                        <textarea id="habit-description" name="habit-description" rows="2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., First thing in the morning"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Schedule (Days)</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Mon" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Mon</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Tue" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Tue</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Wed" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Wed</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Thu" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Thu</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Fri" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Fri</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Sat" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Sat</span></label>
+                            <label class="inline-flex items-center"><input type="checkbox" name="schedule-day" value="Sun" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <span class="ml-2 text-gray-700">Sun</span></label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Select days or leave blank for daily.</p>
+                    </div>
+                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Add Habit
+                    </button>
+                </form>
+            </section>
+
+            <!-- Habit List -->
+            <section id="habit-list-section" class="mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Today's Habits (<span id="current-date"></span>)</h2>
+                <div id="habit-list" class="space-y-4">
+                    <!-- Habit items will be dynamically inserted here -->
+                    <p id="no-habits-message" class="text-gray-500 italic">No habits added yet. Add one above!</p>
+                </div>
+            </section>
+
+            <!-- Visualization Placeholder -->
+            <section id="visualization-section" class="mb-8 bg-white p-6 rounded-lg shadow-md hidden">
+                 <h2 class="text-2xl font-semibold text-gray-700 mb-4">Progress Overview</h2>
+                 <div id="charts-container">
+                     <!-- Chart.js canvas elements will be added here -->
+                 </div>
+            </section>
+
+             <!-- Data Export -->
+            <section id="data-export-section" class="text-center">
+                 <button id="export-csv-button" class="py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2">
+                     Export CSV
+                 </button>
+                 <button id="export-json-button" class="py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                     Export JSON
+                 </button>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>&copy; <span id="current-year"></span> Micro-Habit Tracker. Keep building!</p>
+        </footer>
+
+    </div>
+
+    <!-- Habit Item Template -->
+    <template id="habit-item-template">
+        <div class="habit-item bg-white p-4 rounded-lg shadow flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0 sm:space-x-4 transition duration-150 ease-in-out">
+            <div class="flex items-center flex-grow">
+                <input type="checkbox" class="habit-checkbox form-checkbox h-6 w-6 text-green-500 border-gray-300 rounded focus:ring-green-400 cursor-pointer mr-4 flex-shrink-0">
+                <div class="flex-grow">
+                    <h3 class="habit-name font-semibold text-lg text-gray-800">Habit Name</h3>
+                    <p class="habit-description text-sm text-gray-600">Description</p>
+                    <div class="habit-streak text-xs text-indigo-600 mt-1">Streak: <span class="streak-count">0</span> days</div>
+                    <!-- Progress bar visualization placeholder -->
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 habit-progress-bar-container hidden">
+                      <div class="habit-progress-bar bg-indigo-500 h-1.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 flex-shrink-0 justify-end">
+                 <button class="habit-notes-button text-gray-500 hover:text-blue-600" title="Add/View Notes">
+                    <i class="fas fa-sticky-note"></i>
+                 </button>
+                 <button class="habit-delete-button text-gray-500 hover:text-red-600" title="Delete Habit">
+                    <i class="fas fa-trash-alt"></i>
+                 </button>
+            </div>
+            <div class="habit-notes-area hidden mt-2 sm:mt-0 sm:ml-4 w-full border-t pt-2">
+                <textarea class="notes-textarea w-full px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" rows="2" placeholder="Add notes for today..."></textarea>
+                <button class="save-notes-button mt-1 text-xs py-1 px-2 rounded bg-indigo-100 text-indigo-700 hover:bg-indigo-200">Save Note</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/charts.js"></script> <!-- Include even if visualization is basic initially -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script> <!-- Chart.js CDN -->
+    <script src="js/script.js" defer></script>
+</body>
+</html>
