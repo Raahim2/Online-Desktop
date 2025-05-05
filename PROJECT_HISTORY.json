@@ -1311,5 +1311,29 @@
       "js/ui.js"
     ],
     "raw_output": "Project Name: Daily Dose of Delight\nDescription: A web application that delivers a daily dose of positive affirmations, inspiring quotes, and calming micro-meditations. Users can customize the content categories, set notification reminders, and track their engagement to cultivate a more positive and mindful daily routine.\nTarget Audience: Individuals seeking daily motivation, stress reduction, and a boost of positivity.\nKey Functionalities:\n- Content Customization: Select preferred categories of content (affirmations, quotes, meditations).\n- Daily Delivery: Receive a new piece of content each day based on selected categories.\n- Notification Reminders: Set custom reminder times to receive daily content notifications.\n- Content Interaction: Mark content as \"favorited\" or \"completed.\"\n- Streaks Tracking: Track daily engagement streaks to motivate consistent practice.\n- Offline Access: Store recent content locally for offline viewing.\n- Content Sharing: Share favorite content via social media or copy/paste.\nUI/UX Considerations:\n- Clean and Minimalist Design: A calming and distraction-free interface.\n- Mobile-First Approach: Optimized for mobile devices with responsive design.\n- Subtle Animations: Smooth transitions and animations to enhance user engagement.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/content.js # Stores content data\n- js/notifications.js\n- js/storage.js\n- js/ui.js\n\n\n"
+  },
+  {
+    "name": "Wanderlust Wishlist",
+    "description": "A visual travel planning application where users can create and manage their dream travel destinations. Users can add destinations with images, descriptions, and planned activities, organizing their wanderlust and inspiring future adventures.  It serves as a personalized travel bucket list and planning tool.",
+    "features": [
+      "Add Destination: Add new destinations with location names, descriptions, and optional images.",
+      "Activity Planning: Create a list of planned activities for each destination.",
+      "Categorization: Categorize destinations by region, country, or travel style (e.g., adventure, relaxation).",
+      "Visual Display: Display destinations as visually appealing cards with images and summaries.",
+      "Search/Filter: Search for destinations by name or filter by category.",
+      "Mark as Visited: Mark destinations as \"visited\" to track travel experiences."
+    ],
+    "target_audience": "Travel enthusiasts, aspiring adventurers, and anyone who enjoys planning and dreaming about future trips.",
+    "ui_ux_notes": " - Interactive Map Integration (Optional - could be simplified):  Display destinations on a map for a visual overview. - Responsive Design: Adapt to different screen sizes for seamless use on various devices. - Visually Engaging Cards:  Present destination information in attractive and informative cards.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/destinations.js",
+      "js/ui.js",
+      "js/map.js # Optional: if map integration is implemented",
+      "css/style.css  # Optional: if additional styling beyond Tailwind is necessary",
+      "assets/placeholder.jpg # Optional: Placeholder image for destinations"
+    ],
+    "raw_output": "Project Name: Wanderlust Wishlist\nDescription: A visual travel planning application where users can create and manage their dream travel destinations. Users can add destinations with images, descriptions, and planned activities, organizing their wanderlust and inspiring future adventures.  It serves as a personalized travel bucket list and planning tool.\nTarget Audience: Travel enthusiasts, aspiring adventurers, and anyone who enjoys planning and dreaming about future trips.\nKey Functionalities:\n- Add Destination: Add new destinations with location names, descriptions, and optional images.\n- Activity Planning: Create a list of planned activities for each destination.\n- Categorization: Categorize destinations by region, country, or travel style (e.g., adventure, relaxation).\n- Visual Display: Display destinations as visually appealing cards with images and summaries.\n- Search/Filter: Search for destinations by name or filter by category.\n- Mark as Visited: Mark destinations as \"visited\" to track travel experiences.\nUI/UX Considerations:\n- Interactive Map Integration (Optional - could be simplified):  Display destinations on a map for a visual overview.\n- Responsive Design: Adapt to different screen sizes for seamless use on various devices.\n- Visually Engaging Cards:  Present destination information in attractive and informative cards.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/destinations.js\n- js/ui.js\n- js/map.js # Optional: if map integration is implemented\n- css/style.css  # Optional: if additional styling beyond Tailwind is necessary\n- assets/placeholder.jpg # Optional: Placeholder image for destinations\n\n\n"
   }
 ]
