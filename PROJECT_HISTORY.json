@@ -1335,5 +1335,29 @@
       "assets/placeholder.jpg # Optional: Placeholder image for destinations"
     ],
     "raw_output": "Project Name: Wanderlust Wishlist\nDescription: A visual travel planning application where users can create and manage their dream travel destinations. Users can add destinations with images, descriptions, and planned activities, organizing their wanderlust and inspiring future adventures.  It serves as a personalized travel bucket list and planning tool.\nTarget Audience: Travel enthusiasts, aspiring adventurers, and anyone who enjoys planning and dreaming about future trips.\nKey Functionalities:\n- Add Destination: Add new destinations with location names, descriptions, and optional images.\n- Activity Planning: Create a list of planned activities for each destination.\n- Categorization: Categorize destinations by region, country, or travel style (e.g., adventure, relaxation).\n- Visual Display: Display destinations as visually appealing cards with images and summaries.\n- Search/Filter: Search for destinations by name or filter by category.\n- Mark as Visited: Mark destinations as \"visited\" to track travel experiences.\nUI/UX Considerations:\n- Interactive Map Integration (Optional - could be simplified):  Display destinations on a map for a visual overview.\n- Responsive Design: Adapt to different screen sizes for seamless use on various devices.\n- Visually Engaging Cards:  Present destination information in attractive and informative cards.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/destinations.js\n- js/ui.js\n- js/map.js # Optional: if map integration is implemented\n- css/style.css  # Optional: if additional styling beyond Tailwind is necessary\n- assets/placeholder.jpg # Optional: Placeholder image for destinations\n\n\n"
+  },
+  {
+    "name": "Personalized Micro-Habit Tracker",
+    "description": "A minimalist web application designed to help users cultivate positive micro-habits effortlessly. Users can create custom habits, track their daily progress with simple checkmarks, and visualize their consistency over time, fostering long-term behavior change.",
+    "features": [
+      "Habit Creation: Add new micro-habits with custom names and descriptions.",
+      "Daily Tracking: Track daily completion of habits with a simple checkmark interface.",
+      "Streak Visualization: Visualize daily and weekly streaks using progress bars or other graphical representations.",
+      "Habit Scheduling: Schedule specific days of the week for each habit.",
+      "Reminders (Optional - could be a basic prompt): Set optional reminders to complete habits at specific times.",
+      "Notes/Journaling: Add notes or journal entries related to habit progress.",
+      "Data Export: Export habit tracking data as a CSV or JSON file."
+    ],
+    "target_audience": "Individuals seeking to build positive habits, improve productivity, and track personal growth.",
+    "ui_ux_notes": " - Clean and Minimalist Design: A simple and uncluttered interface to avoid distractions. - Mobile-First Approach:  Optimized for mobile devices with responsive design. - Interactive Feedback: Provide clear visual feedback upon habit completion.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/storage.js",
+      "js/ui.js",
+      "js/charts.js  # If using charts for visualization",
+      "css/style.css # Optional: if any custom CSS beyond Tailwind is needed"
+    ],
+    "raw_output": "Project Name: Personalized Micro-Habit Tracker\nDescription: A minimalist web application designed to help users cultivate positive micro-habits effortlessly. Users can create custom habits, track their daily progress with simple checkmarks, and visualize their consistency over time, fostering long-term behavior change.\nTarget Audience: Individuals seeking to build positive habits, improve productivity, and track personal growth.\nKey Functionalities:\n- Habit Creation: Add new micro-habits with custom names and descriptions.\n- Daily Tracking: Track daily completion of habits with a simple checkmark interface.\n- Streak Visualization: Visualize daily and weekly streaks using progress bars or other graphical representations.\n- Habit Scheduling: Schedule specific days of the week for each habit.\n- Reminders (Optional - could be a basic prompt): Set optional reminders to complete habits at specific times.\n- Notes/Journaling: Add notes or journal entries related to habit progress.\n- Data Export: Export habit tracking data as a CSV or JSON file.\nUI/UX Considerations:\n- Clean and Minimalist Design: A simple and uncluttered interface to avoid distractions.\n- Mobile-First Approach:  Optimized for mobile devices with responsive design.\n- Interactive Feedback: Provide clear visual feedback upon habit completion.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/storage.js\n- js/ui.js\n- js/charts.js  # If using charts for visualization\n- css/style.css # Optional: if any custom CSS beyond Tailwind is needed\n\n\n"
   }
 ]
