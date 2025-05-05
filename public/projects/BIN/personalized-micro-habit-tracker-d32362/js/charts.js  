@@ -1,0 +1,339 @@
+const Charts = (() => {
+    let completionChartInstance = null;
+    let streakChartInstance = null; // Example: Add another chart instance if needed
+
+    const CHART_COLORS = {
+        border: 'rgba(79, 70, 229, 0.8)', // Indigo-600
+        background: 'rgba(99, 102, 241, 0.5)', // Indigo-500 lighter
+        secondaryBorder: 'rgba(34, 197, 94, 0.8)', // Green-500
+        secondaryBackground: 'rgba(74, 222, 128, 0.5)', // Green-400 lighter
+        grid: 'rgba(209, 213, 219, 0.4)', // Gray-300
+        ticks: 'rgba(107, 114, 128, 1)', // Gray-500
+        tooltipBackground: 'rgba(17, 24, 39, 0.9)', // Gray-900
+    };
+
+    // Helper to get the last N days formatted
+    const getLastNDays = (n) => {
+        const dates = [];
+        for (let i = n - 1; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            dates.push(getFormattedDate(d)); // Assumes getFormattedDate is globally available from script.js
+        }
+        return dates;
+    };
+
+    // Helper to process data for completion chart (e.g., last 7 days)
+    const processCompletionData = (habits, days = 7) => {
+        const labels = getLastNDays(days);
+        const data = {
+            labels: labels.map(dateStr => {
+                const date = new Date(dateStr + 'T00:00:00'); // Ensure correct date parsing
+                return date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }); // Format like "Mon 15"
+            }),
+            datasets: []
+        };
+
+        const dailyCompletionCounts = labels.reduce((acc, date) => {
+            acc[date] = { completed: 0, scheduled: 0 };
+            return acc;
+        }, {});
+
+        const today = new Date();
+        const todayDayOfWeek = getDayOfWeek(today); // Assumes getDayOfWeek is global
+
+        habits.forEach(habit => {
+            labels.forEach(dateStr => {
+                 const date = new Date(dateStr + 'T00:00:00');
+                 const dayOfWeek = getDayOfWeek(date);
+                 // Check if habit was scheduled for this day
+                 if (isScheduledForToday(habit, dayOfWeek)) { // Assumes isScheduledForToday is global
+                    dailyCompletionCounts[dateStr].scheduled++;
+                    if (habit.completions?.[dateStr]) {
+                        dailyCompletionCounts[dateStr].completed++;
+                    }
+                 }
+            });
+        });
+
+        const completionPercentages = labels.map(date => {
+            const counts = dailyCompletionCounts[date];
+            return counts.scheduled > 0 ? (counts.completed / counts.scheduled) * 100 : 0;
+        });
+
+        data.datasets.push({
+            label: '% Habits Completed',
+            data: completionPercentages,
+            backgroundColor: CHART_COLORS.background,
+            borderColor: CHART_COLORS.border,
+            borderWidth: 1.5,
+            tension: 0.1 // Slight curve for line chart
+        });
+
+        return data;
+    };
+
+     // Helper to process data for individual habit streaks (Top N)
+    const processStreakData = (habits, limit = 5) => {
+        const today = new Date();
+        const todayDateString = getFormattedDate(today);
+
+        const streaks = habits.map(habit => ({
+            name: habit.name.length > 20 ? habit.name.substring(0, 17) + '...' : habit.name, // Truncate long names
+            streak: calculateStreak(habit, todayDateString) // Assumes calculateStreak is global
+        }))
+        .filter(item => item.streak > 0) // Only show active streaks
+        .sort((a, b) => b.streak - a.streak) // Sort descending
+        .slice(0, limit); // Take top N
+
+        return {
+            labels: streaks.map(item => item.name),
+            datasets: [{
+                label: 'Current Streak (Days)',
+                data: streaks.map(item => item.streak),
+                backgroundColor: CHART_COLORS.secondaryBackground,
+                borderColor: CHART_COLORS.secondaryBorder,
+                borderWidth: 1
+            }]
+        };
+    };
+
+
+    const renderCharts = (habits, container) => {
+        if (!container || typeof Chart === 'undefined') {
+             console.warn("Chart container or Chart.js library not found.");
+             return;
+        }
+
+        // Clear previous charts and canvases
+        container.innerHTML = '';
+        if (completionChartInstance) {
+            completionChartInstance.destroy();
+            completionChartInstance = null;
+        }
+         if (streakChartInstance) {
+            streakChartInstance.destroy();
+            streakChartInstance = null;
+        }
+
+
+        if (habits.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500 italic">No habit data yet to generate charts.</p>';
+            return; // No data to chart
+        }
+
+        // --- Chart 1: Weekly Completion Rate ---
+        const completionData = processCompletionData(habits, 7); // Get data for last 7 days
+        if (completionData.datasets.length > 0) {
+            const completionCanvas = document.createElement('canvas');
+            completionCanvas.id = 'completionRateChart';
+            completionCanvas.width = 400; // Set base width
+            completionCanvas.height = 200; // Set base height
+            const completionCtx = completionCanvas.getContext('2d');
+
+            const chartWrapper1 = document.createElement('div');
+            chartWrapper1.classList.add('mb-6'); // Add margin between charts
+            chartWrapper1.innerHTML = '<h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Last 7 Days Completion Rate</h3>';
+            chartWrapper1.appendChild(completionCanvas);
+            container.appendChild(chartWrapper1);
+
+
+            completionChartInstance = new Chart(completionCtx, {
+                type: 'line', // Use line chart for trend
+                data: completionData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allow height/width ratio to change
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100, // Percentage scale
+                            ticks: {
+                                callback: function(value) { return value + "%" },
+                                color: CHART_COLORS.ticks,
+                            },
+                             grid: {
+                                color: CHART_COLORS.grid,
+                            }
+                        },
+                        x: {
+                             ticks: {
+                                color: CHART_COLORS.ticks,
+                            },
+                             grid: {
+                                display: false, // Hide vertical grid lines for cleaner look
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Hide legend if only one dataset
+                        },
+                        tooltip: {
+                            backgroundColor: CHART_COLORS.tooltipBackground,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(1) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+             container.innerHTML = '<p class="text-center text-gray-500 italic">Not enough data for completion chart.</p>';
+        }
+
+
+        // --- Chart 2: Top Current Streaks ---
+        const streakData = processStreakData(habits, 5); // Get top 5 streaks
+        if (streakData.labels.length > 0) { // Only render if there are active streaks
+            const streakCanvas = document.createElement('canvas');
+            streakCanvas.id = 'streakChart';
+            streakCanvas.width = 400;
+            streakCanvas.height = 200; // Adjust height as needed
+            const streakCtx = streakCanvas.getContext('2d');
+
+            const chartWrapper2 = document.createElement('div');
+            chartWrapper2.innerHTML = '<h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Top Current Streaks</h3>';
+            chartWrapper2.appendChild(streakCanvas);
+            container.appendChild(chartWrapper2);
+
+            streakChartInstance = new Chart(streakCtx, {
+                type: 'bar',
+                data: streakData,
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: CHART_COLORS.ticks,
+                                precision: 0 // Show whole numbers for days
+                            },
+                             grid: {
+                                color: CHART_COLORS.grid,
+                            }
+                        },
+                        y: {
+                             ticks: {
+                                color: CHART_COLORS.ticks,
+                            },
+                             grid: {
+                                display: false,
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                         tooltip: {
+                            backgroundColor: CHART_COLORS.tooltipBackground,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x + (context.parsed.x === 1 ? ' day' : ' days');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else if (container.innerHTML === '') { // Only show this if no other chart was rendered
+             container.innerHTML = '<p class="text-center text-gray-500 italic">No active streaks to display.</p>';
+        }
+
+    };
+
+    // Expose the main rendering function
+    return {
+        renderCharts
+    };
+})();
+
+// Assume these helper functions are defined globally by script.js
+// Declare them here to satisfy linter / avoid runtime errors if charts.js loads first,
+// but the actual implementation should be in script.js.
+function getFormattedDate(date) {
+    // Placeholder - actual implementation in script.js
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function getDayOfWeek(date) {
+    // Placeholder - actual implementation in script.js
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return days[date.getDay()];
+}
+
+function isScheduledForToday(habit, dayOfWeek) {
+     // Placeholder - actual implementation in script.js
+     if (!habit.schedule || habit.schedule.length === 0 || habit.schedule.length === 7) {
+         return true;
+     }
+     return habit.schedule.includes(dayOfWeek);
+}
+
+function calculateStreak(habit, checkDateStr) {
+    // Placeholder - actual implementation in script.js
+    // console.warn("calculateStreak called from Charts - ensure it's defined globally in script.js");
+     let streak = 0;
+     let currentDate = new Date(checkDateStr);
+     const todayDayOfWeek = getDayOfWeek(currentDate);
+
+     // Check completion for the checkDate itself
+     if (habit.completions?.[checkDateStr] && isScheduledForToday(habit, todayDayOfWeek)) {
+         streak = 1;
+         while (true) {
+             currentDate.setDate(currentDate.getDate() - 1);
+             const previousDateStr = getFormattedDate(currentDate);
+             const previousDayOfWeek = getDayOfWeek(currentDate);
+             if (isScheduledForToday(habit, previousDayOfWeek)) {
+                 if (habit.completions?.[previousDateStr]) {
+                     streak++;
+                 } else {
+                     break;
+                 }
+             }
+              if (new Date(checkDateStr) - currentDate > 365 * 24 * 60 * 60 * 1000) { break; }
+         }
+     } else {
+          currentDate.setDate(currentDate.getDate() - 1);
+          let yesterdayStreak = 0;
+          while (true) {
+             const previousDateStr = getFormattedDate(currentDate);
+             const previousDayOfWeek = getDayOfWeek(currentDate);
+              if (isScheduledForToday(habit, previousDayOfWeek)) {
+                  if (habit.completions?.[previousDateStr]) {
+                      yesterdayStreak++;
+                  } else {
+                      break;
+                  }
+              }
+              currentDate.setDate(currentDate.getDate() - 1);
+               if (new Date(checkDateStr) - currentDate > 365 * 24 * 60 * 60 * 1000) { break; }
+          }
+          streak = yesterdayStreak;
+     }
+     return streak;
+}
