@@ -1434,5 +1434,27 @@
       "js/export.js"
     ],
     "raw_output": "Project Name: Palette Perfect: Color Palette Generator\nDescription: A web application that generates aesthetically pleasing color palettes based on user input or random generation. Users can fine-tune colors, explore different color harmonies, and export palettes for design projects. It provides a simple yet powerful tool for discovering and creating color schemes.\nTarget Audience: Web designers, graphic artists, and anyone who needs to create or find color palettes for visual projects.\nKey Functionalities:\n- Random Palette Generation: Generate a random color palette with a specified number of colors.\n- Color Adjustment: Fine-tune individual colors within a palette using sliders or hex code input.\n- Color Harmony Modes: Explore different color harmony rules (e.g., complementary, analogous, triadic) to generate palettes.\n- Palette Locking: Lock individual colors to prevent them from changing during palette regeneration.\n- Palette Saving: Save generated palettes locally in the browser for later use.\n- Palette Export: Export palettes as CSS variables, JSON, or other formats.\nUI/UX Considerations:\n- Intuitive Color Manipulation:  Easy-to-use color adjustment controls and clear visual feedback.\n- Responsive Design: Adapt to different screen sizes for seamless use on various devices.\n- Visually Appealing Presentation:  Display color palettes in an attractive and informative way.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/color.js\n- js/storage.js\n- js/export.js\n\n\n"
+  },
+  {
+    "name": "Idea Incubator",
+    "description": "A web application for brainstorming and organizing project ideas. Users can create idea cards, categorize them, add notes and links, and visually arrange them on a kanban-style board to track progress from ideation to completion.  It's a digital workspace for nurturing creative projects.",
+    "features": [
+      "Create Idea Cards: Add new idea cards with titles, descriptions, and optional tags.",
+      "Categorization: Categorize ideas using custom labels or tags.",
+      "Kanban Board:  Drag and drop idea cards between columns representing different stages of development (e.g., \"Ideation,\" \"Planning,\" \"In Progress,\" \"Completed\").",
+      "Notes and Links: Add notes and relevant links to each idea card for detailed information.",
+      "Search and Filter: Search for ideas by keywords or filter by category/tag.",
+      "Local Storage: Save and load idea boards locally in the browser."
+    ],
+    "target_audience": "Entrepreneurs, creatives, students, and anyone who needs a tool to manage and develop their project ideas.",
+    "ui_ux_notes": " - Drag and Drop Functionality: Smooth and intuitive drag-and-drop interactions for organizing cards on the board. - Responsive Design: Adapt to different screen sizes for use on various devices. - Visual Clarity:  Clear visual separation of cards and categories for easy organization.",
+    "folder_structure": [
+      "index.html",
+      "js/script.js",
+      "js/board.js",
+      "js/storage.js",
+      "js/ui.js"
+    ],
+    "raw_output": "Project Name: Idea Incubator\nDescription: A web application for brainstorming and organizing project ideas. Users can create idea cards, categorize them, add notes and links, and visually arrange them on a kanban-style board to track progress from ideation to completion.  It's a digital workspace for nurturing creative projects.\nTarget Audience: Entrepreneurs, creatives, students, and anyone who needs a tool to manage and develop their project ideas.\nKey Functionalities:\n- Create Idea Cards: Add new idea cards with titles, descriptions, and optional tags.\n- Categorization: Categorize ideas using custom labels or tags.\n- Kanban Board:  Drag and drop idea cards between columns representing different stages of development (e.g., \"Ideation,\" \"Planning,\" \"In Progress,\" \"Completed\").\n- Notes and Links: Add notes and relevant links to each idea card for detailed information.\n- Search and Filter: Search for ideas by keywords or filter by category/tag.\n- Local Storage: Save and load idea boards locally in the browser.\nUI/UX Considerations:\n- Drag and Drop Functionality: Smooth and intuitive drag-and-drop interactions for organizing cards on the board.\n- Responsive Design: Adapt to different screen sizes for use on various devices.\n- Visual Clarity:  Clear visual separation of cards and categories for easy organization.\nSuggested Folder Structure:\n- index.html\n- js/script.js\n- js/board.js\n- js/storage.js\n- js/ui.js\n\n\n"
   }
 ]
