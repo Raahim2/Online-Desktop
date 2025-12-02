@@ -1,7 +1,0 @@
-Okay, I need to clarify the request for `assets/themes/beach.jpg`.
-
-`.jpg` files contain binary image data, not text-based code like HTML, CSS, or JavaScript. I cannot generate the actual pixel data for a JPG image.
-
-**Therefore, I cannot provide the content for `assets/themes/beach.jpg`.**
-
-You will need to source an actual JPG image file (e.g., a royalty-free picture of a beach) and place it at this path within your project structure.
