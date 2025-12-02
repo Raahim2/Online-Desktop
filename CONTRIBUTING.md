@@ -14,14 +14,14 @@ Thank you for wanting to contribute to this project! Your help is incredibly app
    - Click the **Code** button and copy the URL (you can use HTTPS or SSH).
    - Open a terminal on your computer and run:
      ```bash
-     git clone https://github.com/Raahim2/Online-Desktop
+     git clone https://github.com/Raahim2/CrazyTools
      ```
    - This will clone the repo to your local machine.
 
 ### 3. **Create a Branch**
    - Change to the repository directory:
      ```bash
-     cd Online-Desktop
+     cd CrazyTools
      ```
    - Now, create a new branch to work on your changes:
      ```bash

@@ -1,9 +1,9 @@
-# 🖥️ Online Desktop
+# 🖥️ Crazy Tools
 
-[![Vercel](https://img.shields.io/badge/Live-Demo-000?logo=vercel&logoColor=white)](https://online-desktop.vercel.app/)
-[![GitHub](https://img.shields.io/badge/Contribute-Open%20Source-blue?logo=github)](https://github.com/Raahim2/Online-Desktop)
+[![Vercel](https://img.shields.io/badge/Live-Demo-000?logo=vercel&logoColor=white)](https://crazytools.vercel.app/)
+[![GitHub](https://img.shields.io/badge/Contribute-Open%20Source-blue?logo=github)](https://github.com/Raahim2/CrazyTools)
 
-**Online Desktop** is an open-source platform that lets users contribute and showcase their personal or collaborative projects in a virtual desktop environment.
+**Crazy Tools** is an open-source platform that lets users contribute and showcase their personal or collaborative projects in a virtual desktop environment.
 
 ## 🚀 Features
 
@@ -15,14 +15,14 @@
 
 ## 📦 Live Demo
 
-👉 [https://online-desktop.vercel.app](https://online-desktop.vercel.app)
+👉 [https://crazytools.vercel.app](https://crazytools.vercel.app)
 
 ## 🛠️ How to Contribute
 
 1. **Fork** the repo  
 2. **Clone** your fork:  
     ```bash
-    git clone https://github.com/Raahim2/Online-Desktop.git
+    git clone https://github.com/Raahim2/crazytools.git
     ```
 3. Add your project to the `/projects` folder using the provided structure.  
 4. Run locally:  
@@ -51,4 +51,3 @@ Feel free to share ideas, suggest features, or report bugs through issues or pul
 
 ---
 
-Built with ❤️ by Raahim
