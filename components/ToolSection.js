@@ -11,7 +11,7 @@ const ToolSection = ({ title, iconClass, iconColor, tools, limit = 10 }) => {
             {iconClass && <i className={`${iconClass} ${iconColor} text-lg`}></i>}
             {title}
         </h2>
-        <a href="#" className="text-sm text-[#6d28d9] hover:text-white font-semibold transition-colors">View all</a>
+        <a href={`/${title}`} className="text-sm text-[#6d28d9] hover:text-white font-semibold transition-colors">View all</a>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {displayTools.map((tool, idx) => (

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import Hero from './Hero';
+import Featured from './Featured'; 
 import ToolSection from './ToolSection';
 import Footer from './Footer';
 
@@ -23,7 +23,9 @@ export default function HomeClient({ tools }) {
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-            <Hero />
+            
+            {/* Pass tools to Featured section for daily selection */}
+            <Featured tools={tools} />
             
             {/* Show message if no tools found */}
             {tools.length === 0 && (
@@ -40,24 +42,24 @@ export default function HomeClient({ tools }) {
             
              <ToolSection 
                 title="Game" 
-                iconClass="fa-solid fa-robot"
-                iconColor="text-blue-500"
+                iconClass="fa-solid fa-gamepad"
+                iconColor="text-green-500"
                 tools={tools.filter(t => t.category === 'Game')}
                 limit={5}
             />
 
              <ToolSection 
                 title="Templates" 
-                iconClass="fa-solid fa-robot"
-                iconColor="text-blue-500"
+                iconClass="fa-solid fa-layer-group"
+                iconColor="text-yellow-500"
                 tools={tools.filter(t => t.category === 'Templates')}
                 limit={5}
             />
 
              <ToolSection 
                 title="Creativity" 
-                iconClass="fa-solid fa-robot"
-                iconColor="text-blue-500"
+                iconClass="fa-solid fa-palette"
+                iconColor="text-pink-500"
                 tools={tools.filter(t => t.category === 'Creativity')}
                 limit={5}
             />
