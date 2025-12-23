@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Code, 
-  Toolbox, 
+  Briefcase, // Changed from Toolbox
   Settings, 
   FileCode, 
   AlignLeft, 
@@ -13,7 +13,7 @@ import {
   Clock, 
   ShieldCheck, 
   Database, 
-  Braces,
+  Code2,      // Changed from Braces for better compatibility
   Menu,
   X,
   Check,
@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 
 const Project = () => {
-  // 1. Fixed Hydration: Initialize dynamic values as null/empty
   const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState(`{\n  "id": 101,\n  "username": "dev_guru",\n  "isActive": true,\n  "roles": ["admin", "editor"],\n  "settings": {\n    "theme": "dark",\n    "notifications": null\n  }\n}`);
   const [output, setOutput] = useState('');
@@ -37,7 +36,6 @@ const Project = () => {
   const inputRef = useRef(null);
   const highlightRef = useRef(null);
 
-  // Handle mounting and timers
   useEffect(() => {
     setMounted(true);
     setTimestamp(Math.floor(Date.now() / 1000));
@@ -47,7 +45,6 @@ const Project = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Process JSON logic
   useEffect(() => {
     if (!mounted) return;
     
@@ -69,7 +66,6 @@ const Project = () => {
     }
   };
 
-  // --- Utility Generators ---
   const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
   const generateTypeScript = (obj, rootName = 'RootInterface') => {
@@ -166,25 +162,15 @@ const Project = () => {
     });
   };
 
-  const formatJSON = () => {
-    try {
-      setInput(JSON.stringify(JSON.parse(input), null, 2));
-    } catch (e) { alert('Invalid JSON'); }
+  const generateUUID = () => {
+    // Safety check for randomUUID
+    const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+      ? crypto.randomUUID() 
+      : Math.random().toString(36).substring(2, 15);
+    setUuid(newId);
+    navigator.clipboard.writeText(newId);
   };
 
-  const minifyJSON = () => {
-    try {
-      setInput(JSON.stringify(JSON.parse(input)));
-    } catch (e) { alert('Invalid JSON'); }
-  };
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopyFeedback(true);
-    setTimeout(() => setCopyFeedback(false), 2000);
-  };
-
-  // Prevent rendering until mounted to solve hydration issues
   if (!mounted) return <div className="h-screen bg-[#1e1e1e]" />;
 
   return (
@@ -200,7 +186,7 @@ const Project = () => {
       {/* Activity Bar */}
       <aside className="hidden md:flex w-12 bg-[#333333] flex-col items-center py-4 gap-4 shrink-0 border-r border-[#3e3e42]">
         <Code className="text-[#007acc]" size={22} />
-        <Toolbox className="text-gray-500 hover:text-white cursor-pointer" size={22} onClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <Briefcase className="text-gray-500 hover:text-white cursor-pointer" size={22} onClick={() => setIsSidebarOpen(!isSidebarOpen)} />
         <div className="mt-auto">
           <Settings className="text-gray-500 hover:text-white cursor-pointer" size={22} />
         </div>
@@ -214,11 +200,7 @@ const Project = () => {
         </div>
         
         <div className="px-3 space-y-4 overflow-y-auto flex-1 pb-4 scrollbar-custom">
-          <div className="p-2 hover:bg-white/5 rounded cursor-pointer group border border-transparent hover:border-white/5" onClick={() => {
-            const n = crypto.randomUUID();
-            setUuid(n);
-            navigator.clipboard.writeText(n);
-          }}>
+          <div className="p-2 hover:bg-white/5 rounded cursor-pointer group border border-transparent hover:border-white/5" onClick={generateUUID}>
             <div className="flex items-center gap-2 text-gray-300 group-hover:text-white text-xs">
               <Fingerprint className="text-blue-400" size={14} /> UUID Generator
             </div>
@@ -254,7 +236,6 @@ const Project = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <header className="h-10 bg-[#1e1e1e] border-b border-[#3e3e42] flex items-center px-4 justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -266,13 +247,12 @@ const Project = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={formatJSON} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><AlignLeft size={12}/> Format</button>
-            <button onClick={minifyJSON} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><Compress size={12}/> Minify</button>
+            <button onClick={() => { try { setInput(JSON.stringify(JSON.parse(input), null, 2)); } catch(e) { alert('Invalid JSON'); } }} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><AlignLeft size={12}/> Format</button>
+            <button onClick={() => { try { setInput(JSON.stringify(JSON.parse(input))); } catch(e) { alert('Invalid JSON'); } }} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><Compress size={12}/> Minify</button>
           </div>
         </header>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          {/* Input */}
           <section className="flex-1 border-b md:border-b-0 md:border-r border-[#3e3e42] relative group overflow-hidden">
             <div className="absolute inset-0 overflow-auto scrollbar-custom">
               <pre 
@@ -291,20 +271,21 @@ const Project = () => {
             </div>
           </section>
 
-          {/* Output */}
           <section className="flex-1 flex flex-col bg-[#1e1e1e] overflow-hidden">
             <div className="flex h-9 bg-[#252526] border-b border-[#3e3e42]">
-              {['ts', 'zod', 'sql'].map(tab => (
+              {[
+                { id: 'ts', label: 'TypeScript', icon: <Code2 size={12} className="text-blue-400" /> },
+                { id: 'zod', label: 'Zod Schema', icon: <ShieldCheck size={12} className="text-purple-400" /> },
+                { id: 'sql', label: 'SQL', icon: <Database size={12} className="text-green-400" /> }
+              ].map(tab => (
                 <button 
-                  key={tab}
-                  onClick={() => setCurrentTab(tab)}
-                  className={`px-4 text-[11px] border-r border-[#3e3e42] transition-colors ${
-                    currentTab === tab ? 'bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]' : 'text-gray-500 hover:text-white'
+                  key={tab.id}
+                  onClick={() => setCurrentTab(tab.id)}
+                  className={`px-4 flex items-center gap-2 text-[11px] border-r border-[#3e3e42] transition-colors ${
+                    currentTab === tab.id ? 'bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]' : 'text-gray-500 hover:text-white'
                   }`}
                 >
-                  {tab === 'ts' && 'TypeScript'}
-                  {tab === 'zod' && 'Zod Schema'}
-                  {tab === 'sql' && 'SQL'}
+                  {tab.icon} {tab.label}
                 </button>
               ))}
             </div>
