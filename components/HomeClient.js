@@ -64,6 +64,14 @@ export default function HomeClient({ tools }) {
                 limit={5}
             />
 
+              <ToolSection 
+                title="DevTools" 
+                iconClass="fa-solid fa-robot"
+                iconColor="text-blue-500"
+                tools={tools.filter(t => t.category === 'DevTools')}
+                limit={5}
+            />
+
              <ToolSection 
                 title="Agentic" 
                 iconClass="fa-solid fa-robot"
