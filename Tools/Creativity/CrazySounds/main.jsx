@@ -42,7 +42,7 @@ const SOUND_BANK = [
   { id: 15, key: 'V', name: 'YEET', color: 'bg-orange-500', icon: <Rocket />, type: 'voice', word: 'Yeet' },
 ];
 
-const Project = () => {
+export default function Project() {
   const [mounted, setMounted] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -379,4 +379,3 @@ const Project = () => {
   );
 };
 
-export default Project;
