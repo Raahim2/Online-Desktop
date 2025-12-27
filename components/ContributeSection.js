@@ -23,7 +23,7 @@ const ContributeSection = () => {
             </h2>
             
             <p className="text-gray-400 text-lg md:text-xl leading-relaxed">
-              Help us grow the directory! Whether it's your own creation or a hidden gem you found, 
+              Help us grow the directory! Whether it s your own creation or a hidden gem you found, 
               share it with the community and help others discover great resources.
             </p>
           </div>
