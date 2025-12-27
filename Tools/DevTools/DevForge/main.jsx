@@ -6,7 +6,7 @@ import {
   Settings, 
   FileCode, 
   AlignLeft, 
-  Compress, 
+  Compass, 
   Copy, 
   Fingerprint, 
   RefreshCw, 
@@ -248,7 +248,7 @@ const Project = () => {
           </div>
           <div className="flex gap-2">
             <button onClick={() => { try { setInput(JSON.stringify(JSON.parse(input), null, 2)); } catch(e) { alert('Invalid JSON'); } }} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><AlignLeft size={12}/> Format</button>
-            <button onClick={() => { try { setInput(JSON.stringify(JSON.parse(input))); } catch(e) { alert('Invalid JSON'); } }} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><Compress size={12}/> Minify</button>
+            <button onClick={() => { try { setInput(JSON.stringify(JSON.parse(input))); } catch(e) { alert('Invalid JSON'); } }} className="text-[11px] hover:bg-white/10 px-2 py-1 rounded flex items-center gap-1.5 transition"><Compass size={12}/> Minify</button>
           </div>
         </header>
 
