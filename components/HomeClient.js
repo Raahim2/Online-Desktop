@@ -6,6 +6,8 @@ import Navbar from './Navbar';
 import Featured from './Featured'; 
 import ToolSection from './ToolSection';
 import Footer from './Footer';
+import CategoriesSection from './CategoriesSection';
+import ContributeSection from './ContributeSection';
 
 export default function HomeClient({ tools }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -34,12 +36,15 @@ export default function HomeClient({ tools }) {
                 </div>
             )}
 
+            <CategoriesSection />
+
+
             <ToolSection 
                 title="All Tools" 
                 tools={tools}
                 limit={20}
             />
-            
+
              <ToolSection 
                 title="Game" 
                 iconClass="fa-solid fa-gamepad"
@@ -55,6 +60,7 @@ export default function HomeClient({ tools }) {
                 tools={tools.filter(t => t.category === 'Templates')}
                 limit={5}
             />
+
 
              <ToolSection 
                 title="Creativity" 
@@ -79,6 +85,9 @@ export default function HomeClient({ tools }) {
                 tools={tools.filter(t => t.category === 'Agentic')}
                 limit={5}
             />
+
+            
+            <ContributeSection />
 
             <Footer />
         </main>

@@ -27,8 +27,8 @@ const Navbar = ({ onMenuClick }) => {
 
       {/* Right Actions */}
       <div className="flex items-center gap-3">
-        <button className="hidden sm:flex items-center gap-2 bg-[#6d28d9] hover:bg-[#7c3aed] text-white px-4 py-1.5 rounded-full font-semibold text-sm transition-colors">
-          <i className="fa-regular fa-user"></i> Login
+        <button className="hidden sm:flex items-center gap-2 bg-[#6d28d9] hover:bg-[#7c3aed] text-white px-4 py-1.5 rounded-full font-semibold text-sm transition-colors" onClick={() => window.location.href='/contribute'}>
+          <i className="fa-regular fa-user"></i> Contribute
         </button>
         <button className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
           <i className="fa-solid fa-ellipsis-vertical text-white"></i>

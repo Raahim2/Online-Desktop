@@ -6,6 +6,7 @@ import Sidebar from '../../components/Sidebar'; // Adjust path as needed
 import Navbar from '../../components/Navbar';   // Adjust path as needed
 import ToolCard from '../../components/ToolCard'; // Adjust path as needed
 import Footer from '../../components/Footer';   // Adjust path as needed
+import ContributeSection from '../../components/ContributeSection';
 
 // Helper to capitalize first letter
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
@@ -51,6 +52,11 @@ export default function CategoryClient({ tools, category }) {
                     <p>No tools found in this category.</p>
                 </div>
             )}
+
+            <div className="my-12"></div>
+            <ContributeSection />
+
+
 
             <Footer />
         </main>

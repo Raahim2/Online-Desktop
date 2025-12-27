@@ -78,6 +78,14 @@ const Sidebar = ({ isOpen, onClose }) => {
             <i className="fa-solid fa-robot w-5 text-center text-blue-400"></i> Agentic
           </Link>
 
+          <Link 
+            href="/devtools" 
+            onClick={handleLinkClick}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#c6c6c6] hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <i className="fa-solid fa-code w-5 text-center text-blue-400"></i> DevTools
+          </Link>
+
           <div className="h-20"></div>
         </div>
       </aside>
