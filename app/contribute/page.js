@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 // --- API CONFIGURATION ---
 const BASE_URL = "https://projects-api-three.vercel.app/DBMS";
-const API_KEY = process.env.API_KEY; 
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY; 
 const DB_NAME = "ToolDB"; 
 const COLLECTION = "submissions";
 
