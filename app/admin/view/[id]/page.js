@@ -83,7 +83,7 @@ export default function ViewSubmission() {
 };
 
     const slugify = (text) => {
-        return text.toString().toLowerCase().trim()
+        return text.toString().trim()
             .replace(/\s+/g, '-')     // Replace spaces with -
             .replace(/[^\w-]+/g, '')  // Remove all non-word chars
             .replace(/--+/g, '-');    // Replace multiple - with single -
@@ -102,7 +102,7 @@ export default function ViewSubmission() {
             // --- CAPITALIZATION FIX HERE ---
             const category = capitalize(submission.category); // "creativity" -> "Creativity"
             const folderName = submission.title;              // "Piano" -> "Piano" (Original Casing)
-            const toolSlug = slugify(submission.title);       // "Piano" -> "piano"
+            const toolSlug = slugify(submission.title);       // "Piano" -> "Piano"
             // --------------------------------
 
             // 1. UPLOAD main.jsx
