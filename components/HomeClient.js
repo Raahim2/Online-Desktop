@@ -71,10 +71,10 @@ export default function HomeClient({ tools }) {
             />
 
               <ToolSection 
-                title="DevTools" 
+                title="Devtools" 
                 iconClass="fa-solid fa-robot"
                 iconColor="text-blue-500"
-                tools={tools.filter(t => t.category === 'DevTools')}
+                tools={tools.filter(t => t.category === 'Devtools')}
                 limit={5}
             />
 

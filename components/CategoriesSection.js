@@ -32,7 +32,7 @@ const CategoriesSection = () => {
       slug: 'agentic'
     },
     {
-      name: 'DevTools',
+      name: 'Devtools',
       icon: 'fa-code',
       color: 'text-purple-400',
       bgColor: 'group-hover:bg-purple-400/10',

@@ -18,7 +18,7 @@ const Contribute = () => {
     });
 
     const [status, setStatus] = useState('idle'); 
-    const categories = ['Game', 'Templates', 'Creativity', 'Agentic', 'DevTools'];
+    const categories = ['Game', 'Templates', 'Creativity', 'Agentic', 'Devtools'];
 
     // --- API LOGIC ---
     async function addData(document) {

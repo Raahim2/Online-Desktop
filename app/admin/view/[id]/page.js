@@ -18,13 +18,6 @@ export default function ViewSubmission() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState("");
 
-    // Helper: Turn "My Tool" into "my-tool"
-    const slugify = (text) => {
-        return text.toString().toLowerCase().trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w-]+/g, '')
-            .replace(/--+/g, '-');
-    };
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -84,6 +77,19 @@ export default function ViewSubmission() {
         return await res.json();
     };
 
+    const capitalize = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+    const slugify = (text) => {
+        return text.toString().toLowerCase().trim()
+            .replace(/\s+/g, '-')     // Replace spaces with -
+            .replace(/[^\w-]+/g, '')  // Remove all non-word chars
+            .replace(/--+/g, '-');    // Replace multiple - with single -
+    };
+
+    // 2. Updated handleDeploy logic inside the component
     const handleDeploy = async () => {
         if (!githubToken) return alert("Please enter GitHub Token");
         if (!previewImage) return alert("Please upload a preview image");
@@ -92,45 +98,46 @@ export default function ViewSubmission() {
         try {
             const repoOwner = "Raahim2";
             const repoName = "CrazyTools";
-            const category = submission.category;
-            const toolTitle = submission.title;
-            const folderName = toolTitle; // Using original title for folder to match your registry style
-            const toolSlug = slugify(toolTitle);
+            
+            // --- CAPITALIZATION FIX HERE ---
+            const category = capitalize(submission.category); // "creativity" -> "Creativity"
+            const folderName = submission.title;              // "Piano" -> "Piano" (Original Casing)
+            const toolSlug = slugify(submission.title);       // "Piano" -> "piano"
+            // --------------------------------
 
             // 1. UPLOAD main.jsx
+            // Path: Tools/Creativity/Piano/main.jsx
             setStatus("Uploading main.jsx...");
             const jsxPath = `Tools/${category}/${folderName}/main.jsx`;
-            await githubCommit(jsxPath, btoa(unescape(encodeURIComponent(code))), `Add ${toolTitle} code`);
+            await githubCommit(jsxPath, btoa(unescape(encodeURIComponent(code))), `Add ${folderName} code`);
 
             // 2. UPLOAD preview.png
+            // Path: Tools/Creativity/Piano/preview.png
             setStatus("Uploading preview.png...");
             const imgPath = `Tools/${category}/${folderName}/preview.png`;
-            await githubCommit(imgPath, previewImage, `Add ${toolTitle} preview image`);
+            await githubCommit(imgPath, previewImage, `Add ${folderName} preview image`);
 
             // 3. UPDATE registry.js
             setStatus("Updating Registry...");
             const registryPath = "lib/registry.js";
             
-            // Fetch current registry file
             const regFetch = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${registryPath}`, {
                 headers: { 'Authorization': `token ${githubToken}` }
             });
             const regData = await regFetch.json();
             const currentRegistryContent = decodeURIComponent(escape(atob(regData.content)));
 
-            // Prepare new line
+            // Matches: 'Creativity/piano': dynamic(() => import('../Tools/Creativity/Piano/main')),
             const newEntry = `  '${category}/${toolSlug}': dynamic(() => import('../Tools/${category}/${folderName}/main')),`;
 
-            // Check if already exists to prevent duplicates
             if (currentRegistryContent.includes(`'${category}/${toolSlug}'`)) {
-                setStatus("Tool already in registry. Skipping registry update...");
+                setStatus("Already in registry. Skipping update...");
             } else {
-                // Insert the new entry right after the opening brace of toolRegistry
                 const updatedContent = currentRegistryContent.replace(
                     /export const toolRegistry = \{/,
                     `export const toolRegistry = {\n${newEntry}`
                 );
-                await githubCommit(registryPath, btoa(unescape(encodeURIComponent(updatedContent))), `Register tool ${toolTitle}`, regData.sha);
+                await githubCommit(registryPath, btoa(unescape(encodeURIComponent(updatedContent))), `Register tool ${folderName}`, regData.sha);
             }
 
             // 4. UPDATE DATABASE STATUS
@@ -147,7 +154,7 @@ export default function ViewSubmission() {
                 })
             });
 
-            alert("Full Deployment Successful!");
+            alert("Deployment Successful!");
             router.push('/admin');
 
         } catch (err) {
@@ -157,7 +164,7 @@ export default function ViewSubmission() {
             setStatus("");
         }
     };
-
+    
     if (!submission) return <div className="p-20 text-white">Loading...</div>;
 
     return (
