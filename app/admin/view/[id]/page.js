@@ -164,11 +164,11 @@ export default function ViewSubmission() {
             setStatus("");
         }
     };
-    
+
     if (!submission) return <div className="p-20 text-white">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-[#0a0a0f] text-gray-200 p-6 lg:p-12">
+        <div className="h-screen overflow-y-scroll bg-[#0a0a0f] text-gray-200 p-6 lg:p-12">
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-10">
                     <button onClick={() => router.back()} className="text-gray-500 hover:text-white font-bold text-xs tracking-widest">

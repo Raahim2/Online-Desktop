@@ -163,7 +163,7 @@ const AdminPanel = () => {
 
   // --- VIEW: DASHBOARD ---
   return (
-    <div className="min-h-screen bg-[#0f0e1a] text-gray-200">
+    <div className="h-screen overflow-y-scroll bg-[#0f0e1a] text-gray-200">
       <nav className="border-b border-white/5 bg-gray-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
